@@ -16,13 +16,16 @@
 
 #pragma once
 
-#include "DistrhoUI.hpp"
+// IDE helper (not needed for building)
+#include "DistrhoPluginInfo.h"
+
+#include "OneKnobUI.hpp"
 
 START_NAMESPACE_DISTRHO
 
 // -----------------------------------------------------------------------
 
-class OneKnobCompressorUI : public UI
+class OneKnobCompressorUI : public OneKnobUI
 {
 public:
     OneKnobCompressorUI();
@@ -33,11 +36,7 @@ protected:
 
     void parameterChanged(uint32_t index, float value) override;
     void programLoaded(uint32_t index) override;
-
-    // -------------------------------------------------------------------
-    // Widget Callbacks
-
-    void onDisplay() override;
+    void stateChanged(const char* key, const char* value) override;
 
 private:
 

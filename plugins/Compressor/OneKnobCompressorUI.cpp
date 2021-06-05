@@ -18,12 +18,13 @@
 
 START_NAMESPACE_DISTRHO
 
-namespace Art = DistrhoArtwork3BandEQ;
+static const uint kDefaultWidth = 512;
+static const uint kDefaultHeight = 380;
 
 // -----------------------------------------------------------------------
 
 OneKnobCompressorUI::OneKnobCompressorUI()
-    : UI(Art::backgroundWidth, Art::backgroundHeight)
+    : OneKnobUI(kDefaultWidth, kDefaultHeight)
 {
     // set default values
     programLoaded(0);
@@ -36,23 +37,13 @@ void OneKnobCompressorUI::parameterChanged(uint32_t index, float value)
 {
     switch (index)
     {
-    case DistrhoPlugin3BandEQ::paramLow:
-        fSliderLow->setValue(value);
+    case kParameterRelease:
         break;
-    case DistrhoPlugin3BandEQ::paramMid:
-        fSliderMid->setValue(value);
+    case kParameterMode:
         break;
-    case DistrhoPlugin3BandEQ::paramHigh:
-        fSliderHigh->setValue(value);
+    case kParameterLineUpdateTickL:
         break;
-    case DistrhoPlugin3BandEQ::paramMaster:
-        fSliderMaster->setValue(value);
-        break;
-    case DistrhoPlugin3BandEQ::paramLowMidFreq:
-        fKnobLowMid->setValue(value);
-        break;
-    case DistrhoPlugin3BandEQ::paramMidHighFreq:
-        fKnobMidHigh->setValue(value);
+    case kParameterLineUpdateTickR:
         break;
     }
 }
@@ -62,30 +53,18 @@ void OneKnobCompressorUI::programLoaded(uint32_t index)
     switch (index)
     {
     case kProgramDefault:
-        parameters[kParameterRelease] = kParameterDefaultRelease;
-        parameters[kParameterMode] = kParameterDefaultMode;
         break;
     case kProgramConservative:
-        parameters[kParameterRelease] = 100.0f;
-        parameters[kParameterMode] = 1.0f;
         break;
     case kProgramLiberal:
-        parameters[kParameterRelease] = 100.0f;
-        parameters[kParameterMode] = 2.0f;
         break;
     case kProgramExtreme:
-        parameters[kParameterRelease] = 100.0f;
-        parameters[kParameterMode] = 3.0f;
         break;
     }
 }
 
-// -----------------------------------------------------------------------
-// Widget Callbacks
-
-void OneKnobCompressorUI::onDisplay()
+void OneKnobCompressorUI::stateChanged(const char* key, const char* value)
 {
-    fImgBackground.draw();
 }
 
 // -----------------------------------------------------------------------

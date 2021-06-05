@@ -26,6 +26,7 @@
 #define DISTRHO_PLUGIN_NUM_INPUTS    2
 #define DISTRHO_PLUGIN_NUM_OUTPUTS   2
 #define DISTRHO_PLUGIN_WANT_PROGRAMS 1
+#define DISTRHO_PLUGIN_WANT_STATE    1
 
 // #define DISTRHO_PLUGIN_LV2_CATEGORY "lv2:EQPlugin"
 
@@ -33,7 +34,6 @@ enum Parameters
 {
     kParameterRelease = 0,
     kParameterMode,
-    kParameterRelease,
     kParameterLineUpdateTickL,
     kParameterLineUpdateTickR,
     kParameterCount
@@ -55,7 +55,21 @@ enum States
     kStateCount
 };
 
-static const float kParameterDefaultRelease = 100.0f;
-static const float kParameterDefaultMode = 2.0f;
+static const float kParameterDefaults[kParameterCount] = {
+    100.0f,
+    2.0f,
+    0.0f,
+    0.0f
+};
+
+static const char* const kStateNames[kStateCount] = {
+    "ScaleFactor",
+    "LineUpdateTime"
+};
+
+static const char* const kStateDefaults[kStateCount] = {
+    "1.0",
+    "5000"
+};
 
 #endif // DISTRHO_PLUGIN_INFO_H_INCLUDED

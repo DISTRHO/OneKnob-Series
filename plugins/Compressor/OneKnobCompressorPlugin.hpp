@@ -16,6 +16,9 @@
 
 #pragma once
 
+// IDE helper (not needed for building)
+#include "DistrhoPluginInfo.h"
+
 #include "DistrhoPlugin.hpp"
 
 START_NAMESPACE_DISTRHO
@@ -73,13 +76,15 @@ protected:
 
     void initParameter(uint32_t index, Parameter& parameter) override;
     void initProgramName(uint32_t index, String& programName) override;
+    void initState(uint32_t index, String& stateKey, String& defaultStateValue) override;
 
     // -------------------------------------------------------------------
     // Internal data
 
     float getParameterValue(uint32_t index) const override;
-    void  setParameterValue(uint32_t index, float value) override;
-    void  loadProgram(uint32_t index) override;
+    void setParameterValue(uint32_t index, float value) override;
+    void loadProgram(uint32_t index) override;
+    void setState(const char* key, const char* value) override;
 
     // -------------------------------------------------------------------
     // Process

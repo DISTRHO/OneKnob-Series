@@ -23,6 +23,8 @@ FILES_UI  = \
 
 include ../../dpf/Makefile.plugins.mk
 
+BUILD_CXX_FLAGS += -I../common
+
 # --------------------------------------------------------------
 # Enable all possible plugin types
 

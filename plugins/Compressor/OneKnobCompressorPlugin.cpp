@@ -42,43 +42,55 @@ void OneKnobCompressorPlugin::initParameter(uint32_t index, Parameter& parameter
         parameter.name       = "Release";
         parameter.symbol     = "release";
         parameter.unit       = "ms";
-        parameter.ranges.def = kParameterDefaultRelease;
+        parameter.ranges.def = kParameterDefaults[kParameterRelease];
         parameter.ranges.min = 0.0f;
         parameter.ranges.max = 500.0f;
         // TODO proper range
         break;
 
     case kParameterMode:
-        parameter.hints      = kParameterIsAutomable;
+        parameter.hints      = kParameterIsAutomable | kParameterIsInteger;
         parameter.name       = "Mode";
         parameter.symbol     = "mode";
         parameter.unit       = "";
-        parameter.ranges.def = kParameterDefaultMode;
+        parameter.ranges.def = kParameterDefaults[kParameterMode];
         parameter.ranges.min = 0.0f;
         parameter.ranges.max = 3.0f;
-        // TODO scalepoints
+        if (ParameterEnumerationValue* const values = new ParameterEnumerationValue[4])
+        {
+          parameter.enumValues.count = 4;
+          parameter.enumValues.values = values;
+          parameter.enumValues.restrictedMode = true;
+
+          values[0].label = "Off";
+          values[0].value = 0.0f;
+          values[1].label = "Low";
+          values[1].value = 1.0f;
+          values[2].label = "Mid";
+          values[2].value = 2.0f;
+          values[3].label = "High";
+          values[3].value = 3.0f;
+        }
         break;
 
     case kParameterLineUpdateTickL:
-        parameter.hints      = kParameterIsAutomable;
+        parameter.hints      = kParameterIsAutomable | kParameterIsOutput;
         parameter.name       = "Tick Left";
         parameter.symbol     = "tick_l";
         parameter.unit       = "";
-        parameter.ranges.def = 0.0f;
+        parameter.ranges.def = kParameterDefaults[kParameterLineUpdateTickL];
         parameter.ranges.min = -1.0f;
         parameter.ranges.max = 1.0f;
-        // TODO output
         break;
 
-    case kParameterLineUpdateTickL:
-        parameter.hints      = kParameterIsAutomable;
+    case kParameterLineUpdateTickR:
+        parameter.hints      = kParameterIsAutomable | kParameterIsOutput;
         parameter.name       = "Tick Right";
         parameter.symbol     = "tick_r";
         parameter.unit       = "";
-        parameter.ranges.def = 0.0f;
+        parameter.ranges.def = kParameterDefaults[kParameterLineUpdateTickR];
         parameter.ranges.min = -1.0f;
         parameter.ranges.max = 1.0f;
-        // TODO output
         break;
     }
 }
@@ -102,6 +114,12 @@ void OneKnobCompressorPlugin::initProgramName(uint32_t index, String& programNam
     }
 }
 
+void OneKnobCompressorPlugin::initState(uint32_t index, String& stateKey, String& defaultStateValue)
+{
+    stateKey = kStateNames[index];
+    defaultStateValue = kStateDefaults[index];
+}
+
 // -----------------------------------------------------------------------
 // Internal data
 
@@ -121,8 +139,8 @@ void OneKnobCompressorPlugin::loadProgram(uint32_t index)
     switch (index)
     {
     case kProgramDefault:
-        parameters[kParameterRelease] = kParameterDefaultRelease;
-        parameters[kParameterMode] = kParameterDefaultMode;
+        parameters[kParameterRelease] = kParameterDefaults[kParameterRelease];
+        parameters[kParameterMode] = kParameterDefaults[kParameterMode];
         break;
     case kProgramConservative:
         parameters[kParameterRelease] = 100.0f;
@@ -140,6 +158,11 @@ void OneKnobCompressorPlugin::loadProgram(uint32_t index)
 
     // reset filter values
     activate();
+}
+
+void OneKnobCompressorPlugin::setState(const char*, const char*)
+{
+    // our states are purely UI related, so we do nothing with them on DSP side
 }
 
 // -----------------------------------------------------------------------
