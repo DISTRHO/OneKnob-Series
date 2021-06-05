@@ -138,30 +138,27 @@ void OneKnobCompressorPlugin::setParameterValue(const uint32_t index, const floa
     {
         parameters[index] = value;
 
-        const int index = static_cast<int>(parameters[kParameterMode] + 0.5f);
+        const float release = parameters[kParameterRelease];
+        const int mode = static_cast<int>(parameters[kParameterMode] + 0.5f);
 
-        switch (index)
+        switch (mode)
         {
         case 1: // Light
-            compressor_set_params(&compressor, -12.f, 12.f, 2.f, 0.0001f,
-                                  parameters[kParameterRelease]/1000.f, -3.f);
+            compressor_set_params(&compressor, -12.f, 12.f, 2.f, 0.01f, release/1000.f, -3.f);
             break;
         case 2: // Mild
-            compressor_set_params(&compressor, -12.f, 12.f, 3.f, 0.0001f,
-                                  parameters[kParameterRelease]/1000.f, -3.f);
+            compressor_set_params(&compressor, -12.f, 12.f, 3.f, 0.01f, release/1000.f, -3.f);
             break;
         case 3: // Heavy
-            compressor_set_params(&compressor, -15.f, 15.f, 4.f, 0.0001f,
-                                  parameters[kParameterRelease]/1000.f, -3.f);
+            compressor_set_params(&compressor, -15.f, 15.f, 4.f, 0.01f, release/1000.f, -3.f);
             /*
-            compressor_set_params(&compressor, -25.f, 15.f, 10.f, 0.0001f,
-                                  parameters[kParameterRelease]/1000.f, -6.f);
+            compressor_set_params(&compressor, -25.f, 15.f, 10.f, 0.0001f, release/1000.f, -6.f);
             */
             break;
         }
 
-        compressorOn = index >= 1 && index <= 3;
-        d_stdout("setParameterValue %i %f %i", compressorOn, parameters[kParameterRelease], index);
+        compressorOn = mode >= 1 && mode <= 3;
+        d_stdout("setParameterValue %i %f %i", compressorOn, release, mode);
     }
         break;
     }
