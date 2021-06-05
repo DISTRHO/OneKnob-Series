@@ -54,9 +54,6 @@ static const OneKnobAuxiliaryOption option = {
 OneKnobCompressorUI::OneKnobCompressorUI()
     : OneKnobUI(kDefaultWidth, kDefaultHeight)
 {
-    // set default values
-    programLoaded(0);
-
     // setup OneKnob UI
     const Rectangle<uint> mainArea(kSidePanelWidth,
                                    kDefaultHeight/4,
@@ -71,16 +68,20 @@ OneKnobCompressorUI::OneKnobCompressorUI()
     createAuxiliaryOption(optionArea, option);
 
     repositionWidgets();
+
+    // set default values
+    programLoaded(0);
 }
 
 // -----------------------------------------------------------------------
 // DSP Callbacks
 
-void OneKnobCompressorUI::parameterChanged(uint32_t index, float)
+void OneKnobCompressorUI::parameterChanged(const uint32_t index, const float value)
 {
     switch (index)
     {
     case kParameterRelease:
+        setMainControlValue(value);
         break;
     case kParameterMode:
         break;
@@ -89,13 +90,16 @@ void OneKnobCompressorUI::parameterChanged(uint32_t index, float)
     case kParameterLineUpdateTickR:
         break;
     }
+
+    repaint();
 }
 
-void OneKnobCompressorUI::programLoaded(uint32_t index)
+void OneKnobCompressorUI::programLoaded(const uint32_t index)
 {
     switch (index)
     {
     case kProgramDefault:
+        setMainControlValue(kParameterDefaults[kParameterRelease]);
         break;
     case kProgramConservative:
         break;
@@ -104,6 +108,8 @@ void OneKnobCompressorUI::programLoaded(uint32_t index)
     case kProgramExtreme:
         break;
     }
+
+    repaint();
 }
 
 void OneKnobCompressorUI::stateChanged(const char*, const char*)
