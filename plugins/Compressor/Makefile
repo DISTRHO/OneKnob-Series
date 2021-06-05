@@ -15,8 +15,9 @@ NAME = OK-Compressor
 FILES_DSP = \
 	OneKnobCompressorPlugin.cpp
 
-FILES_UI  = \
-	OneKnobCompressorUI.cpp
+FILES_UI = \
+	OneKnobCompressorUI.cpp \
+	../../dpf-widgets/opengl/Blendish.cpp
 
 # --------------------------------------------------------------
 # Do some magic
@@ -24,6 +25,7 @@ FILES_UI  = \
 include ../../dpf/Makefile.plugins.mk
 
 BUILD_CXX_FLAGS += -I../common
+BUILD_CXX_FLAGS += -I../../dpf-widgets/opengl
 
 # --------------------------------------------------------------
 # Enable all possible plugin types

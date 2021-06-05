@@ -18,8 +18,36 @@
 
 START_NAMESPACE_DISTRHO
 
-static const uint kDefaultWidth = 512;
-static const uint kDefaultHeight = 380;
+static const uint kDefaultWidth = 640;
+static const uint kDefaultHeight = 320;
+
+static const OneKnobMainControl main = {
+    "Release",
+    "ms",
+    0.0f,
+    5000.0f
+};
+
+static const OneKnobAuxiliaryOptionValue values[] = {
+    {
+        0, "Off", "Nothing here"
+    },
+    {
+        1, "Low", "Text to place for Low things"
+    },
+    {
+        2, "Mid", "Text to place for Mid things"
+    },
+    {
+        3, "High", "Text to place for High things"
+    },
+};
+
+static const OneKnobAuxiliaryOption option = {
+    "Mode",
+    sizeof(values)/sizeof(values[0]),
+    values
+};
 
 // -----------------------------------------------------------------------
 
@@ -28,12 +56,27 @@ OneKnobCompressorUI::OneKnobCompressorUI()
 {
     // set default values
     programLoaded(0);
+
+    // setup OneKnob UI
+    const Rectangle<uint> mainArea(kSidePanelWidth,
+                                   kDefaultHeight/4,
+                                   kDefaultWidth/3 - kSidePanelWidth,
+                                   kDefaultHeight/2);
+    createMainControl(mainArea, main);
+
+    const Rectangle<uint> optionArea(kDefaultWidth*2/3,
+                                     kDefaultHeight/4,
+                                     kDefaultWidth/3 - kSidePanelWidth,
+                                     kDefaultHeight/2);
+    createAuxiliaryOption(optionArea, option);
+
+    repositionWidgets();
 }
 
 // -----------------------------------------------------------------------
 // DSP Callbacks
 
-void OneKnobCompressorUI::parameterChanged(uint32_t index, float value)
+void OneKnobCompressorUI::parameterChanged(uint32_t index, float)
 {
     switch (index)
     {
@@ -63,7 +106,7 @@ void OneKnobCompressorUI::programLoaded(uint32_t index)
     }
 }
 
-void OneKnobCompressorUI::stateChanged(const char* key, const char* value)
+void OneKnobCompressorUI::stateChanged(const char*, const char*)
 {
 }
 
