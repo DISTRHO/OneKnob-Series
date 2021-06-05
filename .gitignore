@@ -1,0 +1,14 @@
+*.a
+*.d
+*.o
+
+*.exe
+*.dll
+*.dylib
+*.so
+*.zip
+
+.kdev4/
+
+bin/
+build/
