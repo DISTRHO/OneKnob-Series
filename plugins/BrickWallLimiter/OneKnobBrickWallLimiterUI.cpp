@@ -31,6 +31,12 @@ static const OneKnobMainControl main = {
     1000.0f
 };
 
+static const OneKnobAuxiliaryCheckBox checkBox = {
+    kParameterAutoGain,
+    "Automatic Gain",
+    "Something that explains BrickWall limiter here"
+};
+
 // --------------------------------------------------------------------------------------------------------------------
 
 OneKnobBrickWallLimiterUI::OneKnobBrickWallLimiterUI()
@@ -43,11 +49,11 @@ OneKnobBrickWallLimiterUI::OneKnobBrickWallLimiterUI()
                                    kDefaultHeight/2);
     createMainControl(mainArea, main);
 
-    const Rectangle<uint> auxArea(kDefaultWidth*2/3,
-                                  kDefaultHeight/4,
-                                  kDefaultWidth/3 - kSidePanelWidth,
-                                  kDefaultHeight/2);
-    createAuxiliaryText(auxArea, "something that explains BrickWall limiter here");
+    const Rectangle<uint> checkBoxArea(kDefaultWidth*2/3,
+                                       kDefaultHeight/4,
+                                       kDefaultWidth/3 - kSidePanelWidth,
+                                       kDefaultHeight/2);
+    createAuxiliaryCheckBox(checkBoxArea, checkBox);
 
     repositionWidgets();
 
@@ -65,6 +71,9 @@ void OneKnobBrickWallLimiterUI::parameterChanged(const uint32_t index, const flo
     case kParameterThreshold:
         setMainControlValue(value);
         break;
+    case kParameterAutoGain:
+        setAuxiliaryCheckBoxValue(value);
+        break;
     case kParameterLineUpdateTickL:
         break;
     case kParameterLineUpdateTickR:
@@ -80,6 +89,7 @@ void OneKnobBrickWallLimiterUI::programLoaded(const uint32_t index)
     {
     case kProgramDefault:
         setMainControlValue(kParameterDefaults[kParameterThreshold]);
+        setAuxiliaryCheckBoxValue(kParameterDefaults[kParameterAutoGain]);
         break;
     case kProgramGentle:
         break;

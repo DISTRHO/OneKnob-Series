@@ -31,7 +31,7 @@ static const OneKnobMainControl main = {
     1000.0f
 };
 
-static const OneKnobAuxiliaryOptionValue values[] = {
+static const OneKnobAuxiliaryComboBoxValue comboBoxValues[] = {
     {
         0, "Off", "Nothing here"
     },
@@ -46,11 +46,11 @@ static const OneKnobAuxiliaryOptionValue values[] = {
     },
 };
 
-static const OneKnobAuxiliaryOption option = {
+static const OneKnobAuxiliaryComboBox comboBox = {
     kParameterMode,
     "Mode",
-    sizeof(values)/sizeof(values[0]),
-    values
+    sizeof(comboBoxValues)/sizeof(comboBoxValues[0]),
+    comboBoxValues
 };
 
 // --------------------------------------------------------------------------------------------------------------------
@@ -65,11 +65,11 @@ OneKnobCompressorUI::OneKnobCompressorUI()
                                    kDefaultHeight/2);
     createMainControl(mainArea, main);
 
-    const Rectangle<uint> optionArea(kDefaultWidth*2/3,
-                                     kDefaultHeight/4,
-                                     kDefaultWidth/3 - kSidePanelWidth,
-                                     kDefaultHeight/2);
-    createAuxiliaryOption(optionArea, option);
+    const Rectangle<uint> comboBoxArea(kDefaultWidth*2/3,
+                                       kDefaultHeight/4,
+                                       kDefaultWidth/3 - kSidePanelWidth,
+                                       kDefaultHeight/2);
+    createAuxiliaryComboBox(comboBoxArea, comboBox);
 
     repositionWidgets();
 
@@ -88,7 +88,7 @@ void OneKnobCompressorUI::parameterChanged(const uint32_t index, const float val
         setMainControlValue(value);
         break;
     case kParameterMode:
-        setAuxiliaryOptionValue(value);
+        setAuxiliaryComboBoxValue(value);
         break;
     case kParameterLineUpdateTickL:
         break;
@@ -105,7 +105,7 @@ void OneKnobCompressorUI::programLoaded(const uint32_t index)
     {
     case kProgramDefault:
         setMainControlValue(kParameterDefaults[kParameterRelease]);
-        setAuxiliaryOptionValue(kParameterDefaults[kParameterMode]);
+        setAuxiliaryComboBoxValue(kParameterDefaults[kParameterMode]);
         break;
     case kProgramConservative:
         break;

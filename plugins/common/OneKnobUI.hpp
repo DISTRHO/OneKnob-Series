@@ -36,17 +36,23 @@ struct OneKnobMainControl {
     float min, max;
 };
 
-struct OneKnobAuxiliaryOptionValue {
+struct OneKnobAuxiliaryCheckBox {
+    uint id;
+    const char* title;
+    const char* description;
+};
+
+struct OneKnobAuxiliaryComboBoxValue {
     int value;
     const char* label;
     const char* description;
 };
 
-struct OneKnobAuxiliaryOption {
+struct OneKnobAuxiliaryComboBox {
     uint id;
     const char* title;
     uint count;
-    const OneKnobAuxiliaryOptionValue* values;
+    const OneKnobAuxiliaryComboBoxValue* values;
 };
 
 // --------------------------------------------------------------------------------------------------------------------
@@ -60,7 +66,7 @@ public:
         : UI(width, height),
           blendish(this),
           blendishTopPanelMenu(&blendish),
-          blendishAuxOptionValues(nullptr)
+          blendishAuxComboBoxValues(nullptr)
     {
         blendish.setScaleFactor(getScaleFactor() * 2);
         blendish.setSize(width, height);
@@ -106,6 +112,7 @@ protected:
     }
 
     // ----------------------------------------------------------------------------------------------------------------
+    // main control
 
     void createMainControl(const Rectangle<uint>& area, const OneKnobMainControl& control)
     {
@@ -127,12 +134,43 @@ protected:
     }
 
     // ----------------------------------------------------------------------------------------------------------------
+    // aux checkbox
 
-    void createAuxiliaryOption(const Rectangle<uint>& area, const OneKnobAuxiliaryOption& option)
+    void createAuxiliaryCheckBox(const Rectangle<uint>& area, const OneKnobAuxiliaryCheckBox& option)
+    {
+        DISTRHO_SAFE_ASSERT_RETURN(blendishAuxOptionCheckBox == nullptr,);
+        DISTRHO_SAFE_ASSERT_RETURN(blendishAuxOptionLabel == nullptr,);
+
+        BlendishCheckBox* const checkBox = new BlendishCheckBox(&blendish);
+        BlendishLabel* const label = new BlendishLabel(&blendish);
+
+        checkBox->setCallback(this);
+        checkBox->setId(option.id);
+        checkBox->setLabel(option.title);
+
+        label->setId(option.id);
+        label->setLabel(option.description);
+
+        auxOptionArea = area;
+        blendishAuxOptionCheckBox = checkBox;
+        blendishAuxOptionLabel = label;
+    }
+
+    void setAuxiliaryCheckBoxValue(const float value)
+    {
+        DISTRHO_SAFE_ASSERT_RETURN(blendishAuxOptionCheckBox != nullptr,);
+
+        blendishAuxOptionCheckBox->setChecked(value > 0.5f /*, false */);
+    }
+
+    // ----------------------------------------------------------------------------------------------------------------
+    // aux combobox
+
+    void createAuxiliaryComboBox(const Rectangle<uint>& area, const OneKnobAuxiliaryComboBox& option)
     {
         DISTRHO_SAFE_ASSERT_RETURN(blendishAuxOptionComboBox == nullptr,);
         DISTRHO_SAFE_ASSERT_RETURN(blendishAuxOptionLabel == nullptr,);
-        DISTRHO_SAFE_ASSERT_RETURN(blendishAuxOptionValues == nullptr,);
+        DISTRHO_SAFE_ASSERT_RETURN(blendishAuxComboBoxValues == nullptr,);
         DISTRHO_SAFE_ASSERT_RETURN(option.count != 0,);
 
         BlendishComboBox* const comboBox = new BlendishComboBox(&blendish);
@@ -148,14 +186,30 @@ protected:
         comboBox->setDefaultLabel(option.title);
         comboBox->setId(option.id);
 
-        label->setLabel("Loading...");
         label->setId(option.id);
+        label->setLabel("Loading...");
 
         auxOptionArea = area;
-        blendishAuxOptionValues = option.values;
+        blendishAuxComboBoxValues = option.values;
         blendishAuxOptionComboBox = comboBox;
         blendishAuxOptionLabel = label;
     }
+
+    void setAuxiliaryComboBoxValue(const float value)
+    {
+        DISTRHO_SAFE_ASSERT_RETURN(blendishAuxOptionComboBox != nullptr,);
+        DISTRHO_SAFE_ASSERT_RETURN(blendishAuxOptionLabel != nullptr,);
+        DISTRHO_SAFE_ASSERT_RETURN(blendishAuxComboBoxValues != nullptr,);
+
+        const int index = static_cast<int>(value + 0.5f);
+        DISTRHO_SAFE_ASSERT_INT_RETURN(index >= 0 && index <= 4, index,); // FIXME max range
+
+        blendishAuxOptionComboBox->setCurrentIndex(index, false);
+        blendishAuxOptionLabel->setLabel(blendishAuxComboBoxValues[index].description);
+    }
+
+    // ----------------------------------------------------------------------------------------------------------------
+    // aux text
 
     void createAuxiliaryText(const Rectangle<uint>& area, const char* const text)
     {
@@ -167,19 +221,6 @@ protected:
 
         auxOptionArea = area;
         blendishAuxOptionLabel = label;
-    }
-
-    void setAuxiliaryOptionValue(const float value)
-    {
-        DISTRHO_SAFE_ASSERT_RETURN(blendishAuxOptionComboBox != nullptr,);
-        DISTRHO_SAFE_ASSERT_RETURN(blendishAuxOptionLabel != nullptr,);
-        DISTRHO_SAFE_ASSERT_RETURN(blendishAuxOptionValues != nullptr,);
-
-        const int index = static_cast<int>(value + 0.5f);
-        DISTRHO_SAFE_ASSERT_INT_RETURN(index >= 0 && index <= 4, index,); // FIXME max range
-
-        blendishAuxOptionComboBox->setCurrentIndex(index, false);
-        blendishAuxOptionLabel->setLabel(blendishAuxOptionValues[index].description);
     }
 
     // ----------------------------------------------------------------------------------------------------------------
@@ -203,11 +244,18 @@ protected:
         }
 
         // auxiliary options
-        uint comboBoxHeight = 0;
+        uint auxWidgetHeight = 0;
+
+        if (BlendishCheckBox* const checkBox = blendishAuxOptionCheckBox.get())
+        {
+            auxWidgetHeight = checkBox->getHeight();
+            checkBox->setAbsoluteX(auxOptionArea.getX());
+            checkBox->setAbsoluteY(auxOptionArea.getY());
+        }
 
         if (BlendishComboBox* const comboBox = blendishAuxOptionComboBox.get())
         {
-            comboBoxHeight = comboBox->getHeight();
+            auxWidgetHeight = comboBox->getHeight();
             comboBox->setAbsoluteX(auxOptionArea.getX());
             comboBox->setAbsoluteY(auxOptionArea.getY());
         }
@@ -215,7 +263,7 @@ protected:
         if (BlendishLabel* const label = blendishAuxOptionLabel.get())
         {
             label->setAbsoluteX(auxOptionArea.getX());
-            label->setAbsoluteY(auxOptionArea.getY() + comboBoxHeight + 2);
+            label->setAbsoluteY(auxOptionArea.getY() + auxWidgetHeight + 2);
         }
     }
 
@@ -232,19 +280,22 @@ private:
 
     // auxiliary option
     Rectangle<uint> auxOptionArea;
+    ScopedPointer<BlendishCheckBox> blendishAuxOptionCheckBox;
     ScopedPointer<BlendishComboBox> blendishAuxOptionComboBox;
     ScopedPointer<BlendishLabel> blendishAuxOptionLabel;
-    const OneKnobAuxiliaryOptionValue* blendishAuxOptionValues;
+    const OneKnobAuxiliaryComboBoxValue* blendishAuxComboBoxValues;
 
     void blendishWidgetClicked(BlendishSubWidget* const widget, const int button) override
     {
-        d_stdout("blendishWidgetClicked %p %i %i", widget, widget->getId(), button);
+        if (blendishAuxOptionCheckBox == widget)
+            if (BlendishCheckBox* const checkBox = blendishAuxOptionCheckBox.get())
+                setParameterValue(checkBox->getId(), checkBox->isChecked() ? 1.0f : 0.0f);
     }
 
     void blendishComboBoxIndexChanged(BlendishComboBox* const comboBox, int index) override
     {
         if (BlendishLabel* const label = blendishAuxOptionLabel.get())
-            label->setLabel(blendishAuxOptionValues[index].description);
+            label->setLabel(blendishAuxComboBoxValues[index].description);
 
         setParameterValue(comboBox->getId(), index);
     }

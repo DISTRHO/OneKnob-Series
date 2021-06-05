@@ -28,14 +28,14 @@ inline constexpr float logscale50db(const float v)
     return (1000.0f / std::exp(6.915f)) * std::exp(0.006915f * v);
 }
 
-inline constexpr float eighthoflog(const float v)
+inline constexpr float sixteenthoflog(const float v)
 {
     return (v + logscale50db(v) * 15) * 0.0625f;
 }
 
 inline constexpr float invgain(const float threshold)
 {
-    return threshold < 0.003f ? 30.0f : eighthoflog(std::max(0.001f, 1.0f / threshold));
+    return threshold < 0.003f ? 30.0f : sixteenthoflog(std::max(0.001f, 1.0f / threshold));
 }
 
 // -----------------------------------------------------------------------
@@ -137,7 +137,7 @@ void OneKnobBrickWallLimiterPlugin::setParameterValue(const uint32_t index, cons
         threshold_linear = db2linear(value);
         // fall-through
     case kParameterAutoGain:
-        parameters[kParameterThreshold] = value;
+        parameters[index] = value;
         break;
     }
 }
@@ -148,7 +148,7 @@ void OneKnobBrickWallLimiterPlugin::loadProgram(const uint32_t index)
     {
     case kProgramDefault:
         parameters[kParameterThreshold] = kParameterDefaults[kParameterThreshold];
-        parameters[kParameterAutoGain] = 1.0f;
+        parameters[kParameterAutoGain] = 0.0f;
         break;
     case kProgramGentle:
         parameters[kParameterThreshold] = -8.0f;
