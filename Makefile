@@ -16,6 +16,7 @@ ifeq ($(HAVE_OPENGL),true)
 endif
 
 plugins: dgl
+	$(MAKE) all -C plugins/BrickWallLimiter
 	$(MAKE) all -C plugins/Compressor
 
 ifneq ($(CROSS_COMPILING),true)
@@ -36,6 +37,7 @@ endif
 clean:
 	$(MAKE) clean -C dpf/dgl
 	$(MAKE) clean -C dpf/utils/lv2-ttl-generator
+	$(MAKE) clean -C plugins/BrickWallLimiter
 	$(MAKE) clean -C plugins/Compressor
 	rm -rf bin build
 

@@ -157,6 +157,18 @@ protected:
         blendishAuxOptionLabel = label;
     }
 
+    void createAuxiliaryText(const Rectangle<uint>& area, const char* const text)
+    {
+        DISTRHO_SAFE_ASSERT_RETURN(blendishAuxOptionLabel == nullptr,);
+
+        BlendishLabel* const label = new BlendishLabel(&blendish);
+
+        label->setLabel(text);
+
+        auxOptionArea = area;
+        blendishAuxOptionLabel = label;
+    }
+
     void setAuxiliaryOptionValue(const float value)
     {
         DISTRHO_SAFE_ASSERT_RETURN(blendishAuxOptionComboBox != nullptr,);
