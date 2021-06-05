@@ -18,14 +18,17 @@
 
 START_NAMESPACE_DISTRHO
 
+// --------------------------------------------------------------------------------------------------------------------
+
 static const uint kDefaultWidth = 640;
 static const uint kDefaultHeight = 320;
 
 static const OneKnobMainControl main = {
+    kParameterRelease,
     "Release",
     "ms",
-    0.0f,
-    5000.0f
+    50.0f,
+    1000.0f
 };
 
 static const OneKnobAuxiliaryOptionValue values[] = {
@@ -33,23 +36,24 @@ static const OneKnobAuxiliaryOptionValue values[] = {
         0, "Off", "Nothing here"
     },
     {
-        1, "Low", "Text to place for Low things"
+        1, "Light", "Text to place for Low things"
     },
     {
-        2, "Mid", "Text to place for Mid things"
+        2, "Mild", "Text to place for Mid things"
     },
     {
-        3, "High", "Text to place for High things"
+        3, "Heavy", "Text to place for High things"
     },
 };
 
 static const OneKnobAuxiliaryOption option = {
+    kParameterMode,
     "Mode",
     sizeof(values)/sizeof(values[0]),
     values
 };
 
-// -----------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 
 OneKnobCompressorUI::OneKnobCompressorUI()
     : OneKnobUI(kDefaultWidth, kDefaultHeight)
@@ -73,7 +77,7 @@ OneKnobCompressorUI::OneKnobCompressorUI()
     programLoaded(0);
 }
 
-// -----------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 // DSP Callbacks
 
 void OneKnobCompressorUI::parameterChanged(const uint32_t index, const float value)
@@ -84,6 +88,7 @@ void OneKnobCompressorUI::parameterChanged(const uint32_t index, const float val
         setMainControlValue(value);
         break;
     case kParameterMode:
+        setAuxiliaryOptionValue(value);
         break;
     case kParameterLineUpdateTickL:
         break;
@@ -100,6 +105,7 @@ void OneKnobCompressorUI::programLoaded(const uint32_t index)
     {
     case kProgramDefault:
         setMainControlValue(kParameterDefaults[kParameterRelease]);
+        setAuxiliaryOptionValue(kParameterDefaults[kParameterMode]);
         break;
     case kProgramConservative:
         break;
@@ -116,13 +122,13 @@ void OneKnobCompressorUI::stateChanged(const char*, const char*)
 {
 }
 
-// -----------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 
 UI* createUI()
 {
     return new OneKnobCompressorUI();
 }
 
-// -----------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 
 END_NAMESPACE_DISTRHO

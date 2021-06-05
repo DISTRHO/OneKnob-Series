@@ -16,6 +16,8 @@
 
 #include "OneKnobCompressorPlugin.hpp"
 
+#include "compressor_core.c"
+
 START_NAMESPACE_DISTRHO
 
 // -----------------------------------------------------------------------
@@ -23,10 +25,10 @@ START_NAMESPACE_DISTRHO
 OneKnobCompressorPlugin::OneKnobCompressorPlugin()
     : Plugin(kParameterCount, kProgramCount, kStateCount)
 {
-    // set default values
+    // load default values
     loadProgram(kProgramDefault);
 
-    // reset
+    // reset filter
     deactivate();
 }
 
@@ -43,9 +45,8 @@ void OneKnobCompressorPlugin::initParameter(uint32_t index, Parameter& parameter
         parameter.symbol     = "release";
         parameter.unit       = "ms";
         parameter.ranges.def = kParameterDefaults[kParameterRelease];
-        parameter.ranges.min = 0.0f;
-        parameter.ranges.max = 500.0f;
-        // TODO proper range
+        parameter.ranges.min = 50.0f;
+        parameter.ranges.max = 1000.0f;
         break;
 
     case kParameterMode:
@@ -64,11 +65,11 @@ void OneKnobCompressorPlugin::initParameter(uint32_t index, Parameter& parameter
 
           values[0].label = "Off";
           values[0].value = 0.0f;
-          values[1].label = "Low";
+          values[1].label = "Light";
           values[1].value = 1.0f;
-          values[2].label = "Mid";
+          values[2].label = "Mild";
           values[2].value = 2.0f;
-          values[3].label = "High";
+          values[3].label = "Heavy";
           values[3].value = 3.0f;
         }
         break;
@@ -128,10 +129,42 @@ float OneKnobCompressorPlugin::getParameterValue(uint32_t index) const
     return parameters[index];
 }
 
-void OneKnobCompressorPlugin::setParameterValue(uint32_t index, float value)
+void OneKnobCompressorPlugin::setParameterValue(const uint32_t index, const float value)
 {
-    // TODO
-    parameters[index] = value;
+    switch (index)
+    {
+    case kParameterRelease:
+    case kParameterMode:
+    {
+        parameters[index] = value;
+
+        const int index = static_cast<int>(parameters[kParameterMode] + 0.5f);
+
+        switch (index)
+        {
+        case 1: // Light
+            compressor_set_params(&compressor, -12.f, 12.f, 2.f, 0.0001f,
+                                  parameters[kParameterRelease]/1000.f, -3.f);
+            break;
+        case 2: // Mild
+            compressor_set_params(&compressor, -12.f, 12.f, 3.f, 0.0001f,
+                                  parameters[kParameterRelease]/1000.f, -3.f);
+            break;
+        case 3: // Heavy
+            compressor_set_params(&compressor, -15.f, 15.f, 4.f, 0.0001f,
+                                  parameters[kParameterRelease]/1000.f, -3.f);
+            /*
+            compressor_set_params(&compressor, -25.f, 15.f, 10.f, 0.0001f,
+                                  parameters[kParameterRelease]/1000.f, -6.f);
+            */
+            break;
+        }
+
+        compressorOn = index >= 1 && index <= 3;
+        d_stdout("setParameterValue %i %f %i", compressorOn, parameters[kParameterRelease], index);
+    }
+        break;
+    }
 }
 
 void OneKnobCompressorPlugin::loadProgram(uint32_t index)
@@ -156,7 +189,7 @@ void OneKnobCompressorPlugin::loadProgram(uint32_t index)
         break;
     }
 
-    // reset filter values
+    // activate filter parameters
     activate();
 }
 
@@ -170,18 +203,32 @@ void OneKnobCompressorPlugin::setState(const char*, const char*)
 
 void OneKnobCompressorPlugin::activate()
 {
+    setParameterValue(kParameterRelease, parameters[kParameterRelease]);
 }
 
 void OneKnobCompressorPlugin::deactivate()
 {
+    compressor_init(&compressor, getSampleRate());
 }
 
-void OneKnobCompressorPlugin::run(const float** inputs, float** outputs, uint32_t frames)
+void OneKnobCompressorPlugin::run(const float** const inputs, float** const outputs, const uint32_t frames)
 {
     const float* in1  = inputs[0];
     const float* in2  = inputs[1];
     float*       out1 = outputs[0];
     float*       out2 = outputs[1];
+
+//     if (compressorOn)
+    {
+        compressor_process(&compressor, frames, in1, in2, out1, out2);
+    }
+//     else
+//     {
+//         if (out1 != in1)
+//             std::memcpy(out1, in1, sizeof(float)*frames);
+//         if (out2 != in2)
+//             std::memcpy(out2, in2, sizeof(float)*frames);
+//     }
 }
 
 // -----------------------------------------------------------------------

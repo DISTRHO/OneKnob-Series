@@ -21,6 +21,8 @@
 
 #include "DistrhoPlugin.hpp"
 
+#include "compressor_core.h"
+
 START_NAMESPACE_DISTRHO
 
 // -----------------------------------------------------------------------
@@ -97,6 +99,8 @@ protected:
 
 private:
     float parameters[kParameterCount];
+    sf_compressor_state_st compressor;
+    bool compressorOn = false;
 
     DISTRHO_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(OneKnobCompressorPlugin)
 };
