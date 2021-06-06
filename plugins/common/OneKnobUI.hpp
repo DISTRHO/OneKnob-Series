@@ -69,6 +69,8 @@ public:
         : UI(width, height),
           blendish(this),
           blendishTopPanelMenu(&blendish),
+          menuAnimatingOpen(-1),
+          menuAnimatingClose(-1),
           blendishAuxComboBoxValues(nullptr)
     {
         const double scaleFactor = getScaleFactor();
@@ -140,7 +142,63 @@ protected:
         glDisable(GL_SCISSOR_TEST);
     }
 
+    bool onMouse(const MouseEvent& ev) override
+    {
+        // Point<double> pos2(ev.pos.getX() / 2, ev.pos.getY() / 2);
+
+        // FIXME wrong relative pos, should check click via widget instead
+        if (ev.press && blendishTopPanelMenu.contains(ev.pos) && menuAnimatingOpen == -1 && menuAnimatingClose == -1)
+        {
+            const double scaleFactor = getScaleFactor();
+
+            blendishTopPanelMenu.toFront();
+
+            if (blendishTopPanelMenu.getHeight() > getHeight()/4)
+                menuAnimatingClose = (21 * scaleFactor);
+            else
+                menuAnimatingOpen = getHeight() - (kSidePanelWidth * 7 * scaleFactor);
+
+            d_stdout("animating");
+            repaint();
+            return true;
+        }
+
+        return UI::onMouse(ev);
+    }
+
     // ----------------------------------------------------------------------------------------------------------------
+
+    void uiIdle() override
+    {
+        const double scaleFactor = getScaleFactor();
+
+        if (menuAnimatingOpen != -1)
+        {
+            const int curHeight = blendishTopPanelMenu.getHeight();
+
+            if (curHeight >= menuAnimatingOpen)
+            {
+                menuAnimatingOpen = -1;
+                return;
+            }
+
+            blendishTopPanelMenu.setHeight(std::min((double)menuAnimatingOpen, curHeight + (scaleFactor * 25)));
+            repaint();
+        }
+        else if (menuAnimatingClose != -1)
+        {
+            const int curHeight = blendishTopPanelMenu.getHeight();
+
+            if (curHeight <= menuAnimatingClose)
+            {
+                menuAnimatingClose = -1;
+                return;
+            }
+
+            blendishTopPanelMenu.setHeight(std::max((double)menuAnimatingClose, curHeight - (scaleFactor * 25)));
+            repaint();
+        }
+    }
 
     void uiFocus(const bool focus, CrossingMode) override
     {
@@ -283,7 +341,8 @@ protected:
         // top panel
         blendishTopPanelMenu.setAbsoluteX((kSidePanelWidth + 4) * scaleFactor);
         blendishTopPanelMenu.setAbsoluteY(-3 * scaleFactor);
-        blendishTopPanelMenu.setWidth(width - (kSidePanelWidth + 4) * 2 * scaleFactor);
+        blendishTopPanelMenu.setWidth(width / (2 / scaleFactor) - (kSidePanelWidth + 4) * 2 * scaleFactor); // FIXME
+        blendishTopPanelMenu.setHeight(21 * scaleFactor);
 
         // main control
         if (BlendishNumberField* const knob = blendishMainControl.get())
@@ -325,6 +384,8 @@ private:
 
     // top panel
     BlendishMenu blendishTopPanelMenu;
+    int menuAnimatingOpen;
+    int menuAnimatingClose;
 
     // main knob
     Rectangle<uint> mainControlArea;
