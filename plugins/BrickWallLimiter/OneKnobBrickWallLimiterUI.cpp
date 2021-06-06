@@ -75,6 +75,10 @@ void OneKnobBrickWallLimiterUI::parameterChanged(const uint32_t index, const flo
         setAuxiliaryCheckBoxValue(value);
         break;
     case kParameterLineUpdateTickL:
+        // TESTING
+        lines[lineWriteIndex] = value;
+        if (++lineWriteIndex == sizeof(lines)/sizeof(lines[0]))
+            lineWriteIndex = 0;
         break;
     case kParameterLineUpdateTickR:
         break;

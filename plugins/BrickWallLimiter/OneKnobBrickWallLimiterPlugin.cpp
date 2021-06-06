@@ -33,9 +33,9 @@ inline constexpr float sixteenthoflog(const float v)
     return (v + logscale50db(v) * 15) * 0.0625f;
 }
 
-inline constexpr float invgain(const float threshold)
+inline constexpr float invgain(const float linearThreshold)
 {
-    return threshold < 0.003f ? 30.0f : sixteenthoflog(std::max(0.001f, 1.0f / threshold));
+    return linearThreshold < 0.003f ? 30.0f : sixteenthoflog(std::max(0.001f, 1.0f / linearThreshold));
 }
 
 // -----------------------------------------------------------------------
@@ -190,11 +190,14 @@ void OneKnobBrickWallLimiterPlugin::run(const float** const inputs, float** cons
     // TODO parameter smoothing
     float threshold = threshold_linear;
     float gain = parameters[kParameterAutoGain] > 0.5f ? invgain(threshold) : 1.0f;
+    float tmp;
+
+    // TESTING
+    float highest = 0.0f;
 
     if (d_isNotEqual(threshold_linear, 1.0f))
     {
         const float threshold_with_gain = threshold_linear * gain;
-        float tmp;
 
         for (uint32_t i=0; i<frames; ++i)
         {
@@ -205,6 +208,8 @@ void OneKnobBrickWallLimiterPlugin::run(const float** const inputs, float** cons
                 *out1++ = -threshold_with_gain;
             else
                 *out1++ = tmp * gain;
+
+            highest = std::max(highest, std::abs(tmp));
 
             tmp = *in2++;
             if (tmp > threshold)
@@ -221,7 +226,15 @@ void OneKnobBrickWallLimiterPlugin::run(const float** const inputs, float** cons
             std::memcpy(out1, in1, sizeof(float)*frames);
         if (out2 != in2)
             std::memcpy(out2, in2, sizeof(float)*frames);
+
+        for (uint32_t i=0; i<frames; ++i)
+        {
+            tmp = *in1++;
+            highest = std::max(highest, std::abs(tmp));
+        }
     }
+
+    parameters[kParameterLineUpdateTickL] = highest;
 }
 
 // -----------------------------------------------------------------------

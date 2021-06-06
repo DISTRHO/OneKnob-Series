@@ -16,6 +16,9 @@
 
 #pragma once
 
+// IDE helper (not needed for building)
+#include "OpenGL.hpp"
+
 #include "DistrhoUI.hpp"
 
 #include "Blendish.hpp"
@@ -71,6 +74,10 @@ public:
         blendish.setScaleFactor(getScaleFactor() * 2);
         blendish.setSize(width, height);
         blendishTopPanelMenu.setLabel(DISTRHO_PLUGIN_BRAND " " DISTRHO_PLUGIN_NAME);
+
+        // TESTING
+        lineWriteIndex = 0;
+        std::memset(lines, 0, sizeof(lines));
     }
 
     // ----------------------------------------------------------------------------------------------------------------
@@ -82,12 +89,46 @@ protected:
         const uint width  = getWidth();
         const uint height = getHeight();
 
+        // background
+        Color(0.2f, 0.3f, 0.4f).setFor(context);
+        Rectangle<uint>(kSidePanelWidth, 0, width - kSidePanelWidth * 2, height).draw(context);
+
+        // side panels
         Color(0.4f, 0.3f, 0.2f).setFor(context);
         Rectangle<uint>(0, 0, kSidePanelWidth, height).draw(context);
         Rectangle<uint>(width-kSidePanelWidth, 0, kSidePanelWidth, height).draw(context);
 
-        Color(0.2f, 0.3f, 0.4f).setFor(context);
-        Rectangle<uint>(kSidePanelWidth, 0, width - kSidePanelWidth * 2, height).draw(context);
+        // flow line
+        glColor3f(0.5f, 0.38f, 0.42f);
+        glLineWidth(1.0f);
+
+        // TESTING
+        const int size = sizeof(lines)/sizeof(lines[0]);
+        const int startX = kSidePanelWidth * 2;
+        const int startY = height - kSidePanelWidth * 2;
+        int k = lineWriteIndex;
+
+        glScissor(startX, kSidePanelWidth * 2, size, 80);
+        glEnable(GL_SCISSOR_TEST);
+        glBegin(GL_LINE_LOOP);
+
+        glVertex2d(kSidePanelWidth, height);
+        glVertex2d(kSidePanelWidth, startY);
+        glVertex2d(kSidePanelWidth, startY - lines[k] * 80);
+
+        for (int i=0; i<size; ++i, ++k)
+        {
+            if (k == size)
+                k = 0;
+            glVertex2d(startX + i, startY - lines[k] * 80);
+        }
+
+        glVertex2d(startX + size, startY - lines[k-1] * 80);
+        glVertex2d(width - kSidePanelWidth, startY - lines[k-1] * 80);
+        glVertex2d(width - kSidePanelWidth, height);
+
+        glEnd();
+        glDisable(GL_SCISSOR_TEST);
     }
 
     // ----------------------------------------------------------------------------------------------------------------
@@ -266,6 +307,10 @@ protected:
             label->setAbsoluteY(auxOptionArea.getY() + auxWidgetHeight + 2);
         }
     }
+
+    // shared, TESTING
+    float lines[512];
+    int lineWriteIndex;
 
 private:
     BlendishSubWidgetSharedContext blendish;
