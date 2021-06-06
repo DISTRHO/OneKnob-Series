@@ -71,8 +71,13 @@ public:
           blendishTopPanelMenu(&blendish),
           blendishAuxComboBoxValues(nullptr)
     {
-        blendish.setScaleFactor(getScaleFactor() * 2);
-        blendish.setSize(width, height);
+        const double scaleFactor = getScaleFactor();
+
+        if (scaleFactor != 1.0)
+            setSize(width * scaleFactor, height * scaleFactor);
+
+        blendish.setScaleFactor(scaleFactor * 2);
+        blendish.setSize(width * scaleFactor, height * scaleFactor);
         blendishTopPanelMenu.setLabel(DISTRHO_PLUGIN_BRAND " " DISTRHO_PLUGIN_NAME);
 
         // TESTING
@@ -86,17 +91,20 @@ protected:
     void onDisplay() override
     {
         const GraphicsContext& context(getGraphicsContext());
+        const double scaleFactor = getScaleFactor();
         const uint width  = getWidth();
         const uint height = getHeight();
 
         // background
         Color(0.2f, 0.3f, 0.4f).setFor(context);
-        Rectangle<uint>(kSidePanelWidth, 0, width - kSidePanelWidth * 2, height).draw(context);
+        Rectangle<uint>(kSidePanelWidth * scaleFactor, 0,
+                        width - (kSidePanelWidth * 2 * scaleFactor), height).draw(context);
 
         // side panels
         Color(0.4f, 0.3f, 0.2f).setFor(context);
-        Rectangle<uint>(0, 0, kSidePanelWidth, height).draw(context);
-        Rectangle<uint>(width-kSidePanelWidth, 0, kSidePanelWidth, height).draw(context);
+        Rectangle<uint>(0, 0, kSidePanelWidth * scaleFactor, height).draw(context);
+        Rectangle<uint>(width - (kSidePanelWidth * scaleFactor), 0,
+                        kSidePanelWidth * scaleFactor, height).draw(context);
 
         // flow line
         glColor3f(0.5f, 0.38f, 0.42f);
@@ -104,27 +112,28 @@ protected:
 
         // TESTING
         const int size = sizeof(lines)/sizeof(lines[0]);
-        const int startX = kSidePanelWidth * 2;
-        const int startY = height - kSidePanelWidth * 2;
+        const int startX = kSidePanelWidth * 2 * scaleFactor;
+        const int startY = height - (kSidePanelWidth * 2 * scaleFactor);
         int k = lineWriteIndex;
 
-        glScissor(startX, kSidePanelWidth * 2, size, 80);
+        glLineWidth(scaleFactor);
+        glScissor(startX, kSidePanelWidth * 2 * scaleFactor, size * scaleFactor, 80 * scaleFactor);
         glEnable(GL_SCISSOR_TEST);
         glBegin(GL_LINE_LOOP);
 
         glVertex2d(kSidePanelWidth, height);
         glVertex2d(kSidePanelWidth, startY);
-        glVertex2d(kSidePanelWidth, startY - lines[k] * 80);
+        glVertex2d(kSidePanelWidth, startY - lines[k] * 80 * scaleFactor);
 
         for (int i=0; i<size; ++i, ++k)
         {
             if (k == size)
                 k = 0;
-            glVertex2d(startX + i, startY - lines[k] * 80);
+            glVertex2d(startX + i * scaleFactor, startY - lines[k] * 80 * scaleFactor);
         }
 
-        glVertex2d(startX + size, startY - lines[k-1] * 80);
-        glVertex2d(width - kSidePanelWidth, startY - lines[k-1] * 80);
+        glVertex2d(startX + size * scaleFactor, startY - lines[k-1] * 80 * scaleFactor);
+        glVertex2d(width - kSidePanelWidth, startY - lines[k-1] * 80 * scaleFactor);
         glVertex2d(width - kSidePanelWidth, height);
 
         glEnd();
@@ -163,7 +172,7 @@ protected:
         knob->setId(control.id);
         knob->setLabel(control.label);
 
-        mainControlArea = area;
+        mainControlArea = getScaledArea(area);
         blendishMainControl = knob;
     }
 
@@ -192,7 +201,7 @@ protected:
         label->setId(option.id);
         label->setLabel(option.description);
 
-        auxOptionArea = area;
+        auxOptionArea = getScaledArea(area);
         blendishAuxOptionCheckBox = checkBox;
         blendishAuxOptionLabel = label;
     }
@@ -230,7 +239,7 @@ protected:
         label->setId(option.id);
         label->setLabel("Loading...");
 
-        auxOptionArea = area;
+        auxOptionArea = getScaledArea(area);
         blendishAuxComboBoxValues = option.values;
         blendishAuxOptionComboBox = comboBox;
         blendishAuxOptionLabel = label;
@@ -260,7 +269,7 @@ protected:
 
         label->setLabel(text);
 
-        auxOptionArea = area;
+        auxOptionArea = getScaledArea(area);
         blendishAuxOptionLabel = label;
     }
 
@@ -268,14 +277,13 @@ protected:
 
     void repositionWidgets()
     {
+        const double scaleFactor = getScaleFactor();
         const uint width = getWidth();
 
         // top panel
-        topPanelArea.setX(kSidePanelWidth * 2);
-        topPanelArea.setSize(width - kSidePanelWidth * 4, kTopPanelHeight);
-        blendishTopPanelMenu.setAbsoluteX(topPanelArea.getX() / 2 - 4);
-        blendishTopPanelMenu.setAbsoluteY(-3);
-        blendishTopPanelMenu.setWidth(topPanelArea.getWidth() / 2);
+        blendishTopPanelMenu.setAbsoluteX((kSidePanelWidth + 4) * scaleFactor);
+        blendishTopPanelMenu.setAbsoluteY(-3 * scaleFactor);
+        blendishTopPanelMenu.setWidth(width - (kSidePanelWidth + 4) * 2 * scaleFactor);
 
         // main control
         if (BlendishNumberField* const knob = blendishMainControl.get())
@@ -316,7 +324,6 @@ private:
     BlendishSubWidgetSharedContext blendish;
 
     // top panel
-    Rectangle<uint> topPanelArea;
     BlendishMenu blendishTopPanelMenu;
 
     // main knob
@@ -329,6 +336,20 @@ private:
     ScopedPointer<BlendishComboBox> blendishAuxOptionComboBox;
     ScopedPointer<BlendishLabel> blendishAuxOptionLabel;
     const OneKnobAuxiliaryComboBoxValue* blendishAuxComboBoxValues;
+
+    Rectangle<uint> getScaledArea(const Rectangle<uint>& area) const
+    {
+        const double scaleFactor = getScaleFactor();
+
+        if (scaleFactor == 1.0)
+            return area;
+
+        Rectangle<uint> copy(area);
+        copy.setX(copy.getX() * scaleFactor);
+        copy.setY(copy.getY() * scaleFactor);
+        copy.growBy(scaleFactor);
+        return copy;
+    }
 
     void blendishWidgetClicked(BlendishSubWidget* const widget, int) override
     {
