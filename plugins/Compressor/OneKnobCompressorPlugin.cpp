@@ -215,17 +215,26 @@ void OneKnobCompressorPlugin::run(const float** const inputs, float** const outp
     float*       out1 = outputs[0];
     float*       out2 = outputs[1];
 
-//     if (compressorOn)
+    if (compressorOn)
     {
         compressor_process(&compressor, frames, in1, in2, out1, out2);
     }
-//     else
-//     {
-//         if (out1 != in1)
-//             std::memcpy(out1, in1, sizeof(float)*frames);
-//         if (out2 != in2)
-//             std::memcpy(out2, in2, sizeof(float)*frames);
-//     }
+    else
+    {
+        if (out1 != in1)
+            std::memcpy(out1, in1, sizeof(float)*frames);
+        if (out2 != in2)
+            std::memcpy(out2, in2, sizeof(float)*frames);
+    }
+
+    float tmp, highest = 0.0f;
+    for (uint32_t i=0; i<frames; ++i)
+    {
+        tmp = *in1++;
+        highest = std::max(highest, std::abs(tmp));
+    }
+
+    parameters[kParameterLineUpdateTickL] = highest;
 }
 
 // -----------------------------------------------------------------------
