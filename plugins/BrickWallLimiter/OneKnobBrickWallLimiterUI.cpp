@@ -39,20 +39,24 @@ static const OneKnobAuxiliaryCheckBox checkBox = {
 
 // --------------------------------------------------------------------------------------------------------------------
 
+static const uint fakeScaleFactor = 1;
+
 OneKnobBrickWallLimiterUI::OneKnobBrickWallLimiterUI()
-    : OneKnobUI(kDefaultWidth, kDefaultHeight)
+    : OneKnobUI(kDefaultWidth * fakeScaleFactor, kDefaultHeight * fakeScaleFactor)
 {
     // setup OneKnob UI
-    const Rectangle<uint> mainArea(kSidePanelWidth,
-                                   kDefaultHeight/4,
-                                   kDefaultWidth/3 - kSidePanelWidth,
-                                   kDefaultHeight/2);
+    Rectangle<uint> mainArea(kSidePanelWidth * fakeScaleFactor,
+                             kDefaultHeight/4 * fakeScaleFactor,
+                             kDefaultWidth/3 - kSidePanelWidth,
+                             kDefaultHeight/2);
+    mainArea *= fakeScaleFactor;
     createMainControl(mainArea, main);
 
-    const Rectangle<uint> checkBoxArea(kDefaultWidth*2/3,
-                                       kDefaultHeight/4,
-                                       kDefaultWidth/3 - kSidePanelWidth,
-                                       kDefaultHeight/2);
+    Rectangle<uint> checkBoxArea(kDefaultWidth*2/3 * fakeScaleFactor,
+                                 kDefaultHeight/4 * fakeScaleFactor,
+                                 kDefaultWidth/3 - kSidePanelWidth,
+                                 kDefaultHeight/2);
+    checkBoxArea *= fakeScaleFactor;
     createAuxiliaryCheckBox(checkBoxArea, checkBox);
 
     repositionWidgets();

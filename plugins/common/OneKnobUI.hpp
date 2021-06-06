@@ -330,7 +330,7 @@ private:
     ScopedPointer<BlendishLabel> blendishAuxOptionLabel;
     const OneKnobAuxiliaryComboBoxValue* blendishAuxComboBoxValues;
 
-    void blendishWidgetClicked(BlendishSubWidget* const widget, const int button) override
+    void blendishWidgetClicked(BlendishSubWidget* const widget, int) override
     {
         if (blendishAuxOptionCheckBox == widget)
             if (BlendishCheckBox* const checkBox = blendishAuxOptionCheckBox.get())
