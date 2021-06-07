@@ -18,22 +18,28 @@
 
 START_NAMESPACE_DISTRHO
 
-inline constexpr float db2linear(const float db)
+#ifdef __clang__
+# define MATH_CONSTEXPR
+#else
+# define MATH_CONSTEXPR constexpr
+#endif
+
+inline MATH_CONSTEXPR float db2linear(const float db)
 {
     return std::pow(10.0f, 0.05f * db);
 }
 
-inline constexpr float logscale50db(const float v)
+inline MATH_CONSTEXPR float logscale50db(const float v)
 {
     return (1000.0f / std::exp(6.915f)) * std::exp(0.006915f * v);
 }
 
-inline constexpr float sixteenthoflog(const float v)
+inline MATH_CONSTEXPR float sixteenthoflog(const float v)
 {
     return (v + logscale50db(v) * 15) * 0.0625f;
 }
 
-inline constexpr float invgain(const float linearThreshold)
+inline MATH_CONSTEXPR float invgain(const float linearThreshold)
 {
     return linearThreshold < 0.003f ? 30.0f : sixteenthoflog(std::max(0.001f, 1.0f / linearThreshold));
 }
