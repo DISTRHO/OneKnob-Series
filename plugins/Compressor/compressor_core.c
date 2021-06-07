@@ -204,10 +204,7 @@ void compressor_process(sf_compressor_state_st *state, int size,
 		for (int chi = 0; chi < SF_COMPRESSOR_SPU; chi++, samplepos++)
 		{
 			float inputmax;
-			if (input_R)
-				inputmax = fabs(input_L[samplepos]) > fabs(input_R[samplepos]) ? fabs(input_L[samplepos]) : fabs(input_R[samplepos]);
-			else
-				inputmax = fabs(input_L[samplepos]);
+			inputmax = fabs(input_L[samplepos]) > fabs(input_R[samplepos]) ? fabs(input_L[samplepos]) : fabs(input_R[samplepos]);
 
 			float attenuation;
 			if (inputmax < 0.0001f)
@@ -244,9 +241,7 @@ void compressor_process(sf_compressor_state_st *state, int size,
 
 			// apply the gain
 			output_L[samplepos] = input_L[samplepos] * mastergain * sinf(state->ang90 * compgain);
-
-			if (input_R)
-				output_R[samplepos] = input_R[samplepos] * mastergain * sinf(state->ang90 * compgain);
+			output_R[samplepos] = input_R[samplepos] * mastergain * sinf(state->ang90 * compgain);
 		}
 	}
 
