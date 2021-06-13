@@ -4,12 +4,18 @@ A collection of stupidly simple but well-polished and visually pleasing audio pl
 with as little controls as possible,
 often just one knob and a few options.
 
+This is very much WORK IN PROGRESS!
+
 This collection currently includes:<br/>
+ - Brick Wall Limiter
  - Compressor
 
 ## Screenshots
+
 Compressor:<br/>
 ![Compressor](plugins/Compressor/Screenshot.png "Compressor")<br/>
+
+## Guidelines
 
 The guidelines for the collection are:
  - Must have one main control/knob (linear or logarithmic), with one auxiliary control/knob allowed but discouraged
