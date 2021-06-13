@@ -30,10 +30,7 @@ BUILD_CXX_FLAGS += -I../../dpf-widgets/opengl
 # --------------------------------------------------------------
 # Enable all possible plugin types
 
-ifeq ($(HAVE_JACK),true)
 TARGETS += jack
-endif
-
 TARGETS += ladspa
 TARGETS += vst
 
