@@ -226,7 +226,7 @@ protected:
     {
         DISTRHO_SAFE_ASSERT_RETURN(blendishMainControl == nullptr,);
 
-        BlendishNumberField* const knob = new BlendishNumberField(&blendish);
+        BlendishKnob* const knob = new BlendishKnob(&blendish);
         knob->setId(control.id);
         knob->setLabel(control.label);
 
@@ -238,7 +238,7 @@ protected:
     {
         DISTRHO_SAFE_ASSERT_RETURN(blendishMainControl != nullptr,);
 
-        blendishMainControl->setValue(value);
+        blendishMainControl->setCurrentValue(value);
     }
 
     // ----------------------------------------------------------------------------------------------------------------
@@ -345,7 +345,7 @@ protected:
         blendishTopPanelMenu.setHeight(21 * scaleFactor);
 
         // main control
-        if (BlendishNumberField* const knob = blendishMainControl.get())
+        if (BlendishKnob* const knob = blendishMainControl.get())
         {
             knob->setAbsoluteX(mainControlArea.getX());
             knob->setAbsoluteY(mainControlArea.getY());
@@ -389,7 +389,7 @@ private:
 
     // main knob
     Rectangle<uint> mainControlArea;
-    ScopedPointer<BlendishNumberField> blendishMainControl;
+    ScopedPointer<BlendishKnob> blendishMainControl;
 
     // auxiliary option
     Rectangle<uint> auxOptionArea;
