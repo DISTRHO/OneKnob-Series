@@ -27,7 +27,7 @@ START_NAMESPACE_DISTRHO
 
 // --------------------------------------------------------------------------------------------------------------------
 
-static const uint kSidePanelWidth = 24;
+static const uint kSidePanelWidth = 12;
 static const uint kTopPanelHeight = 32;
 
 // --------------------------------------------------------------------------------------------------------------------
@@ -68,9 +68,12 @@ public:
     OneKnobUI(const uint width, const uint height)
         : UI(width, height),
           blendish(this),
+          blendishTopLabel(&blendish),
+          /*
           blendishTopPanelMenu(&blendish),
           menuAnimatingOpen(-1),
           menuAnimatingClose(-1),
+          */
           blendishAuxComboBoxValues(nullptr)
     {
         const double scaleFactor = getScaleFactor();
@@ -80,7 +83,10 @@ public:
 
         blendish.setScaleFactor(scaleFactor * 2);
         blendish.setSize(width * scaleFactor, height * scaleFactor);
+        blendishTopLabel.setLabel(DISTRHO_PLUGIN_BRAND " " DISTRHO_PLUGIN_NAME);
+        /*
         blendishTopPanelMenu.setLabel(DISTRHO_PLUGIN_BRAND " " DISTRHO_PLUGIN_NAME);
+        */
 
         // TESTING
         lineWriteIndex = 0;
@@ -98,18 +104,33 @@ protected:
         const uint height = getHeight();
 
         // background
-        Color(0.2f, 0.3f, 0.4f).setFor(context);
-        Rectangle<uint>(kSidePanelWidth * scaleFactor, 0,
-                        width - (kSidePanelWidth * 2 * scaleFactor), height).draw(context);
+        Color::fromHTML("#222126").setFor(context);
+        Rectangle<uint>(0, 0, width, height).draw(context);
 
-        // side panels
-        Color(0.4f, 0.3f, 0.2f).setFor(context);
-        Rectangle<uint>(0, 0, kSidePanelWidth * scaleFactor, height).draw(context);
-        Rectangle<uint>(width - (kSidePanelWidth * scaleFactor), 0,
-                        kSidePanelWidth * scaleFactor, height).draw(context);
+        // frame inner
+        Color::fromHTML("#3b393d").setFor(context);
+        Rectangle<uint>(kSidePanelWidth,
+                        kSidePanelWidth,
+                        width - kSidePanelWidth * 2,
+                        height - kSidePanelWidth * 2).drawOutline(context);
+
+        // frame outer
+        Color::fromHTML("#000000").setFor(context);
+        Rectangle<uint>(kSidePanelWidth - 1,
+                        kSidePanelWidth - 1,
+                        width - kSidePanelWidth * 2 + 2,
+                        height - kSidePanelWidth * 2 + 2).drawOutline(context);
+
+        // brand line
+        {
+            const uint y = kSidePanelWidth * scaleFactor + blendishTopLabel.getHeight() * 2 + 2 * scaleFactor;
+            // for text use #cacacb
+            Color::fromHTML("#3b393d").setFor(context);
+            Line<uint>(kSidePanelWidth + 4, y, width - kSidePanelWidth - 4, y).draw(context);
+        }
 
         // flow line
-        glColor3f(0.5f, 0.38f, 0.42f);
+        Color::fromHTML("#665d98").setFor(context);
         glLineWidth(1.0f);
 
         // TESTING
@@ -147,6 +168,7 @@ protected:
         // Point<double> pos2(ev.pos.getX() / 2, ev.pos.getY() / 2);
 
         // FIXME wrong relative pos, should check click via widget instead
+        /*
         if (ev.press && blendishTopPanelMenu.contains(ev.pos) && menuAnimatingOpen == -1 && menuAnimatingClose == -1)
         {
             const double scaleFactor = getScaleFactor();
@@ -162,6 +184,7 @@ protected:
             repaint();
             return true;
         }
+        */
 
         return UI::onMouse(ev);
     }
@@ -170,6 +193,7 @@ protected:
 
     void uiIdle() override
     {
+        /*
         const double scaleFactor = getScaleFactor();
 
         if (menuAnimatingOpen != -1)
@@ -198,6 +222,7 @@ protected:
             blendishTopPanelMenu.setHeight(std::max((double)menuAnimatingClose, curHeight - (scaleFactor * 25)));
             repaint();
         }
+        */
     }
 
     void uiFocus(const bool focus, CrossingMode) override
@@ -339,10 +364,15 @@ protected:
         const uint width = getWidth();
 
         // top panel
+        blendishTopLabel.setAbsoluteX(kSidePanelWidth / 2 - 2);
+        blendishTopLabel.setAbsoluteY(kSidePanelWidth / 2);
+        blendishTopLabel.setWidth(width - kSidePanelWidth * 2);
+        /*
         blendishTopPanelMenu.setAbsoluteX((kSidePanelWidth + 4) * scaleFactor);
         blendishTopPanelMenu.setAbsoluteY(-3 * scaleFactor);
         blendishTopPanelMenu.setWidth(width / (2 / scaleFactor) - (kSidePanelWidth + 4) * 2 * scaleFactor); // FIXME
         blendishTopPanelMenu.setHeight(21 * scaleFactor);
+        */
 
         // main control
         if (BlendishKnob* const knob = blendishMainControl.get())
@@ -383,9 +413,12 @@ private:
     BlendishSubWidgetSharedContext blendish;
 
     // top panel
+    /*
     BlendishMenu blendishTopPanelMenu;
     int menuAnimatingOpen;
     int menuAnimatingClose;
+    */
+    BlendishLabel blendishTopLabel;
 
     // main knob
     Rectangle<uint> mainControlArea;
