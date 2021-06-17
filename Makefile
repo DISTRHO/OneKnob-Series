@@ -12,7 +12,7 @@ all: dgl plugins gen
 
 dgl:
 ifeq ($(HAVE_OPENGL),true)
-	$(MAKE) -C dpf/dgl
+	$(MAKE) -C dpf/dgl opengl
 endif
 
 plugins: dgl

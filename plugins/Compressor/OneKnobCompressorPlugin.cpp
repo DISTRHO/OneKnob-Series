@@ -230,11 +230,12 @@ void OneKnobCompressorPlugin::run(const float** const inputs, float** const outp
     float tmp, highest = 0.0f;
     for (uint32_t i=0; i<frames; ++i)
     {
-        tmp = *in1++;
+        tmp = *out1++;
         highest = std::max(highest, std::abs(tmp));
     }
 
-    parameters[kParameterLineUpdateTickL] = highest;
+    parameters[kParameterLineUpdateTickL] = highest + (output2nd ? 0.0001f : 0.0f);
+    output2nd = !output2nd;
 }
 
 // -----------------------------------------------------------------------

@@ -27,8 +27,9 @@ static const OneKnobMainControl main = {
     kParameterThreshold,
     "Threshold",
     "dB",
-    50.0f,
-    1000.0f
+    -50.0f,
+    0.0f,
+    0.0f
 };
 
 static const OneKnobAuxiliaryCheckBox checkBox = {

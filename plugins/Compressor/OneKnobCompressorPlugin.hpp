@@ -101,6 +101,7 @@ private:
     float parameters[kParameterCount];
     sf_compressor_state_st compressor;
     bool compressorOn = false;
+    bool output2nd = false;
 
     DISTRHO_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(OneKnobCompressorPlugin)
 };

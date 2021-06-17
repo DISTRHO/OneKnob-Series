@@ -97,6 +97,7 @@ protected:
 private:
     float parameters[kParameterCount];
     float threshold_linear;
+    bool output2nd = false;
 
     DISTRHO_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(OneKnobBrickWallLimiterPlugin)
 };

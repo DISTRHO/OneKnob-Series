@@ -36,7 +36,7 @@ struct OneKnobMainControl {
     uint id;
     const char* label;
     const char* unit;
-    float min, max;
+    float min, max, def;
 };
 
 struct OneKnobAuxiliaryCheckBox {
@@ -61,8 +61,9 @@ struct OneKnobAuxiliaryComboBox {
 // --------------------------------------------------------------------------------------------------------------------
 
 class OneKnobUI : public UI,
-                  public BlendishSubWidget::Callback,
-                  public BlendishComboBox::Callback
+                  public BlendishComboBox::Callback,
+                  public ButtonEventHandler::Callback,
+                  public KnobEventHandler::Callback
 {
 public:
     OneKnobUI(const uint width, const uint height)
@@ -140,23 +141,23 @@ protected:
         int k = lineWriteIndex;
 
         glLineWidth(scaleFactor);
-        glScissor(startX, kSidePanelWidth * 2 * scaleFactor, size * scaleFactor, 80 * scaleFactor);
+        glScissor(startX, kSidePanelWidth * 2 * scaleFactor, size * scaleFactor, 160 * scaleFactor);
         glEnable(GL_SCISSOR_TEST);
         glBegin(GL_LINE_LOOP);
 
         glVertex2d(kSidePanelWidth, height);
         glVertex2d(kSidePanelWidth, startY);
-        glVertex2d(kSidePanelWidth, startY - lines[k] * 80 * scaleFactor);
+        glVertex2d(kSidePanelWidth, startY - lines[k] * 160 * scaleFactor);
 
         for (int i=0; i<size; ++i, ++k)
         {
             if (k == size)
                 k = 0;
-            glVertex2d(startX + i * scaleFactor, startY - lines[k] * 80 * scaleFactor);
+            glVertex2d(startX + i * scaleFactor, startY - lines[k] * 160 * scaleFactor);
         }
 
-        glVertex2d(startX + size * scaleFactor, startY - lines[k-1] * 80 * scaleFactor);
-        glVertex2d(width - kSidePanelWidth, startY - lines[k-1] * 80 * scaleFactor);
+        glVertex2d(startX + size * scaleFactor, startY - lines[k-1] * 160 * scaleFactor);
+        glVertex2d(width - kSidePanelWidth, startY - lines[k-1] * 160 * scaleFactor);
         glVertex2d(width - kSidePanelWidth, height);
 
         glEnd();
@@ -251,9 +252,13 @@ protected:
     {
         DISTRHO_SAFE_ASSERT_RETURN(blendishMainControl == nullptr,);
 
-        BlendishKnob* const knob = new BlendishKnob(&blendish);
+        BlendishNumberField* const knob = new BlendishNumberField(&blendish);
+
+        knob->setCallback(this);
         knob->setId(control.id);
         knob->setLabel(control.label);
+        knob->setRange(control.min, control.max);
+        knob->setDefault(control.def);
 
         mainControlArea = getScaledArea(area);
         blendishMainControl = knob;
@@ -263,7 +268,7 @@ protected:
     {
         DISTRHO_SAFE_ASSERT_RETURN(blendishMainControl != nullptr,);
 
-        blendishMainControl->setCurrentValue(value);
+        blendishMainControl->setValue(value, false);
     }
 
     // ----------------------------------------------------------------------------------------------------------------
@@ -293,7 +298,7 @@ protected:
     {
         DISTRHO_SAFE_ASSERT_RETURN(blendishAuxOptionCheckBox != nullptr,);
 
-        blendishAuxOptionCheckBox->setChecked(value > 0.5f /*, false */);
+        blendishAuxOptionCheckBox->setChecked(value > 0.5f, false);
     }
 
     // ----------------------------------------------------------------------------------------------------------------
@@ -375,7 +380,7 @@ protected:
         */
 
         // main control
-        if (BlendishKnob* const knob = blendishMainControl.get())
+        if (BlendishNumberField* const knob = blendishMainControl.get())
         {
             knob->setAbsoluteX(mainControlArea.getX());
             knob->setAbsoluteY(mainControlArea.getY());
@@ -422,7 +427,7 @@ private:
 
     // main knob
     Rectangle<uint> mainControlArea;
-    ScopedPointer<BlendishKnob> blendishMainControl;
+    ScopedPointer<BlendishNumberField> blendishMainControl;
 
     // auxiliary option
     Rectangle<uint> auxOptionArea;
@@ -445,19 +450,40 @@ private:
         return copy;
     }
 
-    void blendishWidgetClicked(BlendishSubWidget* const widget, int) override
-    {
-        if (blendishAuxOptionCheckBox == widget)
-            if (BlendishCheckBox* const checkBox = blendishAuxOptionCheckBox.get())
-                setParameterValue(checkBox->getId(), checkBox->isChecked() ? 1.0f : 0.0f);
-    }
-
     void blendishComboBoxIndexChanged(BlendishComboBox* const comboBox, int index) override
     {
         if (BlendishLabel* const label = blendishAuxOptionLabel.get())
             label->setLabel(blendishAuxComboBoxValues[index].description);
 
         setParameterValue(comboBox->getId(), index);
+    }
+
+    void buttonClicked(SubWidget* const widget, int) override
+    {
+        if (blendishAuxOptionCheckBox == widget)
+            if (BlendishCheckBox* const checkBox = blendishAuxOptionCheckBox.get())
+                setParameterValue(checkBox->getId(), checkBox->isChecked() ? 1.0f : 0.0f);
+    }
+
+    void knobDragStarted(SubWidget* const widget) override
+    {
+        if (blendishMainControl == widget)
+            if (BlendishNumberField* const knob = blendishMainControl.get())
+                editParameter(knob->getId(), true);
+    }
+
+    void knobDragFinished(SubWidget* const widget) override
+    {
+        if (blendishMainControl == widget)
+            if (BlendishNumberField* const knob = blendishMainControl.get())
+                editParameter(knob->getId(), false);
+    }
+
+    void knobValueChanged(SubWidget* const widget, const float value) override
+    {
+        if (blendishMainControl == widget)
+            if (BlendishNumberField* const knob = blendishMainControl.get())
+                setParameterValue(knob->getId(), value);
     }
 
     DISTRHO_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(OneKnobUI)
