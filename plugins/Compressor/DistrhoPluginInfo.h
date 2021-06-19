@@ -34,8 +34,8 @@ enum Parameters
 {
     kParameterRelease = 0,
     kParameterMode,
-    kParameterLineUpdateTickL,
-    kParameterLineUpdateTickR,
+    kParameterLineUpdateTickIn,
+    kParameterLineUpdateTickOut,
     kParameterCount
 };
 

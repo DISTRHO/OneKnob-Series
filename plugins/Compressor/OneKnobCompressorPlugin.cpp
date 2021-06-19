@@ -74,23 +74,23 @@ void OneKnobCompressorPlugin::initParameter(uint32_t index, Parameter& parameter
         }
         break;
 
-    case kParameterLineUpdateTickL:
+    case kParameterLineUpdateTickIn:
         parameter.hints      = kParameterIsAutomable | kParameterIsOutput;
-        parameter.name       = "Tick Left";
-        parameter.symbol     = "tick_l";
+        parameter.name       = "Tick In";
+        parameter.symbol     = "tick_in";
         parameter.unit       = "";
-        parameter.ranges.def = kParameterDefaults[kParameterLineUpdateTickL];
-        parameter.ranges.min = -1.0f;
+        parameter.ranges.def = kParameterDefaults[kParameterLineUpdateTickIn];
+        parameter.ranges.min = 0.0f;
         parameter.ranges.max = 1.0f;
         break;
 
-    case kParameterLineUpdateTickR:
+    case kParameterLineUpdateTickOut:
         parameter.hints      = kParameterIsAutomable | kParameterIsOutput;
-        parameter.name       = "Tick Right";
-        parameter.symbol     = "tick_r";
+        parameter.name       = "Tick Out";
+        parameter.symbol     = "tick_out";
         parameter.unit       = "";
-        parameter.ranges.def = kParameterDefaults[kParameterLineUpdateTickR];
-        parameter.ranges.min = -1.0f;
+        parameter.ranges.def = kParameterDefaults[kParameterLineUpdateTickOut];
+        parameter.ranges.min = 0.0f;
         parameter.ranges.max = 1.0f;
         break;
     }
@@ -227,14 +227,17 @@ void OneKnobCompressorPlugin::run(const float** const inputs, float** const outp
             std::memcpy(out2, in2, sizeof(float)*frames);
     }
 
-    float tmp, highest = 0.0f;
+    float tmp, highestIn = 0.0f, highestOut = 0.0f;
     for (uint32_t i=0; i<frames; ++i)
     {
+        tmp = *in1++;
+        highestIn = std::max(highestIn, std::abs(tmp));
         tmp = *out1++;
-        highest = std::max(highest, std::abs(tmp));
+        highestOut = std::max(highestOut, std::abs(tmp));
     }
 
-    parameters[kParameterLineUpdateTickL] = highest + (output2nd ? 0.0001f : 0.0f);
+    parameters[kParameterLineUpdateTickIn] = (output2nd ? highestIn : -highestIn) + (float)rand() / RAND_MAX * 0.0001;
+    parameters[kParameterLineUpdateTickOut] = (output2nd ? highestOut : -highestOut) + (float)rand() / RAND_MAX * 0.0001;
     output2nd = !output2nd;
 }
 

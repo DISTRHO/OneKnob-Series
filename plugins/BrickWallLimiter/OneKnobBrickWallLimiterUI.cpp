@@ -35,7 +35,7 @@ static const OneKnobMainControl main = {
 static const OneKnobAuxiliaryCheckBox checkBox = {
     kParameterAutoGain,
     "Automatic Gain",
-    "Something that explains BrickWall limiter here"
+    "Activate to compensate for any perceived loudness lost.\nWinning the loudness wars!"
 };
 
 // --------------------------------------------------------------------------------------------------------------------
@@ -45,9 +45,9 @@ OneKnobBrickWallLimiterUI::OneKnobBrickWallLimiterUI()
 {
     // setup OneKnob UI
     const Rectangle<uint> mainArea(kSidePanelWidth,
-                                   kDefaultHeight/4,
-                                   kDefaultWidth/3 - kSidePanelWidth,
-                                   kDefaultHeight/2);
+                                   kDefaultHeight/4 - kSidePanelWidth,
+                                   kDefaultWidth/2 - kSidePanelWidth,
+                                   kDefaultHeight*5/8 - kSidePanelWidth);
     createMainControl(mainArea, main);
 
     const Rectangle<uint> checkBoxArea(kDefaultWidth/2,
@@ -75,13 +75,11 @@ void OneKnobBrickWallLimiterUI::parameterChanged(const uint32_t index, const flo
     case kParameterAutoGain:
         setAuxiliaryCheckBoxValue(value);
         break;
-    case kParameterLineUpdateTickL:
-        // TESTING
-        lines[lineWriteIndex] = value;
-        if (++lineWriteIndex == sizeof(lines)/sizeof(lines[0]))
-            lineWriteIndex = 0;
+    case kParameterLineUpdateTickIn:
+        pushInputMeter(std::abs(value));
         break;
-    case kParameterLineUpdateTickR:
+    case kParameterLineUpdateTickOut:
+        pushOutputMeter(std::abs(value));
         break;
     }
 

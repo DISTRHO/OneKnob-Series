@@ -27,6 +27,13 @@ START_NAMESPACE_DISTRHO
 
 // --------------------------------------------------------------------------------------------------------------------
 
+static inline constexpr int lin2dbint(const float value)
+{
+    return static_cast<int>(20.0f * std::log10(value) - 0.5f);
+}
+
+// --------------------------------------------------------------------------------------------------------------------
+
 static const uint kSidePanelWidth = 12;
 static const uint kTopPanelHeight = 32;
 
@@ -65,7 +72,8 @@ struct ThemeInitializer {
     {
         BlendishTheme theme = blendishGetDefaultTheme();
         theme.labelTheme.textColor = Color::fromHTML("#cacacb");
-        theme.checkBoxTheme.textColor = Color::fromHTML("#fff");
+        theme.checkBoxTheme.textColor = Color::fromHTML("#cacacb");
+//         theme.checkBoxTheme.textSelectedColor = Color::fromHTML("#fff");
         blendishSetTheme(theme);
     }
 
@@ -85,6 +93,71 @@ struct ThemeInitializer {
 
 // --------------------------------------------------------------------------------------------------------------------
 
+class BlendishMeterLine : public BlendishSubWidget
+{
+public:
+    explicit BlendishMeterLine(BlendishSubWidgetSharedContext* const parent, const Color& c)
+        : BlendishSubWidget(parent),
+          nvg(parent->getNanoVGInstance()),
+          color(c),
+          writeIndex(0)
+    {
+        std::memset(lines, 0, sizeof(lines));
+        setSize(getMinimumWidth(), 40);
+    }
+
+    void push(const float value)
+    {
+        lines[writeIndex] = std::abs(value);
+        if (++writeIndex == sizeof(lines)/sizeof(lines[0]))
+            writeIndex = 0;
+    }
+
+protected:
+    uint getMinimumWidth() const noexcept override
+    {
+        return sizeof(lines)/sizeof(lines[0]);
+    }
+
+    void onBlendishDisplay() override
+    {
+        const int size = sizeof(lines)/sizeof(lines[0]);
+        const int height = getHeight();
+        const int startX = getAbsoluteX();
+        const int startY = getAbsoluteY() + height;
+
+        int k = writeIndex;
+
+        nvg.beginPath();
+
+        nvg.moveTo(startX, startY - lines[k] * height);
+
+        for (int i=0; i<size; ++i, ++k)
+        {
+            if (k == size)
+                k = 0;
+            nvg.lineTo(startX + i, startY - lines[k] * height);
+        }
+
+        nvg.lineTo(startX + size, startY - lines[k-1] * height);
+
+        nvg.strokeColor(color);
+        nvg.strokeWidth(1);
+        nvg.stroke();
+    }
+
+private:
+    NanoVG& nvg;
+    Color color;
+
+    float lines[256];
+    int writeIndex;
+
+    DISTRHO_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(BlendishMeterLine)
+};
+
+// --------------------------------------------------------------------------------------------------------------------
+
 class OneKnobUI : public UI,
                   public BlendishComboBox::Callback,
                   public ButtonEventHandler::Callback,
@@ -96,12 +169,11 @@ public:
           tisi(),
           blendish(this),
           blendishTopLabel(&blendish),
-          /*
-          blendishTopPanelMenu(&blendish),
-          menuAnimatingOpen(-1),
-          menuAnimatingClose(-1),
-          */
-          blendishAuxComboBoxValues(nullptr)
+          blendishAuxComboBoxValues(nullptr),
+          blendishMeterInLabel(&blendish),
+          blendishMeterOutLabel(&blendish),
+          blendishMeterOutLine(&blendish, Color::fromHTML("#c90054")),
+          blendishMeterInLine(&blendish, Color(0x3E, 0xB8, 0xBE, 0.75f))
     {
         const double scaleFactor = getScaleFactor();
 
@@ -110,12 +182,15 @@ public:
 
         blendish.setScaleFactor(scaleFactor * 2);
         blendish.setSize(width * scaleFactor, height * scaleFactor);
-        blendishTopLabel.setActive(true);
+        blendishTopLabel.setColor(Color(1.0, 1.0f, 1.0f));
         blendishTopLabel.setLabel(DISTRHO_PLUGIN_BRAND " " DISTRHO_PLUGIN_NAME);
 
-        // TESTING
-        lineWriteIndex = 0;
-        std::memset(lines, 0, sizeof(lines));
+        blendishMeterInLabel.setColor(Color(0x3E, 0xB8, 0xBE, 0.75f));
+        blendishMeterInLabel.setLabel("In: -inf dB");
+        blendishMeterInLabel.setFontSize(8);
+        blendishMeterOutLabel.setColor(Color::fromHTML("#c90054"));
+        blendishMeterOutLabel.setLabel("Out: -inf dB");
+        blendishMeterOutLabel.setFontSize(8);
     }
 
     // ----------------------------------------------------------------------------------------------------------------
@@ -154,102 +229,9 @@ protected:
             Line<uint>((kSidePanelWidth + 4) * scaleFactor, y,
                        width - (kSidePanelWidth + 4) * scaleFactor, y).draw(context);
         }
-
-        // flow line
-        Color::fromHTML("#665d98").setFor(context);
-        glLineWidth(1.0f);
-
-        // TESTING
-        const int size = sizeof(lines)/sizeof(lines[0]);
-        const int startX = kSidePanelWidth * 2 * scaleFactor;
-        const int startY = height - (kSidePanelWidth * 2 * scaleFactor);
-        int k = lineWriteIndex;
-
-        glLineWidth(scaleFactor);
-        glScissor(startX, kSidePanelWidth * 2 * scaleFactor, size * scaleFactor, 120 * scaleFactor);
-        glEnable(GL_SCISSOR_TEST);
-        glBegin(GL_LINE_LOOP);
-
-        glVertex2d(kSidePanelWidth, height);
-        glVertex2d(kSidePanelWidth, startY);
-        glVertex2d(kSidePanelWidth, startY - lines[k] * 120 * scaleFactor);
-
-        for (int i=0; i<size; ++i, ++k)
-        {
-            if (k == size)
-                k = 0;
-            glVertex2d(startX + i * scaleFactor, startY - lines[k] * 120 * scaleFactor);
-        }
-
-        glVertex2d(startX + size * scaleFactor, startY - lines[k-1] * 120 * scaleFactor);
-        glVertex2d(width - kSidePanelWidth, startY - lines[k-1] * 120 * scaleFactor);
-        glVertex2d(width - kSidePanelWidth, height);
-
-        glEnd();
-        glDisable(GL_SCISSOR_TEST);
-    }
-
-    bool onMouse(const MouseEvent& ev) override
-    {
-        // Point<double> pos2(ev.pos.getX() / 2, ev.pos.getY() / 2);
-
-        // FIXME wrong relative pos, should check click via widget instead
-        /*
-        if (ev.press && blendishTopPanelMenu.contains(ev.pos) && menuAnimatingOpen == -1 && menuAnimatingClose == -1)
-        {
-            const double scaleFactor = getScaleFactor();
-
-            blendishTopPanelMenu.toFront();
-
-            if (blendishTopPanelMenu.getHeight() > getHeight()/4)
-                menuAnimatingClose = (21 * scaleFactor);
-            else
-                menuAnimatingOpen = getHeight() - (kSidePanelWidth * 7 * scaleFactor);
-
-            d_stdout("animating");
-            repaint();
-            return true;
-        }
-        */
-
-        return UI::onMouse(ev);
     }
 
     // ----------------------------------------------------------------------------------------------------------------
-
-    void uiIdle() override
-    {
-        /*
-        const double scaleFactor = getScaleFactor();
-
-        if (menuAnimatingOpen != -1)
-        {
-            const int curHeight = blendishTopPanelMenu.getHeight();
-
-            if (curHeight >= menuAnimatingOpen)
-            {
-                menuAnimatingOpen = -1;
-                return;
-            }
-
-            blendishTopPanelMenu.setHeight(std::min((double)menuAnimatingOpen, curHeight + (scaleFactor * 25)));
-            repaint();
-        }
-        else if (menuAnimatingClose != -1)
-        {
-            const int curHeight = blendishTopPanelMenu.getHeight();
-
-            if (curHeight <= menuAnimatingClose)
-            {
-                menuAnimatingClose = -1;
-                return;
-            }
-
-            blendishTopPanelMenu.setHeight(std::max((double)menuAnimatingClose, curHeight - (scaleFactor * 25)));
-            repaint();
-        }
-        */
-    }
 
     void uiFocus(const bool focus, CrossingMode) override
     {
@@ -384,6 +366,7 @@ protected:
         BlendishLabel* const label = new BlendishLabel(&blendish);
 
         label->setLabel(text);
+        label->setFontSize(10);
 
         auxOptionArea = getScaledArea(area);
         blendishAuxOptionLabel = label;
@@ -391,10 +374,35 @@ protected:
 
     // ----------------------------------------------------------------------------------------------------------------
 
+    void pushInputMeter(const float value)
+    {
+        blendishMeterInLine.push(value);
+
+        if (value < 0.0001f)
+            return blendishMeterInLabel.setLabel("In: -inf dB");
+
+        char strBuf[0xff];
+        snprintf(strBuf, sizeof(strBuf), "In: %02d dB", lin2dbint(value));
+        blendishMeterInLabel.setLabel(strBuf);
+    }
+
+    void pushOutputMeter(const float value)
+    {
+        blendishMeterOutLine.push(value);
+
+        if (value < 0.0001f)
+            return blendishMeterOutLabel.setLabel("Out: -inf dB");
+
+        char strBuf[0xff];
+        snprintf(strBuf, sizeof(strBuf), "Out: %02d dB", lin2dbint(value));
+        blendishMeterOutLabel.setLabel(strBuf);
+    }
+
     void repositionWidgets()
     {
         const double scaleFactor = getScaleFactor();
         const uint width = getWidth();
+        const uint height = getHeight();
 
         // top panel
         blendishTopLabel.setAbsoluteX(4 * scaleFactor);
@@ -406,37 +414,46 @@ protected:
         {
             knob->setAbsoluteX(mainControlArea.getX());
             knob->setAbsoluteY(mainControlArea.getY());
+            knob->setSize(mainControlArea.getSize());
         }
 
         // auxiliary options
         uint auxWidgetHeight = 0;
+        uint auxWidgetPosX = 0;
 
         if (BlendishCheckBox* const checkBox = blendishAuxOptionCheckBox.get())
         {
-            auxWidgetHeight = checkBox->getHeight();
-            checkBox->setAbsoluteX(auxOptionArea.getX());
+            checkBox->setAbsoluteX(auxOptionArea.getX() + auxOptionArea.getWidth()/2 - checkBox->getWidth()/2);
             checkBox->setAbsoluteY(auxOptionArea.getY());
+            auxWidgetHeight = checkBox->getHeight();
+            auxWidgetPosX = checkBox->getAbsoluteX();
         }
 
         if (BlendishComboBox* const comboBox = blendishAuxOptionComboBox.get())
         {
-            auxWidgetHeight = comboBox->getHeight();
-            comboBox->setAbsoluteX(auxOptionArea.getX());
+            comboBox->setAbsoluteX(auxOptionArea.getX() + auxOptionArea.getWidth()/2 - comboBox->getWidth()/2);
             comboBox->setAbsoluteY(auxOptionArea.getY());
+            auxWidgetHeight = comboBox->getHeight();
+            auxWidgetPosX = comboBox->getAbsoluteX();
         }
 
         if (BlendishLabel* const label = blendishAuxOptionLabel.get())
         {
-            label->setAbsoluteX(auxOptionArea.getX());
+            label->setAbsoluteX(auxWidgetPosX);
             label->setAbsoluteY(auxOptionArea.getY() + auxWidgetHeight + 2);
-            label->setWidth(auxOptionArea.getWidth());
+            label->setWidth(auxOptionArea.getWidth() - (auxWidgetPosX - auxOptionArea.getX()));
             label->setHeight(auxOptionArea.getHeight() - auxWidgetHeight - 2);
         }
-    }
 
-    // shared, TESTING
-    float lines[512];
-    int lineWriteIndex;
+        // metering
+        blendishMeterInLine.setAbsolutePos(kSidePanelWidth * scaleFactor,
+                                           height / 2 - blendishMeterInLine.getHeight() - kSidePanelWidth);
+        blendishMeterOutLine.setAbsolutePos(kSidePanelWidth * scaleFactor,
+                                            height / 2 - blendishMeterOutLine.getHeight() - kSidePanelWidth);
+
+        blendishMeterInLabel.setAbsolutePos(width /2 - 60, height - 200);
+        blendishMeterOutLabel.setAbsolutePos(width / 2 - 60, height - 190);
+    }
 
 private:
     ThemeInitializer::SharedInstance tisi;
@@ -444,11 +461,6 @@ private:
     BlendishSubWidgetSharedContext blendish;
 
     // top panel
-    /*
-    BlendishMenu blendishTopPanelMenu;
-    int menuAnimatingOpen;
-    int menuAnimatingClose;
-    */
     BlendishLabel blendishTopLabel;
 
     // main knob
@@ -461,6 +473,12 @@ private:
     ScopedPointer<BlendishComboBox> blendishAuxOptionComboBox;
     ScopedPointer<BlendishLabel> blendishAuxOptionLabel;
     const OneKnobAuxiliaryComboBoxValue* blendishAuxComboBoxValues;
+
+    // metering
+    BlendishLabel blendishMeterInLabel;
+    BlendishLabel blendishMeterOutLabel;
+    BlendishMeterLine blendishMeterOutLine;
+    BlendishMeterLine blendishMeterInLine;
 
     Rectangle<uint> getScaledArea(const Rectangle<uint>& area) const
     {

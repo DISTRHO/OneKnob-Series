@@ -34,8 +34,8 @@ enum Parameters
 {
     kParameterThreshold = 0,
     kParameterAutoGain,
-    kParameterLineUpdateTickL,
-    kParameterLineUpdateTickR,
+    kParameterLineUpdateTickIn,
+    kParameterLineUpdateTickOut,
     kParameterCount
 };
 

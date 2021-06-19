@@ -80,22 +80,22 @@ void OneKnobBrickWallLimiterPlugin::initParameter(uint32_t index, Parameter& par
         parameter.ranges.max = 1.0f;
         break;
 
-    case kParameterLineUpdateTickL:
+    case kParameterLineUpdateTickIn:
         parameter.hints      = kParameterIsAutomable | kParameterIsOutput;
-        parameter.name       = "Tick Left";
-        parameter.symbol     = "tick_l";
+        parameter.name       = "Tick In";
+        parameter.symbol     = "tick_in";
         parameter.unit       = "";
-        parameter.ranges.def = kParameterDefaults[kParameterLineUpdateTickL];
+        parameter.ranges.def = kParameterDefaults[kParameterLineUpdateTickIn];
         parameter.ranges.min = -1.0f;
         parameter.ranges.max = 1.0f;
         break;
 
-    case kParameterLineUpdateTickR:
+    case kParameterLineUpdateTickOut:
         parameter.hints      = kParameterIsAutomable | kParameterIsOutput;
-        parameter.name       = "Tick Right";
-        parameter.symbol     = "tick_r";
+        parameter.name       = "Tick Out";
+        parameter.symbol     = "tick_out";
         parameter.unit       = "";
-        parameter.ranges.def = kParameterDefaults[kParameterLineUpdateTickR];
+        parameter.ranges.def = kParameterDefaults[kParameterLineUpdateTickOut];
         parameter.ranges.min = -1.0f;
         parameter.ranges.max = 1.0f;
         break;
@@ -199,7 +199,7 @@ void OneKnobBrickWallLimiterPlugin::run(const float** const inputs, float** cons
     float tmp;
 
     // TESTING
-    float highest = 0.0f;
+    float highestIn = 0.0f, highestOut = 0.0f;
 
     if (d_isNotEqual(threshold_linear, 1.0f))
     {
@@ -208,6 +208,8 @@ void OneKnobBrickWallLimiterPlugin::run(const float** const inputs, float** cons
         for (uint32_t i=0; i<frames; ++i)
         {
             tmp = *in1++;
+            highestIn = std::max(highestIn, std::abs(tmp));
+
             if (tmp > threshold)
                 tmp = threshold_with_gain;
             else if (tmp < -threshold)
@@ -216,7 +218,7 @@ void OneKnobBrickWallLimiterPlugin::run(const float** const inputs, float** cons
                 tmp *= gain;
 
             *out1++ = tmp;
-            highest = std::max(highest, std::abs(tmp));
+            highestOut = std::max(highestOut, std::abs(tmp));
 
             tmp = *in2++;
             if (tmp > threshold)
@@ -236,12 +238,15 @@ void OneKnobBrickWallLimiterPlugin::run(const float** const inputs, float** cons
 
         for (uint32_t i=0; i<frames; ++i)
         {
+            tmp = *in1++;
+            highestIn = std::max(highestIn, std::abs(tmp));
             tmp = *out1++;
-            highest = std::max(highest, std::abs(tmp));
+            highestOut = std::max(highestOut, std::abs(tmp));
         }
     }
 
-    parameters[kParameterLineUpdateTickL] = highest + (output2nd ? 0.0001f : 0.0f);
+    parameters[kParameterLineUpdateTickIn] = (output2nd ? highestIn : -highestIn) + (float)rand() / RAND_MAX * 0.0001;
+    parameters[kParameterLineUpdateTickOut] = (output2nd ? highestOut : -highestOut) + (float)rand() / RAND_MAX * 0.0001;
     output2nd = !output2nd;
 }
 

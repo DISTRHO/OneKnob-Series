@@ -34,16 +34,16 @@ static const OneKnobMainControl main = {
 
 static const OneKnobAuxiliaryComboBoxValue comboBoxValues[] = {
     {
-        0, "Off", "Nothing here"
+        0, "Off", "Signal pass-through"
     },
     {
-        1, "Light", "Text to place for Low things"
+        1, "Light", "Threshold: -12dB\nKnee: -12dB\nRatio: 2dB\nAttack: 10ms\nMakeup: -3dB"
     },
     {
-        2, "Mild", "Text to place for Mid things"
+        2, "Mild", "Threshold: -12dB\nKnee: -12dB\nRatio: 2dB\nAttack: 10ms\nMakeup: -3dB"
     },
     {
-        3, "Heavy", "Text to place for High things"
+        3, "Heavy", "Threshold: -15dB\nKnee: -15dB\nRatio: 2dB\nAttack: 10ms\nMakeup: -3dB"
     },
 };
 
@@ -61,15 +61,15 @@ OneKnobCompressorUI::OneKnobCompressorUI()
 {
     // setup OneKnob UI
     const Rectangle<uint> mainArea(kSidePanelWidth,
-                                   kDefaultHeight/4,
-                                   kDefaultWidth/3 - kSidePanelWidth,
-                                   kDefaultHeight/2);
+                                   kDefaultHeight/4 - kSidePanelWidth,
+                                   kDefaultWidth/2 - kSidePanelWidth,
+                                   kDefaultHeight*5/8 - kSidePanelWidth);
     createMainControl(mainArea, main);
 
-    const Rectangle<uint> comboBoxArea(kDefaultWidth*2/3,
+    const Rectangle<uint> comboBoxArea(kDefaultWidth/2,
                                        kDefaultHeight/4,
-                                       kDefaultWidth/3 - kSidePanelWidth,
-                                       kDefaultHeight/2);
+                                       kDefaultWidth/2 - kSidePanelWidth,
+                                       kDefaultHeight*3/4);
     createAuxiliaryComboBox(comboBoxArea, comboBox);
 
     repositionWidgets();
@@ -91,13 +91,11 @@ void OneKnobCompressorUI::parameterChanged(const uint32_t index, const float val
     case kParameterMode:
         setAuxiliaryComboBoxValue(value);
         break;
-    case kParameterLineUpdateTickL:
-        // TESTING
-        lines[lineWriteIndex] = value;
-        if (++lineWriteIndex == sizeof(lines)/sizeof(lines[0]))
-            lineWriteIndex = 0;
+    case kParameterLineUpdateTickIn:
+        pushInputMeter(std::abs(value));
         break;
-    case kParameterLineUpdateTickR:
+    case kParameterLineUpdateTickOut:
+        pushOutputMeter(std::abs(value));
         break;
     }
 
