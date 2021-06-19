@@ -64,8 +64,8 @@ struct ThemeInitializer {
     ThemeInitializer()
     {
         BlendishTheme theme = blendishGetDefaultTheme();
-        theme.labelTheme.textColor = theme.labelTheme.textSelectedColor;
-        theme.checkBoxTheme.textColor = theme.checkBoxTheme.textSelectedColor;
+        theme.labelTheme.textColor = Color::fromHTML("#cacacb");
+        theme.checkBoxTheme.textColor = Color::fromHTML("#fff");
         blendishSetTheme(theme);
     }
 
@@ -110,10 +110,8 @@ public:
 
         blendish.setScaleFactor(scaleFactor * 2);
         blendish.setSize(width * scaleFactor, height * scaleFactor);
+        blendishTopLabel.setActive(true);
         blendishTopLabel.setLabel(DISTRHO_PLUGIN_BRAND " " DISTRHO_PLUGIN_NAME);
-        /*
-        blendishTopPanelMenu.setLabel(DISTRHO_PLUGIN_BRAND " " DISTRHO_PLUGIN_NAME);
-        */
 
         // TESTING
         lineWriteIndex = 0;
@@ -136,24 +134,25 @@ protected:
 
         // frame inner
         Color::fromHTML("#3b393d").setFor(context);
-        Rectangle<uint>(kSidePanelWidth,
-                        kSidePanelWidth,
-                        width - kSidePanelWidth * 2,
-                        height - kSidePanelWidth * 2).drawOutline(context);
+        Rectangle<uint>((kSidePanelWidth + 1) * scaleFactor,
+                        (kSidePanelWidth + 1) * scaleFactor,
+                        width - (kSidePanelWidth + 1) * scaleFactor * 2,
+                        height - (kSidePanelWidth + 1) * scaleFactor * 2).drawOutline(context, scaleFactor);
 
         // frame outer
         Color::fromHTML("#000000").setFor(context);
-        Rectangle<uint>(kSidePanelWidth - 1,
-                        kSidePanelWidth - 1,
-                        width - kSidePanelWidth * 2 + 2,
-                        height - kSidePanelWidth * 2 + 2).drawOutline(context);
+        Rectangle<uint>(kSidePanelWidth * scaleFactor,
+                        kSidePanelWidth * scaleFactor,
+                        width - kSidePanelWidth * scaleFactor * 2,
+                        height - kSidePanelWidth * scaleFactor * 2).drawOutline(context, scaleFactor);
 
         // brand line
         {
             const uint y = kSidePanelWidth * scaleFactor + blendishTopLabel.getHeight() * 2 + 2 * scaleFactor;
             // for text use #cacacb
             Color::fromHTML("#3b393d").setFor(context);
-            Line<uint>(kSidePanelWidth + 4, y, width - kSidePanelWidth - 4, y).draw(context);
+            Line<uint>((kSidePanelWidth + 4) * scaleFactor, y,
+                       width - (kSidePanelWidth + 4) * scaleFactor, y).draw(context);
         }
 
         // flow line
@@ -167,23 +166,23 @@ protected:
         int k = lineWriteIndex;
 
         glLineWidth(scaleFactor);
-        glScissor(startX, kSidePanelWidth * 2 * scaleFactor, size * scaleFactor, 160 * scaleFactor);
+        glScissor(startX, kSidePanelWidth * 2 * scaleFactor, size * scaleFactor, 120 * scaleFactor);
         glEnable(GL_SCISSOR_TEST);
         glBegin(GL_LINE_LOOP);
 
         glVertex2d(kSidePanelWidth, height);
         glVertex2d(kSidePanelWidth, startY);
-        glVertex2d(kSidePanelWidth, startY - lines[k] * 160 * scaleFactor);
+        glVertex2d(kSidePanelWidth, startY - lines[k] * 120 * scaleFactor);
 
         for (int i=0; i<size; ++i, ++k)
         {
             if (k == size)
                 k = 0;
-            glVertex2d(startX + i * scaleFactor, startY - lines[k] * 160 * scaleFactor);
+            glVertex2d(startX + i * scaleFactor, startY - lines[k] * 120 * scaleFactor);
         }
 
-        glVertex2d(startX + size * scaleFactor, startY - lines[k-1] * 160 * scaleFactor);
-        glVertex2d(width - kSidePanelWidth, startY - lines[k-1] * 160 * scaleFactor);
+        glVertex2d(startX + size * scaleFactor, startY - lines[k-1] * 120 * scaleFactor);
+        glVertex2d(width - kSidePanelWidth, startY - lines[k-1] * 120 * scaleFactor);
         glVertex2d(width - kSidePanelWidth, height);
 
         glEnd();
@@ -315,6 +314,7 @@ protected:
 
         label->setId(option.id);
         label->setLabel(option.description);
+        label->setFontSize(10);
 
         auxOptionArea = getScaledArea(area);
         blendishAuxOptionCheckBox = checkBox;
@@ -353,6 +353,7 @@ protected:
 
         label->setId(option.id);
         label->setLabel("Loading...");
+        label->setFontSize(10);
 
         auxOptionArea = getScaledArea(area);
         blendishAuxComboBoxValues = option.values;
@@ -370,7 +371,7 @@ protected:
         DISTRHO_SAFE_ASSERT_INT_RETURN(index >= 0 && index <= 4, index,); // FIXME max range
 
         blendishAuxOptionComboBox->setCurrentIndex(index, false);
-        blendishAuxOptionLabel->setLabel(blendishAuxComboBoxValues[index].description);
+        blendishAuxOptionLabel->setLabel(blendishAuxComboBoxValues[index].description, false);
     }
 
     // ----------------------------------------------------------------------------------------------------------------
@@ -396,15 +397,9 @@ protected:
         const uint width = getWidth();
 
         // top panel
-        blendishTopLabel.setAbsoluteX(kSidePanelWidth / 2 - 2);
-        blendishTopLabel.setAbsoluteY(kSidePanelWidth / 2);
-        blendishTopLabel.setWidth(width - kSidePanelWidth * 2);
-        /*
-        blendishTopPanelMenu.setAbsoluteX((kSidePanelWidth + 4) * scaleFactor);
-        blendishTopPanelMenu.setAbsoluteY(-3 * scaleFactor);
-        blendishTopPanelMenu.setWidth(width / (2 / scaleFactor) - (kSidePanelWidth + 4) * 2 * scaleFactor); // FIXME
-        blendishTopPanelMenu.setHeight(21 * scaleFactor);
-        */
+        blendishTopLabel.setAbsoluteX(4 * scaleFactor);
+        blendishTopLabel.setAbsoluteY(8 * scaleFactor);
+        blendishTopLabel.setWidth(width - (kSidePanelWidth + 10) * scaleFactor);
 
         // main control
         if (BlendishKnob* const knob = blendishMainControl.get())
@@ -434,6 +429,8 @@ protected:
         {
             label->setAbsoluteX(auxOptionArea.getX());
             label->setAbsoluteY(auxOptionArea.getY() + auxWidgetHeight + 2);
+            label->setWidth(auxOptionArea.getWidth());
+            label->setHeight(auxOptionArea.getHeight() - auxWidgetHeight - 2);
         }
     }
 
@@ -482,7 +479,7 @@ private:
     void blendishComboBoxIndexChanged(BlendishComboBox* const comboBox, int index) override
     {
         if (BlendishLabel* const label = blendishAuxOptionLabel.get())
-            label->setLabel(blendishAuxComboBoxValues[index].description);
+            label->setLabel(blendishAuxComboBoxValues[index].description, false);
 
         setParameterValue(comboBox->getId(), index);
     }

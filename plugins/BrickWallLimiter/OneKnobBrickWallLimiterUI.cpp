@@ -50,10 +50,10 @@ OneKnobBrickWallLimiterUI::OneKnobBrickWallLimiterUI()
                                    kDefaultHeight/2);
     createMainControl(mainArea, main);
 
-    const Rectangle<uint> checkBoxArea(kDefaultWidth*2/3,
+    const Rectangle<uint> checkBoxArea(kDefaultWidth/2,
                                        kDefaultHeight/4,
-                                       kDefaultWidth/3 - kSidePanelWidth,
-                                       kDefaultHeight/2);
+                                       kDefaultWidth/2 - kSidePanelWidth,
+                                       kDefaultHeight*3/4);
     createAuxiliaryCheckBox(checkBoxArea, checkBox);
 
     repositionWidgets();
