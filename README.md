@@ -12,6 +12,9 @@ This collection currently includes:<br/>
 
 ## Screenshots
 
+Brick Wall Limiter:<br/>
+![BrickWallLimiter](plugins/BrickWallLimiter/Screenshot.png "Brick Wall Limiter")<br/>
+
 Compressor:<br/>
 ![Compressor](plugins/Compressor/Screenshot.png "Compressor")<br/>
 
