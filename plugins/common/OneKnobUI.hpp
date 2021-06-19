@@ -60,6 +60,31 @@ struct OneKnobAuxiliaryComboBox {
 
 // --------------------------------------------------------------------------------------------------------------------
 
+struct ThemeInitializer {
+    ThemeInitializer()
+    {
+        BlendishTheme theme = blendishGetDefaultTheme();
+        theme.labelTheme.textColor = theme.labelTheme.textSelectedColor;
+        theme.checkBoxTheme.textColor = theme.checkBoxTheme.textSelectedColor;
+        blendishSetTheme(theme);
+    }
+
+    static ThemeInitializer& getInstance()
+    {
+        static ThemeInitializer themeinit;
+        return themeinit;
+    }
+
+    struct SharedInstance {
+        SharedInstance()
+        {
+            ThemeInitializer::getInstance();
+        }
+    };
+};
+
+// --------------------------------------------------------------------------------------------------------------------
+
 class OneKnobUI : public UI,
                   public BlendishComboBox::Callback,
                   public ButtonEventHandler::Callback,
@@ -68,6 +93,7 @@ class OneKnobUI : public UI,
 public:
     OneKnobUI(const uint width, const uint height)
         : UI(width, height),
+          tisi(),
           blendish(this),
           blendishTopLabel(&blendish),
           /*
@@ -252,13 +278,14 @@ protected:
     {
         DISTRHO_SAFE_ASSERT_RETURN(blendishMainControl == nullptr,);
 
-        BlendishNumberField* const knob = new BlendishNumberField(&blendish);
+        BlendishKnob* const knob = new BlendishKnob(&blendish);
 
         knob->setCallback(this);
         knob->setId(control.id);
         knob->setLabel(control.label);
         knob->setRange(control.min, control.max);
         knob->setDefault(control.def);
+        knob->setUnit(control.unit);
 
         mainControlArea = getScaledArea(area);
         blendishMainControl = knob;
@@ -380,7 +407,7 @@ protected:
         */
 
         // main control
-        if (BlendishNumberField* const knob = blendishMainControl.get())
+        if (BlendishKnob* const knob = blendishMainControl.get())
         {
             knob->setAbsoluteX(mainControlArea.getX());
             knob->setAbsoluteY(mainControlArea.getY());
@@ -415,6 +442,8 @@ protected:
     int lineWriteIndex;
 
 private:
+    ThemeInitializer::SharedInstance tisi;
+
     BlendishSubWidgetSharedContext blendish;
 
     // top panel
@@ -427,7 +456,7 @@ private:
 
     // main knob
     Rectangle<uint> mainControlArea;
-    ScopedPointer<BlendishNumberField> blendishMainControl;
+    ScopedPointer<BlendishKnob> blendishMainControl;
 
     // auxiliary option
     Rectangle<uint> auxOptionArea;
@@ -468,21 +497,21 @@ private:
     void knobDragStarted(SubWidget* const widget) override
     {
         if (blendishMainControl == widget)
-            if (BlendishNumberField* const knob = blendishMainControl.get())
+            if (BlendishKnob* const knob = blendishMainControl.get())
                 editParameter(knob->getId(), true);
     }
 
     void knobDragFinished(SubWidget* const widget) override
     {
         if (blendishMainControl == widget)
-            if (BlendishNumberField* const knob = blendishMainControl.get())
+            if (BlendishKnob* const knob = blendishMainControl.get())
                 editParameter(knob->getId(), false);
     }
 
     void knobValueChanged(SubWidget* const widget, const float value) override
     {
         if (blendishMainControl == widget)
-            if (BlendishNumberField* const knob = blendishMainControl.get())
+            if (BlendishKnob* const knob = blendishMainControl.get())
                 setParameterValue(knob->getId(), value);
     }
 
