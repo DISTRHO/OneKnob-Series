@@ -9,6 +9,7 @@ This is very much WORK IN PROGRESS!
 This collection currently includes:<br/>
  - Brick Wall Limiter
  - Compressor
+ - Maximizer
 
 ## Screenshots
 
@@ -17,6 +18,9 @@ Brick Wall Limiter:<br/>
 
 Compressor:<br/>
 ![Compressor](plugins/Compressor/Screenshot.png "Compressor")<br/>
+
+Maximizer:<br/>
+![Maximizer](plugins/Maximizer/Screenshot.png "Maximizer")<br/>
 
 ## Guidelines
 

@@ -46,6 +46,18 @@ struct OneKnobMainControl {
     float min, max, def;
 };
 
+struct OneKnobAuxiliaryButtonGroupValue {
+    int value;
+    const char* label;
+};
+
+struct OneKnobAuxiliaryButtonGroup {
+    uint id;
+    const char* description;
+    uint count;
+    const OneKnobAuxiliaryButtonGroupValue* values;
+};
+
 struct OneKnobAuxiliaryCheckBox {
     uint id;
     const char* title;
@@ -159,6 +171,7 @@ private:
 // --------------------------------------------------------------------------------------------------------------------
 
 class OneKnobUI : public UI,
+                  public BlendishButtonGroup::Callback,
                   public BlendishComboBox::Callback,
                   public ButtonEventHandler::Callback,
                   public KnobEventHandler::Callback
@@ -169,6 +182,7 @@ public:
           tisi(),
           blendish(this),
           blendishTopLabel(&blendish),
+          blendishAuxButtonGroupValues(nullptr),
           blendishAuxComboBoxValues(nullptr),
           blendishMeterInLabel(&blendish),
           blendishMeterOutLabel(&blendish),
@@ -229,6 +243,13 @@ protected:
             Line<uint>((kSidePanelWidth + 4) * scaleFactor, y,
                        width - (kSidePanelWidth + 4) * scaleFactor, y).draw(context);
         }
+
+        // metering bounds
+        Color::fromHTML("#31363b").setFor(context);
+        Rectangle<int>(blendishMeterInLine.getAbsoluteX() * 2,
+                       blendishMeterInLine.getAbsoluteY() * 2,
+                       blendishMeterInLine.getWidth() * 2,
+                       blendishMeterInLine.getHeight() * 2).drawOutline(context);
     }
 
     // ----------------------------------------------------------------------------------------------------------------
@@ -277,6 +298,45 @@ protected:
         DISTRHO_SAFE_ASSERT_RETURN(blendishMainControl != nullptr,);
 
         blendishMainControl->setValue(value, false);
+    }
+
+    // ----------------------------------------------------------------------------------------------------------------
+    // aux buttongroup
+
+    void createAuxiliaryButtonGroup(const Rectangle<uint>& area, const OneKnobAuxiliaryButtonGroup& option)
+    {
+        DISTRHO_SAFE_ASSERT_RETURN(blendishAuxOptionButtonGroup == nullptr,);
+        DISTRHO_SAFE_ASSERT_RETURN(blendishAuxOptionLabel == nullptr,);
+        DISTRHO_SAFE_ASSERT_RETURN(blendishAuxButtonGroupValues == nullptr,);
+        DISTRHO_SAFE_ASSERT_RETURN(option.count != 0,);
+
+        BlendishButtonGroup* const buttonGroup = new BlendishButtonGroup(&blendish);
+        BlendishLabel* const label = new BlendishLabel(&blendish);
+
+        for (uint i=0; i<option.count; ++i)
+            buttonGroup->addButton(option.values[i].value, option.values[i].label);
+
+        buttonGroup->setCallback(this);
+        buttonGroup->setId(option.id);
+
+        label->setId(option.id);
+        label->setLabel(option.description);
+        label->setFontSize(10);
+
+        auxOptionArea = getScaledArea(area);
+        blendishAuxButtonGroupValues = option.values;
+        blendishAuxOptionButtonGroup = buttonGroup;
+        blendishAuxOptionLabel = label;
+    }
+
+    void setAuxiliaryButtonGroupValue(const float value)
+    {
+        DISTRHO_SAFE_ASSERT_RETURN(blendishAuxOptionButtonGroup != nullptr,);
+        DISTRHO_SAFE_ASSERT_RETURN(value >= 0.0f,);
+
+        const uint index = static_cast<uint>(value + 0.5f);
+
+        blendishAuxOptionButtonGroup->setActiveButton(index, false);
     }
 
     // ----------------------------------------------------------------------------------------------------------------
@@ -376,7 +436,7 @@ protected:
 
     void pushInputMeter(const float value)
     {
-        blendishMeterInLine.push(value);
+        blendishMeterInLine.push(std::min(1.1f, value));
 
         if (value < 0.0001f)
             return blendishMeterInLabel.setLabel("In: -inf dB");
@@ -388,7 +448,7 @@ protected:
 
     void pushOutputMeter(const float value)
     {
-        blendishMeterOutLine.push(value);
+        blendishMeterOutLine.push(std::min(1.1f, value));
 
         if (value < 0.0001f)
             return blendishMeterOutLabel.setLabel("Out: -inf dB");
@@ -420,6 +480,14 @@ protected:
         // auxiliary options
         uint auxWidgetHeight = 0;
         uint auxWidgetPosX = 0;
+
+        if (BlendishButtonGroup* const buttonGroup = blendishAuxOptionButtonGroup.get())
+        {
+            buttonGroup->setAbsoluteX(auxOptionArea.getX() + auxOptionArea.getWidth()/2 - buttonGroup->getWidth()/2);
+            buttonGroup->setAbsoluteY(auxOptionArea.getY());
+            auxWidgetHeight = buttonGroup->getHeight();
+            auxWidgetPosX = buttonGroup->getAbsoluteX();
+        }
 
         if (BlendishCheckBox* const checkBox = blendishAuxOptionCheckBox.get())
         {
@@ -469,9 +537,11 @@ private:
 
     // auxiliary option
     Rectangle<uint> auxOptionArea;
+    ScopedPointer<BlendishButtonGroup> blendishAuxOptionButtonGroup;
     ScopedPointer<BlendishCheckBox> blendishAuxOptionCheckBox;
     ScopedPointer<BlendishComboBox> blendishAuxOptionComboBox;
     ScopedPointer<BlendishLabel> blendishAuxOptionLabel;
+    const OneKnobAuxiliaryButtonGroupValue* blendishAuxButtonGroupValues;
     const OneKnobAuxiliaryComboBoxValue* blendishAuxComboBoxValues;
 
     // metering
@@ -492,6 +562,11 @@ private:
         copy.setY(copy.getY() * scaleFactor);
         copy.growBy(scaleFactor);
         return copy;
+    }
+
+    void blendishButtonGroupClicked(BlendishButtonGroup* const buttonGroup, uint button) override
+    {
+        setParameterValue(buttonGroup->getId(), button);
     }
 
     void blendishComboBoxIndexChanged(BlendishComboBox* const comboBox, int index) override

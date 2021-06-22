@@ -18,6 +18,7 @@ endif
 plugins: dgl
 	$(MAKE) all -C plugins/BrickWallLimiter
 	$(MAKE) all -C plugins/Compressor
+	$(MAKE) all -C plugins/Maximizer
 
 ifneq ($(CROSS_COMPILING),true)
 gen: plugins dpf/utils/lv2_ttl_generator
@@ -39,6 +40,7 @@ clean:
 	$(MAKE) clean -C dpf/utils/lv2-ttl-generator
 	$(MAKE) clean -C plugins/BrickWallLimiter
 	$(MAKE) clean -C plugins/Compressor
+	$(MAKE) clean -C plugins/Maximizer
 	rm -rf bin build
 
 # --------------------------------------------------------------
