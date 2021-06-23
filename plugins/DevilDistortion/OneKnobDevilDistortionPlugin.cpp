@@ -1,5 +1,5 @@
 /*
- * DISTRHO OneKnob Maximizer
+ * DISTRHO OneKnob Devil's Distortion
  * Based on Steve Harris Barry's Satan Maximizer
  * Copyright (C) 2021 Filipe Coelho <falktx@falktx.com>
  * Copyright (C) 2002-2003 <steve@plugin.org.uk>
@@ -16,7 +16,7 @@
  * For a full copy of the license see the LICENSE file.
  */
 
-#include "OneKnobMaximizerPlugin.hpp"
+#include "OneKnobDevilDistortionPlugin.hpp"
 
 START_NAMESPACE_DISTRHO
 
@@ -33,7 +33,7 @@ inline MATH_CONSTEXPR float db2linear(const float db)
 
 // -----------------------------------------------------------------------
 
-OneKnobMaximizerPlugin::OneKnobMaximizerPlugin()
+OneKnobDevilDistortionPlugin::OneKnobDevilDistortionPlugin()
     : Plugin(kParameterCount, kProgramCount, kStateCount),
       buffer1(new float[MAXIMIZER_BUFFER_SIZE]),
       buffer2(new float[MAXIMIZER_BUFFER_SIZE])
@@ -42,7 +42,7 @@ OneKnobMaximizerPlugin::OneKnobMaximizerPlugin()
     loadProgram(kProgramDefault);
 }
 
-OneKnobMaximizerPlugin::~OneKnobMaximizerPlugin()
+OneKnobDevilDistortionPlugin::~OneKnobDevilDistortionPlugin()
 {
     delete[] buffer1;
     delete[] buffer2;
@@ -51,7 +51,7 @@ OneKnobMaximizerPlugin::~OneKnobMaximizerPlugin()
 // -----------------------------------------------------------------------
 // Init
 
-void OneKnobMaximizerPlugin::initParameter(uint32_t index, Parameter& parameter)
+void OneKnobDevilDistortionPlugin::initParameter(uint32_t index, Parameter& parameter)
 {
     switch (index)
     {
@@ -119,7 +119,7 @@ void OneKnobMaximizerPlugin::initParameter(uint32_t index, Parameter& parameter)
     }
 }
 
-void OneKnobMaximizerPlugin::initProgramName(uint32_t index, String& programName)
+void OneKnobDevilDistortionPlugin::initProgramName(uint32_t index, String& programName)
 {
     switch (index)
     {
@@ -129,7 +129,7 @@ void OneKnobMaximizerPlugin::initProgramName(uint32_t index, String& programName
     }
 }
 
-void OneKnobMaximizerPlugin::initState(uint32_t index, String& stateKey, String& defaultStateValue)
+void OneKnobDevilDistortionPlugin::initState(uint32_t index, String& stateKey, String& defaultStateValue)
 {
     stateKey = kStateNames[index];
     defaultStateValue = kStateDefaults[index];
@@ -138,12 +138,12 @@ void OneKnobMaximizerPlugin::initState(uint32_t index, String& stateKey, String&
 // -----------------------------------------------------------------------
 // Internal data
 
-float OneKnobMaximizerPlugin::getParameterValue(uint32_t index) const
+float OneKnobDevilDistortionPlugin::getParameterValue(uint32_t index) const
 {
     return parameters[index];
 }
 
-void OneKnobMaximizerPlugin::setParameterValue(const uint32_t index, const float value)
+void OneKnobDevilDistortionPlugin::setParameterValue(const uint32_t index, const float value)
 {
     switch (index)
     {
@@ -154,7 +154,7 @@ void OneKnobMaximizerPlugin::setParameterValue(const uint32_t index, const float
     }
 }
 
-void OneKnobMaximizerPlugin::loadProgram(uint32_t index)
+void OneKnobDevilDistortionPlugin::loadProgram(uint32_t index)
 {
     switch (index)
     {
@@ -165,7 +165,7 @@ void OneKnobMaximizerPlugin::loadProgram(uint32_t index)
     }
 }
 
-void OneKnobMaximizerPlugin::setState(const char*, const char*)
+void OneKnobDevilDistortionPlugin::setState(const char*, const char*)
 {
     // our states are purely UI related, so we do nothing with them on DSP side
 }
@@ -173,7 +173,7 @@ void OneKnobMaximizerPlugin::setState(const char*, const char*)
 // -----------------------------------------------------------------------
 // Process
 
-void OneKnobMaximizerPlugin::activate()
+void OneKnobDevilDistortionPlugin::activate()
 {
     std::memset(buffer1, 0, sizeof(float)*MAXIMIZER_BUFFER_SIZE);
     std::memset(buffer2, 0, sizeof(float)*MAXIMIZER_BUFFER_SIZE);
@@ -181,7 +181,7 @@ void OneKnobMaximizerPlugin::activate()
     env = 0.0f;
 }
 
-void OneKnobMaximizerPlugin::run(const float** const inputs, float** const outputs, const uint32_t frames)
+void OneKnobDevilDistortionPlugin::run(const float** const inputs, float** const outputs, const uint32_t frames)
 {
     const float* in1  = inputs[0];
     const float* in2  = inputs[1];
@@ -236,7 +236,7 @@ void OneKnobMaximizerPlugin::run(const float** const inputs, float** const outpu
 
 Plugin* createPlugin()
 {
-    return new OneKnobMaximizerPlugin();
+    return new OneKnobDevilDistortionPlugin();
 }
 
 // -----------------------------------------------------------------------

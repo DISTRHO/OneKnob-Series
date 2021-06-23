@@ -7,16 +7,16 @@
 # --------------------------------------------------------------
 # Project name, used for binaries
 
-NAME = OK-Maximizer
+NAME = OK-BrickwallLimiter
 
 # --------------------------------------------------------------
 # Files to build
 
 FILES_DSP = \
-	OneKnobMaximizerPlugin.cpp
+	OneKnobBrickwallLimiterPlugin.cpp
 
 FILES_UI = \
-	OneKnobMaximizerUI.cpp \
+	OneKnobBrickwallLimiterUI.cpp \
 	../../dpf-widgets/opengl/Blendish.cpp
 
 # --------------------------------------------------------------

@@ -1,5 +1,5 @@
 /*
- * DISTRHO OneKnob Maximizer
+ * DISTRHO OneKnob Devil's Distortion
  * Based on Steve Harris Barry's Satan Maximizer
  * Copyright (C) 2021 Filipe Coelho <falktx@falktx.com>
  * Copyright (C) 2002-2003 <steve@plugin.org.uk>
@@ -27,10 +27,10 @@ START_NAMESPACE_DISTRHO
 
 // -----------------------------------------------------------------------
 
-class OneKnobMaximizerUI : public OneKnobUI
+class OneKnobDevilDistortionUI : public OneKnobUI
 {
 public:
-    OneKnobMaximizerUI();
+    OneKnobDevilDistortionUI();
 
 protected:
     // -------------------------------------------------------------------
@@ -42,7 +42,7 @@ protected:
 
 private:
 
-    DISTRHO_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(OneKnobMaximizerUI)
+    DISTRHO_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(OneKnobDevilDistortionUI)
 };
 
 // -----------------------------------------------------------------------

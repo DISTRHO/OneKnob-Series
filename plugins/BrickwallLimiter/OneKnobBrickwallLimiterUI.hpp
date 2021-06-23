@@ -1,5 +1,5 @@
 /*
- * DISTRHO OneKnob BrickWall Limiter
+ * DISTRHO OneKnob Brickwall Limiter
  * Copyright (C) 2021 Filipe Coelho <falktx@falktx.com>
  *
  * This program is free software; you can redistribute it and/or
@@ -25,10 +25,10 @@ START_NAMESPACE_DISTRHO
 
 // -----------------------------------------------------------------------
 
-class OneKnobBrickWallLimiterUI : public OneKnobUI
+class OneKnobBrickwallLimiterUI : public OneKnobUI
 {
 public:
-    OneKnobBrickWallLimiterUI();
+    OneKnobBrickwallLimiterUI();
 
 protected:
     // -------------------------------------------------------------------
@@ -40,7 +40,7 @@ protected:
 
 private:
 
-    DISTRHO_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(OneKnobBrickWallLimiterUI)
+    DISTRHO_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(OneKnobBrickwallLimiterUI)
 };
 
 // -----------------------------------------------------------------------

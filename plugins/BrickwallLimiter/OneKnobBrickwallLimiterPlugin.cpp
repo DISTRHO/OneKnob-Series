@@ -1,5 +1,5 @@
 /*
- * DISTRHO OneKnob BrickWall Limiter
+ * DISTRHO OneKnob Brickwall Limiter
  * Copyright (C) 2021 Filipe Coelho <falktx@falktx.com>
  *
  * This program is free software; you can redistribute it and/or
@@ -14,7 +14,7 @@
  * For a full copy of the license see the LICENSE file.
  */
 
-#include "OneKnobBrickWallLimiterPlugin.hpp"
+#include "OneKnobBrickwallLimiterPlugin.hpp"
 
 START_NAMESPACE_DISTRHO
 
@@ -46,7 +46,7 @@ inline MATH_CONSTEXPR float invgain(const float linearThreshold)
 
 // -----------------------------------------------------------------------
 
-OneKnobBrickWallLimiterPlugin::OneKnobBrickWallLimiterPlugin()
+OneKnobBrickwallLimiterPlugin::OneKnobBrickwallLimiterPlugin()
     : Plugin(kParameterCount, kProgramCount, kStateCount)
 {
     // load default values
@@ -56,7 +56,7 @@ OneKnobBrickWallLimiterPlugin::OneKnobBrickWallLimiterPlugin()
 // -----------------------------------------------------------------------
 // Init
 
-void OneKnobBrickWallLimiterPlugin::initParameter(uint32_t index, Parameter& parameter)
+void OneKnobBrickwallLimiterPlugin::initParameter(uint32_t index, Parameter& parameter)
 {
     switch (index)
     {
@@ -102,7 +102,7 @@ void OneKnobBrickWallLimiterPlugin::initParameter(uint32_t index, Parameter& par
     }
 }
 
-void OneKnobBrickWallLimiterPlugin::initProgramName(uint32_t index, String& programName)
+void OneKnobBrickwallLimiterPlugin::initProgramName(uint32_t index, String& programName)
 {
     switch (index)
     {
@@ -121,7 +121,7 @@ void OneKnobBrickWallLimiterPlugin::initProgramName(uint32_t index, String& prog
     }
 }
 
-void OneKnobBrickWallLimiterPlugin::initState(uint32_t index, String& stateKey, String& defaultStateValue)
+void OneKnobBrickwallLimiterPlugin::initState(uint32_t index, String& stateKey, String& defaultStateValue)
 {
     stateKey = kStateNames[index];
     defaultStateValue = kStateDefaults[index];
@@ -130,12 +130,12 @@ void OneKnobBrickWallLimiterPlugin::initState(uint32_t index, String& stateKey, 
 // -----------------------------------------------------------------------
 // Internal data
 
-float OneKnobBrickWallLimiterPlugin::getParameterValue(uint32_t index) const
+float OneKnobBrickwallLimiterPlugin::getParameterValue(uint32_t index) const
 {
     return parameters[index];
 }
 
-void OneKnobBrickWallLimiterPlugin::setParameterValue(const uint32_t index, const float value)
+void OneKnobBrickwallLimiterPlugin::setParameterValue(const uint32_t index, const float value)
 {
     switch (index)
     {
@@ -148,7 +148,7 @@ void OneKnobBrickWallLimiterPlugin::setParameterValue(const uint32_t index, cons
     }
 }
 
-void OneKnobBrickWallLimiterPlugin::loadProgram(const uint32_t index)
+void OneKnobBrickwallLimiterPlugin::loadProgram(const uint32_t index)
 {
     switch (index)
     {
@@ -173,7 +173,7 @@ void OneKnobBrickWallLimiterPlugin::loadProgram(const uint32_t index)
     threshold_linear = db2linear(parameters[kParameterThreshold]);
 }
 
-void OneKnobBrickWallLimiterPlugin::setState(const char*, const char*)
+void OneKnobBrickwallLimiterPlugin::setState(const char*, const char*)
 {
     // our states are purely UI related, so we do nothing with them on DSP side
 }
@@ -181,12 +181,12 @@ void OneKnobBrickWallLimiterPlugin::setState(const char*, const char*)
 // -----------------------------------------------------------------------
 // Process
 
-void OneKnobBrickWallLimiterPlugin::activate()
+void OneKnobBrickwallLimiterPlugin::activate()
 {
     // TODO force smoothing into real
 }
 
-void OneKnobBrickWallLimiterPlugin::run(const float** const inputs, float** const outputs, const uint32_t frames)
+void OneKnobBrickwallLimiterPlugin::run(const float** const inputs, float** const outputs, const uint32_t frames)
 {
     const float* in1  = inputs[0];
     const float* in2  = inputs[1];
@@ -254,7 +254,7 @@ void OneKnobBrickWallLimiterPlugin::run(const float** const inputs, float** cons
 
 Plugin* createPlugin()
 {
-    return new OneKnobBrickWallLimiterPlugin();
+    return new OneKnobBrickwallLimiterPlugin();
 }
 
 // -----------------------------------------------------------------------

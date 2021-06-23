@@ -7,16 +7,16 @@
 # --------------------------------------------------------------
 # Project name, used for binaries
 
-NAME = OK-BrickWallLimiter
+NAME = OK-DevilDistortion
 
 # --------------------------------------------------------------
 # Files to build
 
 FILES_DSP = \
-	OneKnobBrickWallLimiterPlugin.cpp
+	OneKnobDevilDistortionPlugin.cpp
 
 FILES_UI = \
-	OneKnobBrickWallLimiterUI.cpp \
+	OneKnobDevilDistortionUI.cpp \
 	../../dpf-widgets/opengl/Blendish.cpp
 
 # --------------------------------------------------------------

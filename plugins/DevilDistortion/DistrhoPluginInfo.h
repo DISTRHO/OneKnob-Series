@@ -1,5 +1,5 @@
 /*
- * DISTRHO OneKnob Maximizer
+ * DISTRHO OneKnob Devil's Distortion
  * Based on Steve Harris Barry's Satan Maximizer
  * Copyright (C) 2021 Filipe Coelho <falktx@falktx.com>
  * Copyright (C) 2002-2003 <steve@plugin.org.uk>
@@ -20,8 +20,8 @@
 #define DISTRHO_PLUGIN_INFO_H_INCLUDED
 
 #define DISTRHO_PLUGIN_BRAND "DISTRHO"
-#define DISTRHO_PLUGIN_NAME  "OneKnob Maximizer"
-#define DISTRHO_PLUGIN_URI   "https://kx.studio/Plugins:OneKnob#Maximizer"
+#define DISTRHO_PLUGIN_NAME  "OneKnob Devil's Distortion"
+#define DISTRHO_PLUGIN_URI   "https://kx.studio/Plugins:OneKnob#DevilDistortion"
 
 #define DISTRHO_PLUGIN_HAS_UI        1
 #define DISTRHO_PLUGIN_IS_RT_SAFE    1
@@ -30,8 +30,7 @@
 #define DISTRHO_PLUGIN_WANT_PROGRAMS 1
 #define DISTRHO_PLUGIN_WANT_STATE    1
 
-// TODO
-#define DISTRHO_PLUGIN_LV2_CATEGORY "lv2:CompressorPlugin"
+#define DISTRHO_PLUGIN_LV2_CATEGORY "lv2:DistortionPlugin"
 
 enum Parameters
 {

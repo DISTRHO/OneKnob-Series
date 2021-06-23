@@ -16,9 +16,9 @@ ifeq ($(HAVE_OPENGL),true)
 endif
 
 plugins: dgl
-	$(MAKE) all -C plugins/BrickWallLimiter
+	$(MAKE) all -C plugins/BrickwallLimiter
 	$(MAKE) all -C plugins/Compressor
-	$(MAKE) all -C plugins/Maximizer
+	$(MAKE) all -C plugins/DevilDistortion
 
 ifneq ($(CROSS_COMPILING),true)
 gen: plugins dpf/utils/lv2_ttl_generator
@@ -38,9 +38,9 @@ endif
 clean:
 	$(MAKE) clean -C dpf/dgl
 	$(MAKE) clean -C dpf/utils/lv2-ttl-generator
-	$(MAKE) clean -C plugins/BrickWallLimiter
+	$(MAKE) clean -C plugins/BrickwallLimiter
 	$(MAKE) clean -C plugins/Compressor
-	$(MAKE) clean -C plugins/Maximizer
+	$(MAKE) clean -C plugins/DevilDistortion
 	rm -rf bin build
 
 # --------------------------------------------------------------

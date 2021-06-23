@@ -1,6 +1,8 @@
 /*
- * DISTRHO OneKnob BrickWall Limiter
+ * DISTRHO OneKnob Devil's Distortion
+ * Based on Steve Harris Barry's Satan Maximizer
  * Copyright (C) 2021 Filipe Coelho <falktx@falktx.com>
+ * Copyright (C) 2002-2003 <steve@plugin.org.uk>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -14,7 +16,7 @@
  * For a full copy of the license see the LICENSE file.
  */
 
-#include "OneKnobBrickWallLimiterUI.hpp"
+#include "OneKnobDevilDistortionUI.hpp"
 
 START_NAMESPACE_DISTRHO
 
@@ -24,23 +26,33 @@ static const uint kDefaultWidth = 640;
 static const uint kDefaultHeight = 320;
 
 static const OneKnobMainControl main = {
-    kParameterThreshold,
-    "Threshold",
+    kParameterKneePoint,
+    "Knee Point",
     "dB",
-    -50.0f,
+    -90.0f,
     0.0f,
     0.0f
 };
 
-static const OneKnobAuxiliaryCheckBox checkBox = {
-    kParameterAutoGain,
-    "Automatic Gain",
-    "Activate to compensate for any perceived loudness lost.\nWinning the loudness wars!"
+static const char* const switchText = "How many samples...";
+
+static const OneKnobAuxiliaryButtonGroupValue buttonGroupValues[] = {
+    {  7,  "7" },
+    { 15, "15" },
+    { 24, "24" },
+    { 30, "30" },
+};
+
+static const OneKnobAuxiliaryButtonGroup buttonGroup = {
+    kParameterDecayTime,
+    "How many samples...",
+    sizeof(buttonGroupValues)/sizeof(buttonGroupValues[0]),
+    buttonGroupValues
 };
 
 // --------------------------------------------------------------------------------------------------------------------
 
-OneKnobBrickWallLimiterUI::OneKnobBrickWallLimiterUI()
+OneKnobDevilDistortionUI::OneKnobDevilDistortionUI()
     : OneKnobUI(kDefaultWidth, kDefaultHeight)
 {
     // setup OneKnob UI
@@ -50,11 +62,11 @@ OneKnobBrickWallLimiterUI::OneKnobBrickWallLimiterUI()
                                    kDefaultHeight*5/8 - kSidePanelWidth);
     createMainControl(mainArea, main);
 
-    const Rectangle<uint> checkBoxArea(kDefaultWidth/2,
-                                       kDefaultHeight/4,
-                                       kDefaultWidth/2 - kSidePanelWidth,
-                                       kDefaultHeight*3/4);
-    createAuxiliaryCheckBox(checkBoxArea, checkBox);
+    const Rectangle<uint> buttonGroupArea(kDefaultWidth/2,
+                                          kDefaultHeight/4,
+                                          kDefaultWidth/2 - kSidePanelWidth,
+                                          kDefaultHeight*3/4);
+    createAuxiliaryButtonGroup(buttonGroupArea, buttonGroup);
 
     repositionWidgets();
 
@@ -65,15 +77,15 @@ OneKnobBrickWallLimiterUI::OneKnobBrickWallLimiterUI()
 // --------------------------------------------------------------------------------------------------------------------
 // DSP Callbacks
 
-void OneKnobBrickWallLimiterUI::parameterChanged(const uint32_t index, const float value)
+void OneKnobDevilDistortionUI::parameterChanged(const uint32_t index, const float value)
 {
     switch (index)
     {
-    case kParameterThreshold:
+    case kParameterKneePoint:
         setMainControlValue(value);
         break;
-    case kParameterAutoGain:
-        setAuxiliaryCheckBoxValue(value);
+    case kParameterDecayTime:
+        setAuxiliaryButtonGroupValue(value);
         break;
     case kParameterLineUpdateTickIn:
         pushInputMeter(std::abs(value));
@@ -86,26 +98,20 @@ void OneKnobBrickWallLimiterUI::parameterChanged(const uint32_t index, const flo
     repaint();
 }
 
-void OneKnobBrickWallLimiterUI::programLoaded(const uint32_t index)
+void OneKnobDevilDistortionUI::programLoaded(const uint32_t index)
 {
     switch (index)
     {
     case kProgramDefault:
-        setMainControlValue(kParameterDefaults[kParameterThreshold]);
-        setAuxiliaryCheckBoxValue(kParameterDefaults[kParameterAutoGain]);
-        break;
-    case kProgramGentle:
-        break;
-    case kProgramDestructive:
-        break;
-    case kProgramInsane:
+        setMainControlValue(kParameterDefaults[kParameterKneePoint]);
+        setAuxiliaryButtonGroupValue(kParameterDefaults[kParameterDecayTime]);
         break;
     }
 
     repaint();
 }
 
-void OneKnobBrickWallLimiterUI::stateChanged(const char*, const char*)
+void OneKnobDevilDistortionUI::stateChanged(const char*, const char*)
 {
 }
 
@@ -113,7 +119,7 @@ void OneKnobBrickWallLimiterUI::stateChanged(const char*, const char*)
 
 UI* createUI()
 {
-    return new OneKnobBrickWallLimiterUI();
+    return new OneKnobDevilDistortionUI();
 }
 
 // --------------------------------------------------------------------------------------------------------------------

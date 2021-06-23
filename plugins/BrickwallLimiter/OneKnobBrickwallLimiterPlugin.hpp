@@ -1,5 +1,5 @@
 /*
- * DISTRHO OneKnob BrickWall Limiter
+ * DISTRHO OneKnob Brickwall Limiter
  * Copyright (C) 2021 Filipe Coelho <falktx@falktx.com>
  *
  * This program is free software; you can redistribute it and/or
@@ -25,10 +25,10 @@ START_NAMESPACE_DISTRHO
 
 // -----------------------------------------------------------------------
 
-class OneKnobBrickWallLimiterPlugin : public Plugin
+class OneKnobBrickwallLimiterPlugin : public Plugin
 {
 public:
-    OneKnobBrickWallLimiterPlugin();
+    OneKnobBrickwallLimiterPlugin();
 
 protected:
     // -------------------------------------------------------------------
@@ -36,7 +36,7 @@ protected:
 
     const char* getLabel() const noexcept override
     {
-        return "OneKnob BrickWall Limiter";
+        return "OneKnob Brickwall Limiter";
     }
 
     const char* getDescription() const override
@@ -99,7 +99,7 @@ private:
     float threshold_linear;
     bool output2nd = false;
 
-    DISTRHO_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(OneKnobBrickWallLimiterPlugin)
+    DISTRHO_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(OneKnobBrickwallLimiterPlugin)
 };
 
 // -----------------------------------------------------------------------

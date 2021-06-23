@@ -1,8 +1,6 @@
 /*
- * DISTRHO OneKnob Maximizer
- * Based on Steve Harris Barry's Satan Maximizer
+ * DISTRHO OneKnob Brickwall Limiter
  * Copyright (C) 2021 Filipe Coelho <falktx@falktx.com>
- * Copyright (C) 2002-2003 <steve@plugin.org.uk>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -16,7 +14,7 @@
  * For a full copy of the license see the LICENSE file.
  */
 
-#include "OneKnobMaximizerUI.hpp"
+#include "OneKnobBrickwallLimiterUI.hpp"
 
 START_NAMESPACE_DISTRHO
 
@@ -26,33 +24,23 @@ static const uint kDefaultWidth = 640;
 static const uint kDefaultHeight = 320;
 
 static const OneKnobMainControl main = {
-    kParameterKneePoint,
-    "Knee Point",
+    kParameterThreshold,
+    "Threshold",
     "dB",
-    -90.0f,
+    -50.0f,
     0.0f,
     0.0f
 };
 
-static const char* const switchText = "How many samples...";
-
-static const OneKnobAuxiliaryButtonGroupValue buttonGroupValues[] = {
-    {  7,  "7" },
-    { 15, "15" },
-    { 24, "24" },
-    { 30, "30" },
-};
-
-static const OneKnobAuxiliaryButtonGroup buttonGroup = {
-    kParameterDecayTime,
-    "How many samples...",
-    sizeof(buttonGroupValues)/sizeof(buttonGroupValues[0]),
-    buttonGroupValues
+static const OneKnobAuxiliaryCheckBox checkBox = {
+    kParameterAutoGain,
+    "Automatic Gain",
+    "Activate to compensate for any perceived loudness lost.\nWinning the loudness wars!"
 };
 
 // --------------------------------------------------------------------------------------------------------------------
 
-OneKnobMaximizerUI::OneKnobMaximizerUI()
+OneKnobBrickwallLimiterUI::OneKnobBrickwallLimiterUI()
     : OneKnobUI(kDefaultWidth, kDefaultHeight)
 {
     // setup OneKnob UI
@@ -62,11 +50,11 @@ OneKnobMaximizerUI::OneKnobMaximizerUI()
                                    kDefaultHeight*5/8 - kSidePanelWidth);
     createMainControl(mainArea, main);
 
-    const Rectangle<uint> buttonGroupArea(kDefaultWidth/2,
-                                          kDefaultHeight/4,
-                                          kDefaultWidth/2 - kSidePanelWidth,
-                                          kDefaultHeight*3/4);
-    createAuxiliaryButtonGroup(buttonGroupArea, buttonGroup);
+    const Rectangle<uint> checkBoxArea(kDefaultWidth/2,
+                                       kDefaultHeight/4,
+                                       kDefaultWidth/2 - kSidePanelWidth,
+                                       kDefaultHeight*3/4);
+    createAuxiliaryCheckBox(checkBoxArea, checkBox);
 
     repositionWidgets();
 
@@ -77,15 +65,15 @@ OneKnobMaximizerUI::OneKnobMaximizerUI()
 // --------------------------------------------------------------------------------------------------------------------
 // DSP Callbacks
 
-void OneKnobMaximizerUI::parameterChanged(const uint32_t index, const float value)
+void OneKnobBrickwallLimiterUI::parameterChanged(const uint32_t index, const float value)
 {
     switch (index)
     {
-    case kParameterKneePoint:
+    case kParameterThreshold:
         setMainControlValue(value);
         break;
-    case kParameterDecayTime:
-        setAuxiliaryButtonGroupValue(value);
+    case kParameterAutoGain:
+        setAuxiliaryCheckBoxValue(value);
         break;
     case kParameterLineUpdateTickIn:
         pushInputMeter(std::abs(value));
@@ -98,20 +86,26 @@ void OneKnobMaximizerUI::parameterChanged(const uint32_t index, const float valu
     repaint();
 }
 
-void OneKnobMaximizerUI::programLoaded(const uint32_t index)
+void OneKnobBrickwallLimiterUI::programLoaded(const uint32_t index)
 {
     switch (index)
     {
     case kProgramDefault:
-        setMainControlValue(kParameterDefaults[kParameterKneePoint]);
-        setAuxiliaryButtonGroupValue(kParameterDefaults[kParameterDecayTime]);
+        setMainControlValue(kParameterDefaults[kParameterThreshold]);
+        setAuxiliaryCheckBoxValue(kParameterDefaults[kParameterAutoGain]);
+        break;
+    case kProgramGentle:
+        break;
+    case kProgramDestructive:
+        break;
+    case kProgramInsane:
         break;
     }
 
     repaint();
 }
 
-void OneKnobMaximizerUI::stateChanged(const char*, const char*)
+void OneKnobBrickwallLimiterUI::stateChanged(const char*, const char*)
 {
 }
 
@@ -119,7 +113,7 @@ void OneKnobMaximizerUI::stateChanged(const char*, const char*)
 
 UI* createUI()
 {
-    return new OneKnobMaximizerUI();
+    return new OneKnobBrickwallLimiterUI();
 }
 
 // --------------------------------------------------------------------------------------------------------------------

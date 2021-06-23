@@ -7,20 +7,20 @@ often just one knob and a few options.
 This is very much WORK IN PROGRESS!
 
 This collection currently includes:<br/>
- - Brick Wall Limiter
+ - Brickwall Limiter
  - Compressor
- - Maximizer
+ - Devil's Distortion
 
 ## Screenshots
 
-Brick Wall Limiter:<br/>
-![BrickWallLimiter](plugins/BrickWallLimiter/Screenshot.png "Brick Wall Limiter")<br/>
+Brickwall Limiter:<br/>
+![BrickwallLimiter](plugins/BrickwallLimiter/Screenshot.png "Brickwall Limiter")<br/>
 
 Compressor:<br/>
 ![Compressor](plugins/Compressor/Screenshot.png "Compressor")<br/>
 
-Maximizer:<br/>
-![Maximizer](plugins/Maximizer/Screenshot.png "Maximizer")<br/>
+Devil's Distortion:<br/>
+![DevilDistortion](plugins/DevilDistortion/Screenshot.png "Devil's Distortion")<br/>
 
 ## Guidelines
 
