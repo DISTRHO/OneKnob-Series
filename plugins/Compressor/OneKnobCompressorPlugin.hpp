@@ -19,7 +19,7 @@
 // IDE helper (not needed for building)
 #include "DistrhoPluginInfo.h"
 
-#include "DistrhoPlugin.hpp"
+#include "OneKnobPlugin.hpp"
 
 #include "compressor_core.h"
 
@@ -27,19 +27,18 @@ START_NAMESPACE_DISTRHO
 
 // -----------------------------------------------------------------------
 
-class OneKnobCompressorPlugin : public Plugin
+class OneKnobCompressorPlugin : public OneKnobPlugin
 {
 public:
-    OneKnobCompressorPlugin();
+    OneKnobCompressorPlugin()
+        : OneKnobPlugin()
+    {
+        init();
+    }
 
 protected:
     // -------------------------------------------------------------------
     // Information
-
-    const char* getLabel() const noexcept override
-    {
-        return "OneKnob Compressor";
-    }
 
     const char* getDescription() const override
     {
@@ -47,25 +46,10 @@ protected:
         return "A stupid & simple audio compressor with a single knob, part of the DISTRHO OneKnob Series";
     }
 
-    const char* getMaker() const noexcept override
-    {
-        return "DISTRHO";
-    }
-
-    const char* getHomePage() const override
-    {
-        return DISTRHO_PLUGIN_URI;
-    }
-
     const char* getLicense() const noexcept override
     {
         // TODO
         return "LGPL";
-    }
-
-    uint32_t getVersion() const noexcept override
-    {
-        return d_version(1, 0, 0);
     }
 
     int64_t getUniqueId() const noexcept override
@@ -78,15 +62,12 @@ protected:
 
     void initParameter(uint32_t index, Parameter& parameter) override;
     void initProgramName(uint32_t index, String& programName) override;
-    void initState(uint32_t index, String& stateKey, String& defaultStateValue) override;
 
     // -------------------------------------------------------------------
     // Internal data
 
-    float getParameterValue(uint32_t index) const override;
     void setParameterValue(uint32_t index, float value) override;
     void loadProgram(uint32_t index) override;
-    void setState(const char* key, const char* value) override;
 
     // -------------------------------------------------------------------
     // Process
@@ -98,10 +79,8 @@ protected:
     // -------------------------------------------------------------------
 
 private:
-    float parameters[kParameterCount];
     sf_compressor_state_st compressor;
     bool compressorOn = false;
-    bool output2nd = false;
 
     DISTRHO_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(OneKnobCompressorPlugin)
 };

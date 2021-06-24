@@ -1,17 +1,18 @@
 /*
- * DISTRHO OneKnob Compressor
+ * DISTRHO OneKnob Series
  * Copyright (C) 2021 Filipe Coelho <falktx@falktx.com>
  *
  * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation.
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
+ * the License, or any later version.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Lesser General Public License for more details.
+ * GNU General Public License for more details.
  *
- * For a full copy of the license see the LICENSE file.
+ * For a full copy of the GNU General Public License see the LICENSE file.
  */
 
 #pragma once
@@ -36,46 +37,6 @@ static inline constexpr int lin2dbint(const float value)
 
 static const uint kSidePanelWidth = 12;
 static const uint kTopPanelHeight = 32;
-
-// --------------------------------------------------------------------------------------------------------------------
-
-struct OneKnobMainControl {
-    uint id;
-    const char* label;
-    const char* unit;
-    float min, max, def;
-};
-
-struct OneKnobAuxiliaryButtonGroupValue {
-    int value;
-    const char* label;
-};
-
-struct OneKnobAuxiliaryButtonGroup {
-    uint id;
-    const char* description;
-    uint count;
-    const OneKnobAuxiliaryButtonGroupValue* values;
-};
-
-struct OneKnobAuxiliaryCheckBox {
-    uint id;
-    const char* title;
-    const char* description;
-};
-
-struct OneKnobAuxiliaryComboBoxValue {
-    int value;
-    const char* label;
-    const char* description;
-};
-
-struct OneKnobAuxiliaryComboBox {
-    uint id;
-    const char* title;
-    uint count;
-    const OneKnobAuxiliaryComboBoxValue* values;
-};
 
 // --------------------------------------------------------------------------------------------------------------------
 
@@ -207,9 +168,33 @@ public:
         blendishMeterOutLabel.setFontSize(8);
     }
 
+protected:
+    // ----------------------------------------------------------------------------------------------------------------
+    // DSP Callbacks
+
+    void parameterChanged(const uint32_t index, const float value) override
+    {
+        switch (index)
+        {
+        case kParameterCount + kOneKnobParameterLineUpdateTickIn:
+            pushInputMeter(std::abs(value));
+            break;
+        case kParameterCount + kOneKnobParameterLineUpdateTickOut:
+            pushOutputMeter(std::abs(value));
+            break;
+        }
+    }
+
+    void programLoaded(uint32_t) override
+    {
+    }
+
+    void stateChanged(const char*, const char*) override
+    {
+    }
+
     // ----------------------------------------------------------------------------------------------------------------
 
-protected:
     void onDisplay() override
     {
         const GraphicsContext& context(getGraphicsContext());

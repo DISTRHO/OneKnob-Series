@@ -13,10 +13,10 @@ NAME = OK-BrickwallLimiter
 # Files to build
 
 FILES_DSP = \
-	OneKnobBrickwallLimiterPlugin.cpp
+	OneKnobPlugin.cpp
 
 FILES_UI = \
-	OneKnobBrickwallLimiterUI.cpp \
+	OneKnobUI.cpp \
 	../../dpf-widgets/opengl/Blendish.cpp
 
 # --------------------------------------------------------------

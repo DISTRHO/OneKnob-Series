@@ -21,34 +21,6 @@
 
 START_NAMESPACE_DISTRHO
 
-#ifdef __clang__
-# define MATH_CONSTEXPR
-#else
-# define MATH_CONSTEXPR constexpr
-#endif
-
-inline MATH_CONSTEXPR float db2linear(const float db)
-{
-    return std::pow(10.0f, 0.05f * db);
-}
-
-// -----------------------------------------------------------------------
-
-OneKnobDevilDistortionPlugin::OneKnobDevilDistortionPlugin()
-    : Plugin(kParameterCount, kProgramCount, kStateCount),
-      buffer1(new float[MAXIMIZER_BUFFER_SIZE]),
-      buffer2(new float[MAXIMIZER_BUFFER_SIZE])
-{
-    // load default values
-    loadProgram(kProgramDefault);
-}
-
-OneKnobDevilDistortionPlugin::~OneKnobDevilDistortionPlugin()
-{
-    delete[] buffer1;
-    delete[] buffer2;
-}
-
 // -----------------------------------------------------------------------
 // Init
 
@@ -98,77 +70,10 @@ void OneKnobDevilDistortionPlugin::initParameter(uint32_t index, Parameter& para
         }
         break;
 
-    case kParameterLineUpdateTickIn:
-        parameter.hints      = kParameterIsAutomable | kParameterIsOutput;
-        parameter.name       = "Tick In";
-        parameter.symbol     = "tick_in";
-        parameter.unit       = "";
-        parameter.ranges.def = kParameterDefaults[kParameterLineUpdateTickIn];
-        parameter.ranges.min = 0.0f;
-        parameter.ranges.max = 1.0f;
-        break;
-
-    case kParameterLineUpdateTickOut:
-        parameter.hints      = kParameterIsAutomable | kParameterIsOutput;
-        parameter.name       = "Tick Out";
-        parameter.symbol     = "tick_out";
-        parameter.unit       = "";
-        parameter.ranges.def = kParameterDefaults[kParameterLineUpdateTickOut];
-        parameter.ranges.min = 0.0f;
-        parameter.ranges.max = 1.0f;
+    default:
+        OneKnobPlugin::initParameter(index, parameter);
         break;
     }
-}
-
-void OneKnobDevilDistortionPlugin::initProgramName(uint32_t index, String& programName)
-{
-    switch (index)
-    {
-    case kProgramDefault:
-        programName = "Default";
-        break;
-    }
-}
-
-void OneKnobDevilDistortionPlugin::initState(uint32_t index, String& stateKey, String& defaultStateValue)
-{
-    stateKey = kStateNames[index];
-    defaultStateValue = kStateDefaults[index];
-}
-
-// -----------------------------------------------------------------------
-// Internal data
-
-float OneKnobDevilDistortionPlugin::getParameterValue(uint32_t index) const
-{
-    return parameters[index];
-}
-
-void OneKnobDevilDistortionPlugin::setParameterValue(const uint32_t index, const float value)
-{
-    switch (index)
-    {
-    case kParameterKneePoint:
-    case kParameterDecayTime:
-        parameters[index] = value;
-        break;
-    }
-}
-
-void OneKnobDevilDistortionPlugin::loadProgram(uint32_t index)
-{
-    switch (index)
-    {
-    case kProgramDefault:
-        parameters[kParameterKneePoint] = kParameterDefaults[kParameterKneePoint];
-        parameters[kParameterDecayTime] = kParameterDefaults[kParameterDecayTime];
-        break;
-    }
-}
-
-void OneKnobDevilDistortionPlugin::setState(const char*, const char*)
-{
-    // our states are purely UI related, so we do nothing with them on DSP side
 }
 
 // -----------------------------------------------------------------------
@@ -228,9 +133,7 @@ void OneKnobDevilDistortionPlugin::run(const float** const inputs, float** const
     env = env_run;
     buffer_pos = buffer_pos_run;
 
-    parameters[kParameterLineUpdateTickIn] = (output2nd ? highestIn : -highestIn) + (float)rand() / RAND_MAX * 0.0001;
-    parameters[kParameterLineUpdateTickOut] = (output2nd ? highestOut : -highestOut) + (float)rand() / RAND_MAX * 0.0001;
-    output2nd = !output2nd;
+    setMeters(highestIn, highestOut);
 }
 
 // -----------------------------------------------------------------------

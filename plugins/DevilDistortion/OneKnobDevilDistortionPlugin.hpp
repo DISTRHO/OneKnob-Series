@@ -22,29 +22,48 @@
 // IDE helper (not needed for building)
 #include "DistrhoPluginInfo.h"
 
-#include "DistrhoPlugin.hpp"
-
-#define MAXIMIZER_BUFFER_SIZE 16
-#define MAXIMIZER_BUFFER_MASK 15
+#include "OneKnobPlugin.hpp"
 
 START_NAMESPACE_DISTRHO
 
 // -----------------------------------------------------------------------
 
-class OneKnobDevilDistortionPlugin : public Plugin
+#define MAXIMIZER_BUFFER_SIZE 16
+#define MAXIMIZER_BUFFER_MASK 15
+
+#ifdef __clang__
+# define MATH_CONSTEXPR
+#else
+# define MATH_CONSTEXPR constexpr
+#endif
+
+inline MATH_CONSTEXPR float db2linear(const float db)
+{
+    return std::pow(10.0f, 0.05f * db);
+}
+
+// -----------------------------------------------------------------------
+
+class OneKnobDevilDistortionPlugin : public OneKnobPlugin
 {
 public:
-    OneKnobDevilDistortionPlugin();
-    ~OneKnobDevilDistortionPlugin() override;
+    OneKnobDevilDistortionPlugin()
+        : OneKnobPlugin(),
+          buffer1(new float[MAXIMIZER_BUFFER_SIZE]),
+          buffer2(new float[MAXIMIZER_BUFFER_SIZE])
+    {
+        init();
+    }
+
+    ~OneKnobDevilDistortionPlugin() override
+    {
+        delete[] buffer1;
+        delete[] buffer2;
+    }
 
 protected:
     // -------------------------------------------------------------------
     // Information
-
-    const char* getLabel() const noexcept override
-    {
-        return "OneKnob Maximizer";
-    }
 
     const char* getDescription() const override
     {
@@ -54,24 +73,9 @@ protected:
         "Not really as a compressor, but good harsh (non-musical) distortion";
     }
 
-    const char* getMaker() const noexcept override
-    {
-        return "DISTRHO";
-    }
-
-    const char* getHomePage() const override
-    {
-        return DISTRHO_PLUGIN_URI;
-    }
-
     const char* getLicense() const noexcept override
     {
         return "GPLv2+";
-    }
-
-    uint32_t getVersion() const noexcept override
-    {
-        return d_version(1, 0, 0);
     }
 
     int64_t getUniqueId() const noexcept override
@@ -83,16 +87,6 @@ protected:
     // Init
 
     void initParameter(uint32_t index, Parameter& parameter) override;
-    void initProgramName(uint32_t index, String& programName) override;
-    void initState(uint32_t index, String& stateKey, String& defaultStateValue) override;
-
-    // -------------------------------------------------------------------
-    // Internal data
-
-    float getParameterValue(uint32_t index) const override;
-    void setParameterValue(uint32_t index, float value) override;
-    void loadProgram(uint32_t index) override;
-    void setState(const char* key, const char* value) override;
 
     // -------------------------------------------------------------------
     // Process
@@ -103,12 +97,10 @@ protected:
     // -------------------------------------------------------------------
 
 private:
-    float parameters[kParameterCount];
     float* const buffer1;
     float* const buffer2;
     uint buffer_pos = 0;
     float env = 0.0f;
-    bool output2nd = false;
 
     DISTRHO_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(OneKnobDevilDistortionPlugin)
 };

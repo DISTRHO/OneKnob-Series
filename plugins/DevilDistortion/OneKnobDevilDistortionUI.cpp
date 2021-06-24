@@ -88,11 +88,8 @@ void OneKnobDevilDistortionUI::parameterChanged(const uint32_t index, const floa
     case kParameterDecayTime:
         setAuxiliaryButtonGroupValue(value);
         break;
-    case kParameterLineUpdateTickIn:
-        pushInputMeter(std::abs(value));
-        break;
-    case kParameterLineUpdateTickOut:
-        pushOutputMeter(std::abs(value));
+    default:
+        OneKnobUI::parameterChanged(index, value);
         break;
     }
 
@@ -103,17 +100,13 @@ void OneKnobDevilDistortionUI::programLoaded(const uint32_t index)
 {
     switch (index)
     {
-    case kProgramDefault:
+    case kOneKnobProgramDefault:
         setMainControlValue(kParameterDefaults[kParameterKneePoint]);
         setAuxiliaryButtonGroupValue(kParameterDefaults[kParameterDecayTime]);
         break;
     }
 
     repaint();
-}
-
-void OneKnobDevilDistortionUI::stateChanged(const char*, const char*)
-{
 }
 
 // --------------------------------------------------------------------------------------------------------------------

@@ -21,18 +21,6 @@
 START_NAMESPACE_DISTRHO
 
 // -----------------------------------------------------------------------
-
-OneKnobCompressorPlugin::OneKnobCompressorPlugin()
-    : Plugin(kParameterCount, kProgramCount, kStateCount)
-{
-    // load default values
-    loadProgram(kProgramDefault);
-
-    // reset filter
-    deactivate();
-}
-
-// -----------------------------------------------------------------------
 // Init
 
 void OneKnobCompressorPlugin::initParameter(uint32_t index, Parameter& parameter)
@@ -74,24 +62,8 @@ void OneKnobCompressorPlugin::initParameter(uint32_t index, Parameter& parameter
         }
         break;
 
-    case kParameterLineUpdateTickIn:
-        parameter.hints      = kParameterIsAutomable | kParameterIsOutput;
-        parameter.name       = "Tick In";
-        parameter.symbol     = "tick_in";
-        parameter.unit       = "";
-        parameter.ranges.def = kParameterDefaults[kParameterLineUpdateTickIn];
-        parameter.ranges.min = 0.0f;
-        parameter.ranges.max = 1.0f;
-        break;
-
-    case kParameterLineUpdateTickOut:
-        parameter.hints      = kParameterIsAutomable | kParameterIsOutput;
-        parameter.name       = "Tick Out";
-        parameter.symbol     = "tick_out";
-        parameter.unit       = "";
-        parameter.ranges.def = kParameterDefaults[kParameterLineUpdateTickOut];
-        parameter.ranges.min = 0.0f;
-        parameter.ranges.max = 1.0f;
+    default:
+        OneKnobPlugin::initParameter(index, parameter);
         break;
     }
 }
@@ -100,9 +72,6 @@ void OneKnobCompressorPlugin::initProgramName(uint32_t index, String& programNam
 {
     switch (index)
     {
-    case kProgramDefault:
-        programName = "Default";
-        break;
     case kProgramConservative:
         programName = "Conservative";
         break;
@@ -112,32 +81,24 @@ void OneKnobCompressorPlugin::initProgramName(uint32_t index, String& programNam
     case kProgramExtreme:
         programName = "Extreme";
         break;
+    default:
+        OneKnobPlugin::initProgramName(index, programName);
+        break;
     }
-}
-
-void OneKnobCompressorPlugin::initState(uint32_t index, String& stateKey, String& defaultStateValue)
-{
-    stateKey = kStateNames[index];
-    defaultStateValue = kStateDefaults[index];
 }
 
 // -----------------------------------------------------------------------
 // Internal data
 
-float OneKnobCompressorPlugin::getParameterValue(uint32_t index) const
-{
-    return parameters[index];
-}
-
 void OneKnobCompressorPlugin::setParameterValue(const uint32_t index, const float value)
 {
+    OneKnobPlugin::setParameterValue(index, value);
+
     switch (index)
     {
     case kParameterRelease:
     case kParameterMode:
     {
-        parameters[index] = value;
-
         const float release = parameters[kParameterRelease];
         const int mode = static_cast<int>(parameters[kParameterMode] + 0.5f);
 
@@ -168,10 +129,6 @@ void OneKnobCompressorPlugin::loadProgram(uint32_t index)
 {
     switch (index)
     {
-    case kProgramDefault:
-        parameters[kParameterRelease] = kParameterDefaults[kParameterRelease];
-        parameters[kParameterMode] = kParameterDefaults[kParameterMode];
-        break;
     case kProgramConservative:
         parameters[kParameterRelease] = 100.0f;
         parameters[kParameterMode] = 1.0f;
@@ -184,15 +141,13 @@ void OneKnobCompressorPlugin::loadProgram(uint32_t index)
         parameters[kParameterRelease] = 100.0f;
         parameters[kParameterMode] = 3.0f;
         break;
+    default:
+        OneKnobPlugin::loadProgram(index);
+        break;
     }
 
     // activate filter parameters
     activate();
-}
-
-void OneKnobCompressorPlugin::setState(const char*, const char*)
-{
-    // our states are purely UI related, so we do nothing with them on DSP side
 }
 
 // -----------------------------------------------------------------------
@@ -236,9 +191,7 @@ void OneKnobCompressorPlugin::run(const float** const inputs, float** const outp
         highestOut = std::max(highestOut, std::abs(tmp));
     }
 
-    parameters[kParameterLineUpdateTickIn] = (output2nd ? highestIn : -highestIn) + (float)rand() / RAND_MAX * 0.0001;
-    parameters[kParameterLineUpdateTickOut] = (output2nd ? highestOut : -highestOut) + (float)rand() / RAND_MAX * 0.0001;
-    output2nd = !output2nd;
+    setMeters(highestIn, highestOut);
 }
 
 // -----------------------------------------------------------------------
