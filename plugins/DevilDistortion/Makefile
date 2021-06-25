@@ -13,10 +13,10 @@ NAME = OK-DevilDistortion
 # Files to build
 
 FILES_DSP = \
-	OneKnobDevilDistortionPlugin.cpp
+	OneKnobPlugin.cpp
 
 FILES_UI = \
-	OneKnobDevilDistortionUI.cpp \
+	OneKnobUI.cpp \
 	../../dpf-widgets/opengl/Blendish.cpp
 
 # --------------------------------------------------------------

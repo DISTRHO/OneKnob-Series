@@ -13,10 +13,10 @@ NAME = OK-Compressor
 # Files to build
 
 FILES_DSP = \
-	OneKnobCompressorPlugin.cpp
+	OneKnobPlugin.cpp
 
 FILES_UI = \
-	OneKnobCompressorUI.cpp \
+	OneKnobUI.cpp \
 	../../dpf-widgets/opengl/Blendish.cpp
 
 # --------------------------------------------------------------
