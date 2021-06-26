@@ -119,7 +119,7 @@ protected:
                 values[0].value = 5.0f;
                 values[1].label = "10 samples";
                 values[1].value = 10.0f;
-                values[2].label = "15  samples";
+                values[2].label = "15 samples";
                 values[2].value = 15.0f;
                 values[3].label = "20 samples";
                 values[3].value = 20.0f;
