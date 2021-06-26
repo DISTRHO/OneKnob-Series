@@ -29,12 +29,6 @@ START_NAMESPACE_DISTRHO
 #define MAXIMIZER_BUFFER_SIZE 16
 #define MAXIMIZER_BUFFER_MASK 15
 
-#ifdef __clang__
-# define MATH_CONSTEXPR
-#else
-# define MATH_CONSTEXPR constexpr
-#endif
-
 inline MATH_CONSTEXPR float db2linear(const float db)
 {
     return std::pow(10.0f, 0.05f * db);
@@ -108,25 +102,23 @@ protected:
             parameter.unit        = "samples";
             parameter.description = "Controls the envelope decay time in samples";
             parameter.ranges.def  = kParameterDefaults[kParameterDecayTime];
-            parameter.ranges.min  = 5.0f;
+            parameter.ranges.min  = 2.0f;
             parameter.ranges.max  = 30.0f;
             if (ParameterEnumerationValue* const values = new ParameterEnumerationValue[6])
             {
-                parameter.enumValues.count = 6;
+                parameter.enumValues.count = 5;
                 parameter.enumValues.values = values;
 
-                values[0].label = "5 samples";
-                values[0].value = 5.0f;
-                values[1].label = "10 samples";
-                values[1].value = 10.0f;
-                values[2].label = "15 samples";
-                values[2].value = 15.0f;
-                values[3].label = "20 samples";
-                values[3].value = 20.0f;
-                values[4].label = "25 samples";
-                values[4].value = 25.0f;
-                values[5].label = "30 samples";
-                values[5].value = 30.0f;
+                values[0].label = "2 samples";
+                values[0].value = 2.0f;
+                values[1].label = "9 samples";
+                values[1].value = 9.0f;
+                values[2].label = "16 samples";
+                values[2].value = 16.0f;
+                values[3].label = "23 samples";
+                values[3].value = 23.0f;
+                values[4].label = "30 samples";
+                values[4].value = 30.0f;
             }
             break;
 

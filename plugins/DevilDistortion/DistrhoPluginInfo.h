@@ -44,7 +44,7 @@ enum States
 
 static const float kParameterDefaults[kParameterCount] = {
     0.0f,
-    25.0f
+    23.0f
 };
 
 static const char* const kStateNames[kStateCount] = {

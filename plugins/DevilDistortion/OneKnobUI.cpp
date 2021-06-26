@@ -38,12 +38,11 @@ static const OneKnobMainControl main = {
     0.0f
 };
 
-static const char* const switchText = "How many samples...";
-
 static const OneKnobAuxiliaryButtonGroupValue buttonGroupValues[] = {
-    {  7,  "7" },
-    { 15, "15" },
-    { 24, "24" },
+    {  2,  "2" },
+    {  9,  "9" },
+    { 16, "16" },
+    { 23, "23" },
     { 30, "30" },
 };
 

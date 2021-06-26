@@ -23,10 +23,20 @@ START_NAMESPACE_DISTRHO
 
 // -----------------------------------------------------------------------
 
+#ifdef __clang__
+# define MATH_CONSTEXPR
+#else
+# define MATH_CONSTEXPR constexpr
+#endif
+
+// -----------------------------------------------------------------------
+
 class OneKnobPlugin : public Plugin
 {
 public:
-    OneKnobPlugin() : Plugin(kParameterCount + kOneKnobBaseParameterCount, kProgramCount, kStateCount)
+    OneKnobPlugin() : Plugin(kParameterCount + kOneKnobBaseParameterCount,
+                             kProgramCount + kOneKnobBaseProgramCount, 
+                             kStateCount + kOneKnobBaseStateCount)
     {
         std::memset(parameters, 0, sizeof(parameters));
     }
