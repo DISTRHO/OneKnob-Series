@@ -26,7 +26,7 @@ START_NAMESPACE_DISTRHO
 class OneKnobPlugin : public Plugin
 {
 public:
-    OneKnobPlugin() : Plugin(kParameterCount, kProgramCount, kStateCount)
+    OneKnobPlugin() : Plugin(kParameterCount + kOneKnobBaseParameterCount, kProgramCount, kStateCount)
     {
         std::memset(parameters, 0, sizeof(parameters));
     }
