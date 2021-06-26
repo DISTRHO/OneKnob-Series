@@ -28,7 +28,13 @@ START_NAMESPACE_DISTRHO
 
 // --------------------------------------------------------------------------------------------------------------------
 
-static inline constexpr int lin2dbint(const float value)
+#ifdef __clang__
+# define MATH_CONSTEXPR
+#else
+# define MATH_CONSTEXPR constexpr
+#endif
+
+static inline MATH_CONSTEXPR int lin2dbint(const float value)
 {
     return static_cast<int>(20.0f * std::log10(value) - 0.5f);
 }
