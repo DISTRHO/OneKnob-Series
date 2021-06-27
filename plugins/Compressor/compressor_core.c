@@ -171,10 +171,12 @@ void compressor_process(sf_compressor_state_st *state, int size,
 	float compgain             = state->compgain;
 	float maxcompdiffdb        = state->maxcompdiffdb;
 
-	int chunks = size / SF_COMPRESSOR_SPU;
+	int chunks = size > SF_COMPRESSOR_SPU ? size / SF_COMPRESSOR_SPU : 1;
+	int spu = size > SF_COMPRESSOR_SPU ? SF_COMPRESSOR_SPU : size;
 	int samplepos = 0;
 
-	for (int ch = 0; ch < chunks; ch++){
+	for (int ch = 0; ch < chunks; ch++)
+	{
 		detectoravg = fixf(detectoravg, 1.0f);
 		float desiredgain = detectoravg;
 		float scaleddesiredgain = asinf(desiredgain) * state->ang90inv;
@@ -201,22 +203,26 @@ void compressor_process(sf_compressor_state_st *state, int size,
 		}
 
 		// process the chunk
-		for (int chi = 0; chi < SF_COMPRESSOR_SPU; chi++, samplepos++)
+		for (int chi = 0; chi < spu; chi++, samplepos++)
 		{
 			float inputmax;
 			inputmax = fabs(input_L[samplepos]) > fabs(input_R[samplepos]) ? fabs(input_L[samplepos]) : fabs(input_R[samplepos]);
 
 			float attenuation;
 			if (inputmax < 0.0001f)
+			{
 				attenuation = 1.0f;
-			else{
+			}
+			else
+			{
 				float inputcomp = compcurve(inputmax, k, slope, linearthreshold,
 					linearthresholdknee, threshold, knee, kneedboffset);
 				attenuation = inputcomp / inputmax;
 			}
 
 			float rate;
-			if (attenuation > detectoravg){ // if releasing
+			if (attenuation > detectoravg)
+			{ // if releasing
 				float attenuationdb = -lin2db(attenuation);
 				if (attenuationdb < 2.0f)
 					attenuationdb = 2.0f;
@@ -232,8 +238,11 @@ void compressor_process(sf_compressor_state_st *state, int size,
 			detectoravg = fixf(detectoravg, 1.0f);
 
 			if (enveloperate < 1) // attack, reduce gain
+			{
 				compgain += (scaleddesiredgain - compgain) * enveloperate;
-			else{ // release, increase gain
+			}
+			else
+			{ // release, increase gain
 				compgain *= enveloperate;
 				if (compgain > 1.0f)
 					compgain = 1.0f;
