@@ -31,6 +31,7 @@ public:
     OneKnobCompressorPlugin()
         : OneKnobPlugin()
     {
+        compressor_init(&compressor, getSampleRate());
         init();
     }
 
@@ -69,7 +70,7 @@ protected:
             parameter.unit       = "ms";
             parameter.ranges.def = kParameterDefaults[kParameterRelease];
             parameter.ranges.min = 50.0f;
-            parameter.ranges.max = 1000.0f;
+            parameter.ranges.max = 500.0f;
             break;
 
         case kParameterMode:

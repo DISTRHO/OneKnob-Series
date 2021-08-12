@@ -18,12 +18,43 @@
  * CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 */
 
-#include "compressor_core.h"
 #include <math.h>
 #include <string.h>
 
+// samples per update; the compressor works by dividing the input chunks into even smaller sizes,
+// and performs heavier calculations after each mini-chunk to adjust the final envelope
+#define SF_COMPRESSOR_SPU        32
+
+typedef struct {
+	float threshold;
+	float knee;
+	float linearpregain;
+	float linearthreshold;
+	float slope;
+	float attacksamplesinv;
+	float satreleasesamplesinv;
+	float k;
+	float kneedboffset;
+	float linearthresholdknee;
+	float mastergain;
+	float a; // adaptive release polynomial coefficients
+	float b;
+	float c;
+	float d;
+	float detectoravg;
+	float compgain;
+	float maxcompdiffdb;
+	int samplerate;
+	float ang90;
+	float ang90inv;
+} sf_compressor_state_st;
+
 static inline float lin2db(float lin){ // linear to dB
 	return 20.0f * log10f(lin);
+}
+
+static inline float cmop_db2lin(float db){ // dB to linear
+	return powf(10.0f, 0.05f * db);
 }
 
 // for more information on the knee curve, check out the compressor-curve.html demo + source code
@@ -65,11 +96,7 @@ static inline float fixf(float v, float def){
 	return v;
 }
 
-float cmop_db2lin(float db){ // dB to linear
-	return powf(10.0f, 0.05f * db);
-}
-
-void compressor_init(sf_compressor_state_st *state, int samplerate)
+static void compressor_init(sf_compressor_state_st *state, int samplerate)
 {
 	state->samplerate = samplerate;
 	state->detectoravg = 0.0f;
@@ -82,9 +109,9 @@ void compressor_init(sf_compressor_state_st *state, int samplerate)
 
 // this is the main initialization function
 // it does a bunch of pre-calculation so that the inner loop of signal processing is fast
-void compressor_set_params(sf_compressor_state_st *state, float threshold,
-	float knee, float ratio, float attack, float release, float makeup){
-
+static void compressor_set_params(sf_compressor_state_st *state, float threshold,
+	float knee, float ratio, float attack, float release, float makeup)
+{
 	// useful values
 	float linearthreshold = cmop_db2lin(threshold);
 	float slope = 1.0f / ratio;
@@ -148,9 +175,9 @@ void compressor_set_params(sf_compressor_state_st *state, float threshold,
 	state->d                    = d;
 }
 
-void compressor_process(sf_compressor_state_st *state, int size,
-                        const float *input_L, const float *input_R,
-                        float *output_L, float *output_R)
+static void compressor_process(sf_compressor_state_st *state, int size,
+                               const float *input_L, const float *input_R,
+                               float *output_L, float *output_R)
 {
 	// pull out the state into local variables
 	float threshold            = state->threshold;

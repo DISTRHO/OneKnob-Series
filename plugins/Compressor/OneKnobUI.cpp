@@ -31,7 +31,7 @@ static const OneKnobMainControl main = {
     "Release",
     "ms",
     50.0f,
-    1000.0f,
+    500.0f,
     100.0f
 };
 
