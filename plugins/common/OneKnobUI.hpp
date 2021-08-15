@@ -195,6 +195,11 @@ public:
         addIdleCallback(this, 1000 / 60); // 60fps
     }
 
+    ~OneKnobUI() override
+    {
+        removeIdleCallback(this);
+    }
+
 protected:
     // ----------------------------------------------------------------------------------------------------------------
     // DSP Callbacks

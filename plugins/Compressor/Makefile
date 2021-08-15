@@ -40,11 +40,12 @@ TARGETS += vst
 # endif
 # endif
 
-ifeq ($(HAVE_OPENGL),true)
-TARGETS += lv2_sep
-else
-TARGETS += lv2_dsp
-endif
+# ifeq ($(HAVE_OPENGL),true)
+# TARGETS += lv2_sep
+# else
+# TARGETS += lv2_dsp
+# endif
+TARGETS += lv2
 
 all: $(TARGETS)
 
