@@ -155,7 +155,6 @@ protected:
             }
 
             compressorOn = mode >= 1 && mode <= 3;
-            d_stdout("setParameterValue %i %f %i", compressorOn, release, mode);
         }
             break;
         }
