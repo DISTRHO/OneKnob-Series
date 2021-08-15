@@ -19,6 +19,11 @@
 
 #include "DistrhoPlugin.hpp"
 
+/* evil bastard */
+#define private public
+#include "FloatFifo.hpp"
+#undef private
+
 START_NAMESPACE_DISTRHO
 
 // -----------------------------------------------------------------------
@@ -33,32 +38,22 @@ START_NAMESPACE_DISTRHO
 
 class OneKnobPlugin : public Plugin
 {
+    static const uint32_t kMaxLineGraphSamples = 512;
+
 public:
     OneKnobPlugin() : Plugin(kParameterCount + kOneKnobBaseParameterCount,
                              kProgramCount + kOneKnobBaseProgramCount, 
                              kStateCount + kOneKnobBaseStateCount)
     {
         std::memset(parameters, 0, sizeof(parameters));
+
+        // real numSamples depends on buffer size
+        lineGraphFifoIn.alloc(kMaxLineGraphSamples);
+        lineGraphFifoOut.alloc(kMaxLineGraphSamples);
+        bufferSizeChanged(getBufferSize());
     }
 
 protected:
-    void init()
-    {
-        // load default values
-        loadProgram(kOneKnobProgramDefault);
-
-        // reset state if needed
-        deactivate();
-    }
-
-    void setMeters(const float in, const float out)
-    {
-        const float frand = (float)rand() / RAND_MAX * 0.0001f;
-        parameters[kParameterCount + kOneKnobParameterLineUpdateTickIn] = (output2nd ? in : -in) + frand;
-        parameters[kParameterCount + kOneKnobParameterLineUpdateTickOut] = (output2nd ? out : -out) + frand;
-        output2nd = !output2nd;
-    }
-
     // -------------------------------------------------------------------
     // Information
 
@@ -85,30 +80,8 @@ protected:
     // -------------------------------------------------------------------
     // Init
 
-    void initParameter(const uint32_t index, Parameter& parameter) override
+    void initParameter(uint32_t, Parameter&) override
     {
-        switch (index)
-        {
-        case kParameterCount + kOneKnobParameterLineUpdateTickIn:
-            parameter.hints      = kParameterIsAutomable | kParameterIsOutput;
-            parameter.name       = "Tick In";
-            parameter.symbol     = "tick_in";
-            parameter.unit       = "";
-            parameter.ranges.def = kOneKnobBaseParameterDefaults[kOneKnobParameterLineUpdateTickIn];
-            parameter.ranges.min = 0.0f;
-            parameter.ranges.max = 1.0f;
-            break;
-
-        case kParameterCount + kOneKnobParameterLineUpdateTickOut:
-            parameter.hints      = kParameterIsAutomable | kParameterIsOutput;
-            parameter.name       = "Tick Out";
-            parameter.symbol     = "tick_out";
-            parameter.unit       = "";
-            parameter.ranges.def = kOneKnobBaseParameterDefaults[kOneKnobParameterLineUpdateTickOut];
-            parameter.ranges.min = 0.0f;
-            parameter.ranges.max = 1.0f;
-            break;
-        }
     }
 
     void initProgramName(const uint32_t index, String& programName) override
@@ -158,10 +131,37 @@ protected:
 
     // -------------------------------------------------------------------
 
+    void bufferSizeChanged(const uint32_t newBufferSize) override
+    {
+        const uint32_t numSamples = std::min(kMaxLineGraphSamples, newBufferSize/32);
+        lineGraphFifoIn.fifo.numSamples = lineGraphFifoOut.fifo.numSamples = numSamples;
+        lineGraphFifoIn.clearData();
+        lineGraphFifoOut.clearData();
+    }
+
+    // -------------------------------------------------------------------
+
+    void init()
+    {
+        // load default values
+        loadProgram(kOneKnobProgramDefault);
+
+        // reset state if needed
+        deactivate();
+    }
+
+    void setMeters(const float in, const float out)
+    {
+        lineGraphFifoIn.write(in);
+        lineGraphFifoOut.write(out);
+    }
+
+    // -------------------------------------------------------------------
+
     float parameters[kParameterCount + kOneKnobBaseParameterCount];
 
-private:
-    bool output2nd = false;
+public: // TODO setup shared memory
+    HeapFloatFifo lineGraphFifoIn, lineGraphFifoOut;
 
     DISTRHO_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(OneKnobPlugin)
 };

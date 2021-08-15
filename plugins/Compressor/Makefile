@@ -34,11 +34,11 @@ TARGETS += jack
 TARGETS += ladspa
 TARGETS += vst
 
-ifeq ($(HAVE_OPENGL),true)
-ifeq ($(HAVE_LIBLO),true)
-TARGETS += dssi
-endif
-endif
+# ifeq ($(HAVE_OPENGL),true)
+# ifeq ($(HAVE_LIBLO),true)
+# TARGETS += dssi
+# endif
+# endif
 
 ifeq ($(HAVE_OPENGL),true)
 TARGETS += lv2_sep

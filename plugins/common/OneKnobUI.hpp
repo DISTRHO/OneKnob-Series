@@ -21,8 +21,10 @@
 #include "OpenGL.hpp"
 
 #include "DistrhoUI.hpp"
-
 #include "Blendish.hpp"
+
+// TODO setup shared memory
+#include "OneKnobPlugin.hpp"
 
 START_NAMESPACE_DISTRHO
 
@@ -141,10 +143,15 @@ class OneKnobUI : public UI,
                   public BlendishComboBox::Callback,
                   public ButtonEventHandler::Callback,
                   public KnobEventHandler::Callback
+                  // , public IdleCallback
 {
+    // TODO setup shared memory
+    OneKnobPlugin* const pluginPtr;
+
 public:
     OneKnobUI(const uint width, const uint height)
         : UI(width, height),
+          pluginPtr((OneKnobPlugin*)getPluginInstancePointer()),
           tisi(),
           blendish(this),
           blendishTopLabel(&blendish),
@@ -171,23 +178,16 @@ public:
         blendishMeterOutLabel.setColor(Color::fromHTML("#c90054"));
         blendishMeterOutLabel.setLabel("Out: -inf dB");
         blendishMeterOutLabel.setFontSize(8);
+
+        // addIdleCallback(this, 60);
     }
 
 protected:
     // ----------------------------------------------------------------------------------------------------------------
     // DSP Callbacks
 
-    void parameterChanged(const uint32_t index, const float value) override
+    void parameterChanged(uint32_t, float) override
     {
-        switch (index)
-        {
-        case kParameterCount + kOneKnobParameterLineUpdateTickIn:
-            pushInputMeter(std::abs(value));
-            break;
-        case kParameterCount + kOneKnobParameterLineUpdateTickOut:
-            pushOutputMeter(std::abs(value));
-            break;
-        }
     }
 
     void programLoaded(uint32_t) override
@@ -243,6 +243,31 @@ protected:
     }
 
     // ----------------------------------------------------------------------------------------------------------------
+
+    // void idleCallback() override
+    void uiIdle() override
+    {
+        DISTRHO_SAFE_ASSERT_RETURN(pluginPtr != nullptr,);
+
+        bool shouldRepaint = false;
+        HeapFloatFifo& lineGraphFifoIn(pluginPtr->lineGraphFifoIn);
+        HeapFloatFifo& lineGraphFifoOut(pluginPtr->lineGraphFifoOut);
+
+        if (lineGraphFifoIn.readSpace())
+        {
+            pushInputMeter(lineGraphFifoIn.read());
+            shouldRepaint = true;
+        }
+
+        if (lineGraphFifoOut.readSpace())
+        {
+            pushOutputMeter(lineGraphFifoOut.read());
+            shouldRepaint = true;
+        }
+
+        if (shouldRepaint)
+            repaint();
+    }
 
     void uiFocus(const bool focus, CrossingMode) override
     {
