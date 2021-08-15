@@ -175,9 +175,11 @@ protected:
     void activate() override
     {
         // TODO force smoothing into real
+        fifoFrameCounter = 0;
+        highestIn = highestOut = 0.0f;
     }
 
-    void run(const float** inputs, float** outputs, uint32_t frames) override
+    void run(const float** const inputs, float** const outputs, const uint32_t frames) override
     {
         const float* in1  = inputs[0];
         const float* in2  = inputs[1];
@@ -188,9 +190,6 @@ protected:
         const float threshold = threshold_linear;
         const float gain = parameters[kParameterAutoGain] > 0.5f ? invgain(threshold) : 1.0f;
         float tmp;
-
-        // TESTING
-        float highestIn = 0.0f, highestOut = 0.0f;
 
         if (d_isNotEqual(threshold, 1.0f))
         {
@@ -218,6 +217,13 @@ protected:
                     *out2++ = -threshold_with_gain;
                 else
                     *out2++ = tmp * gain;
+
+                if (++fifoFrameCounter == fifoFrameToReset)
+                {
+                    fifoFrameCounter = 0;
+                    setMeters(highestIn, highestOut);
+                    highestIn = highestOut = 0.0f;
+                }
             }
         }
         else
@@ -233,10 +239,15 @@ protected:
                 highestIn = std::max(highestIn, std::abs(tmp));
                 tmp = *out1++;
                 highestOut = std::max(highestOut, std::abs(tmp));
+
+                if (++fifoFrameCounter == fifoFrameToReset)
+                {
+                    fifoFrameCounter = 0;
+                    setMeters(highestIn, highestOut);
+                    highestIn = highestOut = 0.0f;
+                }
             }
         }
-
-        setMeters(highestIn, highestOut);
     }
 
     // -------------------------------------------------------------------

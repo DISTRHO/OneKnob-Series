@@ -108,14 +108,14 @@ public:
     {
         DISTRHO_SAFE_ASSERT_RETURN(fifoPtr != nullptr, 0);
 
-        return fifoPtr->numSamples - writeSpace();
+        return fifoPtr->writeCounter - fifoPtr->readCounter;
     }
 
     inline uint32_t writeSpace()
     {
         DISTRHO_SAFE_ASSERT_RETURN(fifoPtr != nullptr, 0);
 
-        return fifoPtr->writeCounter - fifoPtr->readCounter;
+        return fifoPtr->numSamples - readSpace();
     }
 
     // -------------------------------------------------------------------

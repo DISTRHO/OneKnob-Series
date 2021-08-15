@@ -137,9 +137,12 @@ protected:
         std::memset(buffer2, 0, sizeof(float)*MAXIMIZER_BUFFER_SIZE);
         buffer_pos = 0;
         env = 0.0f;
+
+        fifoFrameCounter = 0;
+        highestIn = highestOut = 0.0f;
     }
 
-    void run(const float** inputs, float** outputs, uint32_t frames) override
+    void run(const float** const inputs, float** const outputs, const uint32_t frames) override
     {
         const float* in1  = inputs[0];
         const float* in2  = inputs[1];
@@ -156,7 +159,6 @@ protected:
         const float env_tr   = 1.0f / env_time;
 
         float env_sc, in_abs;
-        float highestIn = 0.0f, highestOut = 0.0f;
 
         for (uint32_t i=0; i<frames; ++i)
         {
@@ -179,13 +181,18 @@ protected:
 
             highestIn = std::max(highestIn, in_abs);
             highestOut = std::max(highestOut, std::abs(out1[i]));
+
+            if (++fifoFrameCounter == fifoFrameToReset)
+            {
+                fifoFrameCounter = 0;
+                setMeters(highestIn, highestOut);
+                highestIn = highestOut = 0.0f;
+            }
         }
 
         // store values
         env = env_run;
         buffer_pos = buffer_pos_run;
-
-        setMeters(highestIn, highestOut);
     }
 
     // -------------------------------------------------------------------

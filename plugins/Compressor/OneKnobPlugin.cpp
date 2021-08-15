@@ -191,6 +191,8 @@ protected:
     void activate() override
     {
         setParameterValue(kParameterRelease, parameters[kParameterRelease]);
+        fifoFrameCounter = 0;
+        highestIn = highestOut = 0.0f;
     }
 
     void deactivate() override
@@ -198,7 +200,7 @@ protected:
         compressor_init(&compressor, getSampleRate());
     }
 
-    void run(const float** inputs, float** outputs, uint32_t frames) override
+    void run(const float** const inputs, float** const outputs, const uint32_t frames) override
     {
         const float* in1  = inputs[0];
         const float* in2  = inputs[1];
@@ -217,16 +219,21 @@ protected:
                 std::memcpy(out2, in2, sizeof(float)*frames);
         }
 
-        float tmp, highestIn = 0.0f, highestOut = 0.0f;
+        float tmp;
         for (uint32_t i=0; i<frames; ++i)
         {
             tmp = *in1++;
             highestIn = std::max(highestIn, std::abs(tmp));
             tmp = *out1++;
             highestOut = std::max(highestOut, std::abs(tmp));
-        }
 
-        setMeters(highestIn, highestOut);
+            if (++fifoFrameCounter == fifoFrameToReset)
+            {
+                fifoFrameCounter = 0;
+                setMeters(highestIn, highestOut);
+                highestIn = highestOut = 0.0f;
+            }
+        }
     }
 
 

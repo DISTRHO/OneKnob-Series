@@ -143,7 +143,7 @@ class OneKnobUI : public UI,
                   public BlendishComboBox::Callback,
                   public ButtonEventHandler::Callback,
                   public KnobEventHandler::Callback
-                  // , public IdleCallback
+                  , public IdleCallback
 {
     // TODO setup shared memory
     OneKnobPlugin* const pluginPtr;
@@ -179,7 +179,7 @@ public:
         blendishMeterOutLabel.setLabel("Out: -inf dB");
         blendishMeterOutLabel.setFontSize(8);
 
-        // addIdleCallback(this, 60);
+        addIdleCallback(this, 1000 / 60); // 60fps
     }
 
 protected:
@@ -244,8 +244,8 @@ protected:
 
     // ----------------------------------------------------------------------------------------------------------------
 
-    // void idleCallback() override
-    void uiIdle() override
+    void idleCallback() override
+    // void uiIdle() override
     {
         DISTRHO_SAFE_ASSERT_RETURN(pluginPtr != nullptr,);
 
@@ -253,15 +253,21 @@ protected:
         HeapFloatFifo& lineGraphFifoIn(pluginPtr->lineGraphFifoIn);
         HeapFloatFifo& lineGraphFifoOut(pluginPtr->lineGraphFifoOut);
 
-        if (lineGraphFifoIn.readSpace())
+        if (lineGraphFifoIn.readSpace() != 0)
         {
-            pushInputMeter(lineGraphFifoIn.read());
+            float value = lineGraphFifoIn.read();
+            if (lineGraphFifoIn.readSpace() != 0)
+                value = lineGraphFifoIn.read();
+            pushInputMeter(value);
             shouldRepaint = true;
         }
 
-        if (lineGraphFifoOut.readSpace())
+        if (lineGraphFifoOut.readSpace() != 0)
         {
-            pushOutputMeter(lineGraphFifoOut.read());
+            float value = lineGraphFifoOut.read();
+            if (lineGraphFifoOut.readSpace() != 0)
+                value = lineGraphFifoOut.read();
+            pushOutputMeter(value);
             shouldRepaint = true;
         }
 

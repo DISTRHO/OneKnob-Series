@@ -41,16 +41,18 @@ class OneKnobPlugin : public Plugin
     static const uint32_t kMaxLineGraphSamples = 512;
 
 public:
-    OneKnobPlugin() : Plugin(kParameterCount + kOneKnobBaseParameterCount,
-                             kProgramCount + kOneKnobBaseProgramCount, 
-                             kStateCount + kOneKnobBaseStateCount)
+    OneKnobPlugin()
+        : Plugin(kParameterCount + kOneKnobBaseParameterCount,
+                 kProgramCount + kOneKnobBaseProgramCount,
+                 kStateCount + kOneKnobBaseStateCount),
+          fifoFrameToReset(getSampleRate() / 120)
     {
         std::memset(parameters, 0, sizeof(parameters));
 
-        // real numSamples depends on buffer size
+        // real numSamples depends on state
         lineGraphFifoIn.alloc(kMaxLineGraphSamples);
         lineGraphFifoOut.alloc(kMaxLineGraphSamples);
-        bufferSizeChanged(getBufferSize());
+        lineGraphFifoIn.fifo.numSamples = lineGraphFifoOut.fifo.numSamples = 32; // depends on sample rate?
     }
 
 protected:
@@ -129,14 +131,9 @@ protected:
         // our states are purely UI related, so we do nothing with them on DSP side
     }
 
-    // -------------------------------------------------------------------
-
-    void bufferSizeChanged(const uint32_t newBufferSize) override
+    void sampleRateChanged(const double newSampleRate) override
     {
-        const uint32_t numSamples = std::min(kMaxLineGraphSamples, newBufferSize/32);
-        lineGraphFifoIn.fifo.numSamples = lineGraphFifoOut.fifo.numSamples = numSamples;
-        lineGraphFifoIn.clearData();
-        lineGraphFifoOut.clearData();
+        fifoFrameToReset = newSampleRate / 120;
     }
 
     // -------------------------------------------------------------------
@@ -162,6 +159,10 @@ protected:
 
 public: // TODO setup shared memory
     HeapFloatFifo lineGraphFifoIn, lineGraphFifoOut;
+
+    uint32_t fifoFrameCounter = 0;
+    uint32_t fifoFrameToReset;
+    float highestIn = 0.0f, highestOut = 0.0f;
 
     DISTRHO_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(OneKnobPlugin)
 };
