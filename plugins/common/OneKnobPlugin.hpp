@@ -18,11 +18,7 @@
 #pragma once
 
 #include "DistrhoPlugin.hpp"
-
-/* evil bastard */
-#define private public
 #include "FloatFifo.hpp"
-#undef private
 
 START_NAMESPACE_DISTRHO
 
@@ -38,8 +34,6 @@ START_NAMESPACE_DISTRHO
 
 class OneKnobPlugin : public Plugin
 {
-    static const uint32_t kMaxLineGraphSamples = 512;
-
 public:
     OneKnobPlugin()
         : Plugin(kParameterCount + kOneKnobBaseParameterCount,
@@ -49,10 +43,8 @@ public:
     {
         std::memset(parameters, 0, sizeof(parameters));
 
-        // real numSamples depends on state
-        lineGraphFifoIn.alloc(kMaxLineGraphSamples);
-        lineGraphFifoOut.alloc(kMaxLineGraphSamples);
-        lineGraphFifoIn.fifo.numSamples = lineGraphFifoOut.fifo.numSamples = 32; // depends on sample rate?
+        lineGraphFifoIn.alloc(32);
+        lineGraphFifoOut.alloc(32);
     }
 
 protected:

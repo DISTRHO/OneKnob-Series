@@ -158,7 +158,9 @@ public:
           blendishAuxButtonGroupValues(nullptr),
           blendishAuxComboBoxValues(nullptr),
           blendishMeterInLabel(&blendish),
+          blendishMeterInLabelValue(&blendish),
           blendishMeterOutLabel(&blendish),
+          blendishMeterOutLabelValue(&blendish),
           blendishMeterOutLine(&blendish, Color::fromHTML("#c90054")),
           blendishMeterInLine(&blendish, Color(0x3E, 0xB8, 0xBE, 0.75f))
     {
@@ -173,11 +175,22 @@ public:
         blendishTopLabel.setLabel(DISTRHO_PLUGIN_BRAND " " DISTRHO_PLUGIN_NAME);
 
         blendishMeterInLabel.setColor(Color(0x3E, 0xB8, 0xBE, 0.75f));
-        blendishMeterInLabel.setLabel("In: -inf dB");
+        blendishMeterInLabel.setLabel("In:");
         blendishMeterInLabel.setFontSize(8);
+
+        blendishMeterInLabelValue.setAlignment(BlendishLabel::kAlignmentRight);
+        blendishMeterInLabelValue.setColor(Color(0x3E, 0xB8, 0xBE, 0.75f));
+        blendishMeterInLabelValue.setLabel("-inf dB");
+        blendishMeterInLabelValue.setFontSize(8);
+
         blendishMeterOutLabel.setColor(Color::fromHTML("#c90054"));
-        blendishMeterOutLabel.setLabel("Out: -inf dB");
+        blendishMeterOutLabel.setLabel("Out:");
         blendishMeterOutLabel.setFontSize(8);
+
+        blendishMeterOutLabelValue.setAlignment(BlendishLabel::kAlignmentRight);
+        blendishMeterOutLabelValue.setColor(Color::fromHTML("#c90054"));
+        blendishMeterOutLabelValue.setLabel("-inf dB");
+        blendishMeterOutLabelValue.setFontSize(8);
 
         addIdleCallback(this, 1000 / 60); // 60fps
     }
@@ -236,10 +249,10 @@ protected:
 
         // metering bounds
         Color::fromHTML("#31363b").setFor(context);
-        Rectangle<int>(blendishMeterInLine.getAbsoluteX() * 2,
-                       blendishMeterInLine.getAbsoluteY() * 2,
-                       blendishMeterInLine.getWidth() * 2,
-                       blendishMeterInLine.getHeight() * 2).drawOutline(context);
+        Rectangle<int>(blendishMeterInLine.getAbsoluteX() * 2 * scaleFactor,
+                       blendishMeterInLine.getAbsoluteY() * 2 * scaleFactor,
+                       blendishMeterInLine.getWidth() * 2 * scaleFactor,
+                       blendishMeterInLine.getHeight() * 2 * scaleFactor).drawOutline(context);
     }
 
     // ----------------------------------------------------------------------------------------------------------------
@@ -460,11 +473,11 @@ protected:
         blendishMeterInLine.push(std::min(1.1f, value));
 
         if (value < 0.0001f)
-            return blendishMeterInLabel.setLabel("In: -inf dB");
+            return blendishMeterInLabelValue.setLabel("-inf dB", false);
 
         char strBuf[0xff];
-        snprintf(strBuf, sizeof(strBuf), "In: %02d dB", lin2dbint(value));
-        blendishMeterInLabel.setLabel(strBuf);
+        snprintf(strBuf, sizeof(strBuf), "%02d dB", lin2dbint(value));
+        blendishMeterInLabelValue.setLabel(strBuf, false);
     }
 
     void pushOutputMeter(const float value)
@@ -472,11 +485,11 @@ protected:
         blendishMeterOutLine.push(std::min(1.1f, value));
 
         if (value < 0.0001f)
-            return blendishMeterOutLabel.setLabel("Out: -inf dB");
+            return blendishMeterOutLabelValue.setLabel("-inf dB", false);
 
         char strBuf[0xff];
-        snprintf(strBuf, sizeof(strBuf), "Out: %02d dB", lin2dbint(value));
-        blendishMeterOutLabel.setLabel(strBuf);
+        snprintf(strBuf, sizeof(strBuf), "%02d dB", lin2dbint(value));
+        blendishMeterOutLabelValue.setLabel(strBuf, false);
     }
 
     void repositionWidgets()
@@ -535,13 +548,18 @@ protected:
         }
 
         // metering
-        blendishMeterInLine.setAbsolutePos(kSidePanelWidth * scaleFactor,
+        blendishMeterInLine.setAbsolutePos(kSidePanelWidth,
                                            height / 2 - blendishMeterInLine.getHeight() - kSidePanelWidth);
-        blendishMeterOutLine.setAbsolutePos(kSidePanelWidth * scaleFactor,
+        blendishMeterOutLine.setAbsolutePos(kSidePanelWidth,
                                             height / 2 - blendishMeterOutLine.getHeight() - kSidePanelWidth);
 
-        blendishMeterInLabel.setAbsolutePos(width /2 - 60, height - 200);
-        blendishMeterOutLabel.setAbsolutePos(width / 2 - 60, height - 190);
+        blendishMeterInLabel.setAbsolutePos(width * scaleFactor / 2 - 58 * scaleFactor, (height - 200) * scaleFactor);
+        blendishMeterOutLabel.setAbsolutePos(width * scaleFactor / 2 - 58 * scaleFactor, (height - 190) * scaleFactor);
+
+        blendishMeterInLabelValue.setAbsolutePos(blendishMeterInLabel.getAbsoluteX() - 14 * scaleFactor,
+                                                 blendishMeterInLabel.getAbsoluteY());
+        blendishMeterOutLabelValue.setAbsolutePos(blendishMeterOutLabel.getAbsoluteX() - 14 * scaleFactor,
+                                                  blendishMeterOutLabel.getAbsoluteY());
     }
 
 private:
@@ -567,7 +585,9 @@ private:
 
     // metering
     BlendishLabel blendishMeterInLabel;
+    BlendishLabel blendishMeterInLabelValue;
     BlendishLabel blendishMeterOutLabel;
+    BlendishLabel blendishMeterOutLabelValue;
     BlendishMeterLine blendishMeterOutLine;
     BlendishMeterLine blendishMeterInLine;
 
