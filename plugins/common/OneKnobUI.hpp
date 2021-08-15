@@ -476,7 +476,7 @@ protected:
             return blendishMeterInLabelValue.setLabel("-inf dB", false);
 
         char strBuf[0xff];
-        snprintf(strBuf, sizeof(strBuf), "%02d dB", lin2dbint(value));
+        snprintf(strBuf, sizeof(strBuf), "%d dB", lin2dbint(value));
         blendishMeterInLabelValue.setLabel(strBuf, false);
     }
 
@@ -488,7 +488,7 @@ protected:
             return blendishMeterOutLabelValue.setLabel("-inf dB", false);
 
         char strBuf[0xff];
-        snprintf(strBuf, sizeof(strBuf), "%02d dB", lin2dbint(value));
+        snprintf(strBuf, sizeof(strBuf), "%d dB", lin2dbint(value));
         blendishMeterOutLabelValue.setLabel(strBuf, false);
     }
 
@@ -553,8 +553,8 @@ protected:
         blendishMeterOutLine.setAbsolutePos(kSidePanelWidth,
                                             height / 2 - blendishMeterOutLine.getHeight() - kSidePanelWidth);
 
-        blendishMeterInLabel.setAbsolutePos(width * scaleFactor / 2 - 58 * scaleFactor, (height - 200) * scaleFactor);
-        blendishMeterOutLabel.setAbsolutePos(width * scaleFactor / 2 - 58 * scaleFactor, (height - 190) * scaleFactor);
+        blendishMeterInLabel.setAbsolutePos(width * scaleFactor / 2 - 58 * scaleFactor, (height - 240) * scaleFactor);
+        blendishMeterOutLabel.setAbsolutePos(width * scaleFactor / 2 - 58 * scaleFactor, (height - 230) * scaleFactor);
 
         blendishMeterInLabelValue.setAbsolutePos(blendishMeterInLabel.getAbsoluteX() - 14 * scaleFactor,
                                                  blendishMeterInLabel.getAbsoluteY());

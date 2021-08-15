@@ -24,7 +24,7 @@ START_NAMESPACE_DISTRHO
 // --------------------------------------------------------------------------------------------------------------------
 
 static const uint kDefaultWidth = 640;
-static const uint kDefaultHeight = 320;
+static const uint kDefaultHeight = 400;
 
 static const OneKnobMainControl main = {
     kParameterRelease,
@@ -67,15 +67,15 @@ public:
     {
         // setup OneKnob UI
         const Rectangle<uint> mainArea(kSidePanelWidth,
-                                      kDefaultHeight/4 - kSidePanelWidth,
-                                      kDefaultWidth/2 - kSidePanelWidth,
-                                      kDefaultHeight*5/8 - kSidePanelWidth);
+                                       kDefaultHeight*3/16 - kSidePanelWidth,
+                                       kDefaultWidth/2 - kSidePanelWidth,
+                                       kDefaultHeight*9/16);
         createMainControl(mainArea, main);
 
         const Rectangle<uint> comboBoxArea(kDefaultWidth/2,
-                                          kDefaultHeight/4,
-                                          kDefaultWidth/2 - kSidePanelWidth,
-                                          kDefaultHeight*3/4);
+                                           kDefaultHeight/4,
+                                           kDefaultWidth/2 - kSidePanelWidth,
+                                           kDefaultHeight*3/4);
         createAuxiliaryComboBox(comboBoxArea, comboBox);
 
         repositionWidgets();
