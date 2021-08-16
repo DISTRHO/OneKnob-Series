@@ -19,10 +19,7 @@
 
 #include "extra/String.hpp"
 
-#ifdef CARLA_OS_WIN
-struct carla_shm_t { HANDLE map; bool isServer; const char* filename; };
-# define carla_shm_t_INIT { INVALID_HANDLE_VALUE, true, nullptr }
-#else
+#ifndef DISTRHO_OS_WINDOWS
 # include <cerrno>
 # include <fcntl.h>
 # include <unistd.h>
@@ -43,7 +40,7 @@ public:
     SharedMemory()
         : ptr(nullptr),
           filename(),
-#ifdef CARLA_OS_WIN
+#ifdef DISTRHO_OS_WINDOWS
           map(INVALID_HANDLE_VALUE)
 #else
           fd(-1)
@@ -61,7 +58,7 @@ public:
         DISTRHO_SAFE_ASSERT_RETURN(ptr == nullptr, false);
 
         char filename2[64];
-#ifdef CARLA_OS_WIN
+#ifdef DISTRHO_OS_WINDOWS
         std::sprintf(filename2, "Local\\dpf_XXXXXX");
 #else
         std::sprintf(filename2, "/dpf_XXXXXX");
@@ -82,10 +79,10 @@ public:
             for (std::size_t c = filename2len - 6; c < filename2len; ++c)
                 filename2[c] = charSet[std::rand() % charSetLen];
 
-#ifdef CARLA_OS_WIN
+#ifdef DISTRHO_OS_WINDOWS
             const HANDLE h = ::CreateFileMapping(INVALID_HANDLE_VALUE, nullptr,
                                                  PAGE_READWRITE|SEC_COMMIT, 0, 8, filename2);
-            CARLA_SAFE_ASSERT_RETURN(h != INVALID_HANDLE_VALUE, false);
+            DISTRHO_SAFE_ASSERT_RETURN(h != INVALID_HANDLE_VALUE, false);
 
             const DWORD error = ::GetLastError();
             ::CloseHandle(h);
@@ -123,9 +120,9 @@ public:
         }
 
         // Step 2. Memory-map the file contents
-#ifdef CARLA_OS_WIN
+#ifdef DISTRHO_OS_WINDOWS
         SECURITY_ATTRIBUTES sa;
-        carla_zeroStruct(sa);
+        std::memset(&sa, 0, sizeof(sa));
         sa.nLength = sizeof(sa);
         sa.bInheritHandle = TRUE;
 
@@ -190,7 +187,7 @@ public:
     {
         DISTRHO_SAFE_ASSERT_RETURN(ptr == nullptr, nullptr);
 
-#ifdef CARLA_OS_WIN
+#ifdef DISTRHO_OS_WINDOWS
         void* const map2 = ::OpenFileMappingA(FILE_MAP_ALL_ACCESS, FALSE, filename2);
 
         DISTRHO_SAFE_ASSERT_RETURN(map2 != nullptr, nullptr);
@@ -242,7 +239,7 @@ public:
     {
         if (ptr == nullptr)
         {
-#ifdef CARLA_OS_WIN
+#ifdef DISTRHO_OS_WINDOWS
             ::UnmapViewOfFile(ptr);
             ::CloseHandle(map);
             map = INVALID_HANDLE_VALUE;
@@ -261,7 +258,7 @@ public:
 
         if (filename.isNotEmpty())
         {
-#ifndef CARLA_OS_WIN
+#ifndef DISTRHO_OS_WINDOWS
             try {
                 ::shm_unlink(filename);
             } DISTRHO_SAFE_EXCEPTION("SharedMemory::close");
@@ -290,9 +287,8 @@ private:
     S* ptr;
     String filename;
 
-#ifdef CARLA_OS_WIN
+#ifdef DISTRHO_OS_WINDOWS
     HANDLE map;
-    bool isServer;
 #else
     int fd;
 #endif

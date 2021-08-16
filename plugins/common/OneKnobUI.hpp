@@ -243,11 +243,9 @@ protected:
         if (firstIdle)
         {
             firstIdle = false;
-            d_stdout("first idle");
 
             if (! lineGraphsData.create())
                 return;
-            d_stdout("first created");
 
             OneKnobLineGraphFifos* const fifos = lineGraphsData.getDataPointer();
             fifos->in.buffer = fifos->in.fifoBuffer;
