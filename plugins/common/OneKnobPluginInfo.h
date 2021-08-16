@@ -28,45 +28,10 @@ typedef unsigned int uint;
 #define DISTRHO_PLUGIN_NUM_INPUTS    2
 #define DISTRHO_PLUGIN_NUM_OUTPUTS   2
 #define DISTRHO_PLUGIN_WANT_PROGRAMS 1
-#define DISTRHO_PLUGIN_WANT_STATE    1
+#define DISTRHO_PLUGIN_WANT_STATE    0
 
 // TODO setup shared memory
 #define DISTRHO_PLUGIN_WANT_DIRECT_ACCESS 1
-
-// --------------------------------------------------------------------------------------------------------------------
-
-enum OneKnobBaseParameters
-{
-    kOneKnobBaseParameterCount
-};
-
-enum OneKnobBasePrograms
-{
-    kOneKnobProgramDefault = 0,
-    kOneKnobBaseProgramCount
-};
-
-enum OneKnobBaseStates
-{
-    kOneKnobStateScaleFactor = 0,
-    kOneKnobStateLineUpdateTime,
-    kOneKnobBaseStateCount
-};
-
-// --------------------------------------------------------------------------------------------------------------------
-
-static const float kOneKnobBaseParameterDefaults[kOneKnobBaseParameterCount] = {
-};
-
-static const char* const kOneKnobBaseStateNames[kOneKnobBaseStateCount] = {
-    "ScaleFactor",
-    "LineUpdateTime"
-};
-
-static const char* const kOneKnobBaseStateDefaults[kOneKnobBaseStateCount] = {
-    "1.0",
-    "5000"
-};
 
 // --------------------------------------------------------------------------------------------------------------------
 

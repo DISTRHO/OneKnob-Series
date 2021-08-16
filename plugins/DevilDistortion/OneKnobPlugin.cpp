@@ -1,8 +1,8 @@
 /*
  * DISTRHO OneKnob Devil's Distortion
  * Based on Steve Harris Barry's Satan Maximizer
- * Copyright (C) 2021 Filipe Coelho <falktx@falktx.com>
  * Copyright (C) 2002-2003 <steve@plugin.org.uk>
+ * Copyright (C) 2021 Filipe Coelho <falktx@falktx.com>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -94,7 +94,6 @@ protected:
             parameter.ranges.min  = -90.0f;
             parameter.ranges.max  = 0.0f;
             break;
-
         case kParameterDecayTime:
             parameter.hints       = kParameterIsAutomable | kParameterIsInteger;
             parameter.name        = "Decay Time";
@@ -121,11 +120,33 @@ protected:
                 values[4].value = 30.0f;
             }
             break;
+        }
+    }
 
-        default:
-            OneKnobPlugin::initParameter(index, parameter);
+    void initProgramName(uint32_t index, String& programName) override
+    {
+        switch (index)
+        {
+        case kProgramDefault:
+            programName = "Default";
             break;
         }
+    }
+
+    // -------------------------------------------------------------------
+    // Internal data
+
+    void loadProgram(uint32_t index) override
+    {
+        switch (index)
+        {
+        case kProgramDefault:
+            loadDefaultParameterValues();
+            break;
+        }
+
+        // activate filter parameters
+        activate();
     }
 
     // -------------------------------------------------------------------
@@ -133,13 +154,12 @@ protected:
 
     void activate() override
     {
+        OneKnobPlugin::activate();
+
         std::memset(buffer1, 0, sizeof(float)*MAXIMIZER_BUFFER_SIZE);
         std::memset(buffer2, 0, sizeof(float)*MAXIMIZER_BUFFER_SIZE);
         buffer_pos = 0;
         env = 0.0f;
-
-        fifoFrameCounter = 0;
-        highestIn = highestOut = 0.0f;
     }
 
     void run(const float** const inputs, float** const outputs, const uint32_t frames) override

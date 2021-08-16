@@ -83,9 +83,6 @@ protected:
         case kParameterAutoGain:
             setAuxiliaryCheckBoxValue(value);
             break;
-        default:
-            OneKnobUI::parameterChanged(index, value);
-            break;
         }
 
         repaint();
@@ -95,15 +92,15 @@ protected:
     {
         switch (index)
         {
-        case kOneKnobProgramDefault:
+        case kProgramInit:
             setMainControlValue(kParameterDefaults[kParameterThreshold]);
             setAuxiliaryCheckBoxValue(kParameterDefaults[kParameterAutoGain]);
             break;
-        case kOneKnobBaseProgramCount + kProgramGentle:
+        case kProgramGentle:
             break;
-        case kOneKnobBaseProgramCount + kProgramDestructive:
+        case kProgramDestructive:
             break;
-        case kOneKnobBaseProgramCount + kProgramInsane:
+        case kProgramInsane:
             break;
         }
 

@@ -98,9 +98,6 @@ protected:
         case kParameterMode:
             setAuxiliaryComboBoxValue(value);
             break;
-        default:
-            OneKnobUI::parameterChanged(index, value);
-            break;
         }
 
         repaint();
@@ -110,15 +107,15 @@ protected:
     {
         switch (index)
         {
-        case kOneKnobProgramDefault:
+        case kProgramDefault:
             setMainControlValue(kParameterDefaults[kParameterRelease]);
             setAuxiliaryComboBoxValue(kParameterDefaults[kParameterMode]);
             break;
-        case kOneKnobBaseProgramCount + kProgramConservative:
+        case kProgramConservative:
             break;
-        case kOneKnobBaseProgramCount + kProgramLiberal:
+        case kProgramLiberal:
             break;
-        case kOneKnobBaseProgramCount + kProgramExtreme:
+        case kProgramExtreme:
             break;
         }
 

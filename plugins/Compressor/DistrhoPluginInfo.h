@@ -32,6 +32,7 @@ enum Parameters
 
 enum Programs
 {
+    kProgramDefault,
     kProgramConservative,
     kProgramLiberal,
     kProgramExtreme,

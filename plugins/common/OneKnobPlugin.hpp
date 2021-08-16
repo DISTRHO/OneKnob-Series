@@ -36,9 +36,7 @@ class OneKnobPlugin : public Plugin
 {
 public:
     OneKnobPlugin()
-        : Plugin(kParameterCount + kOneKnobBaseParameterCount,
-                 kProgramCount + kOneKnobBaseProgramCount,
-                 kStateCount + kOneKnobBaseStateCount),
+        : Plugin(kParameterCount, kProgramCount, 0),
           fifoFrameToReset(getSampleRate() / 120)
     {
         std::memset(parameters, 0, sizeof(parameters));
@@ -72,29 +70,6 @@ protected:
     }
 
     // -------------------------------------------------------------------
-    // Init
-
-    void initParameter(uint32_t, Parameter&) override
-    {
-    }
-
-    void initProgramName(const uint32_t index, String& programName) override
-    {
-        switch (index)
-        {
-        case kOneKnobProgramDefault:
-            programName = "Default";
-            break;
-        }
-    }
-
-    void initState(const uint32_t index, String& stateKey, String& defaultStateValue) override
-    {
-        stateKey = kOneKnobBaseStateNames[index - kStateCount];
-        defaultStateValue = kOneKnobBaseStateDefaults[index - kStateCount];
-    }
-
-    // -------------------------------------------------------------------
     // Internal data
 
     float getParameterValue(const uint32_t index) const override
@@ -107,20 +82,14 @@ protected:
         parameters[index] = value;
     }
 
-    void loadProgram(uint32_t index) override
-    {
-        switch (index)
-        {
-        case kOneKnobProgramDefault:
-            for (uint i=0; i<kParameterCount; ++i)
-                parameters[i] = kParameterDefaults[i];
-            break;
-        }
-    }
 
-    void setState(const char*, const char*) override
+    // -------------------------------------------------------------------
+    // Process
+
+    void activate() override
     {
-        // our states are purely UI related, so we do nothing with them on DSP side
+        fifoFrameCounter = 0;
+        highestIn = highestOut = 0.0f;
     }
 
     void sampleRateChanged(const double newSampleRate) override
@@ -132,11 +101,17 @@ protected:
 
     void init()
     {
-        // load default values
-        loadProgram(kOneKnobProgramDefault);
+        // load values of default/first program
+        loadDefaultParameterValues();
 
         // reset state if needed
         deactivate();
+    }
+
+    void loadDefaultParameterValues()
+    {
+        for (uint i=0; i<kParameterCount; ++i)
+            parameters[i] = kParameterDefaults[i];
     }
 
     void setMeters(const float in, const float out)
@@ -147,7 +122,7 @@ protected:
 
     // -------------------------------------------------------------------
 
-    float parameters[kParameterCount + kOneKnobBaseParameterCount];
+    float parameters[kParameterCount];
 
 public: // TODO setup shared memory
     HeapFloatFifo lineGraphFifoIn, lineGraphFifoOut;

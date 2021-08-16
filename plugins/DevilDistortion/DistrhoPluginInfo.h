@@ -34,6 +34,7 @@ enum Parameters
 
 enum Programs
 {
+    kProgramDefault,
     kProgramCount
 };
 

@@ -25,13 +25,14 @@
 
 enum Parameters
 {
-    kParameterThreshold = 0,
+    kParameterThreshold,
     kParameterAutoGain,
     kParameterCount
 };
 
 enum Programs
 {
+    kProgramInit,
     kProgramGentle,
     kProgramDestructive,
     kProgramInsane,
@@ -46,10 +47,4 @@ enum States
 static const float kParameterDefaults[kParameterCount] = {
     0.0f,
     0.0f
-};
-
-static const char* const kStateNames[kStateCount] = {
-};
-
-static const char* const kStateDefaults[kStateCount] = {
 };

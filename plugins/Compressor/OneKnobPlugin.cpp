@@ -72,7 +72,6 @@ protected:
             parameter.ranges.min = 50.0f;
             parameter.ranges.max = 500.0f;
             break;
-
         case kParameterMode:
             parameter.hints      = kParameterIsAutomable | kParameterIsInteger;
             parameter.name       = "Mode";
@@ -97,10 +96,6 @@ protected:
               values[3].value = 3.0f;
             }
             break;
-
-        default:
-            OneKnobPlugin::initParameter(index, parameter);
-            break;
         }
     }
 
@@ -108,6 +103,9 @@ protected:
     {
         switch (index)
         {
+        case kProgramDefault:
+            programName = "Default";
+            break;
         case kProgramConservative:
             programName = "Conservative";
             break;
@@ -116,9 +114,6 @@ protected:
             break;
         case kProgramExtreme:
             programName = "Extreme";
-            break;
-        default:
-            OneKnobPlugin::initProgramName(index, programName);
             break;
         }
     }
@@ -164,6 +159,9 @@ protected:
     {
         switch (index)
         {
+        case kProgramDefault:
+            loadDefaultParameterValues();
+            break;
         case kProgramConservative:
             parameters[kParameterRelease] = 100.0f;
             parameters[kParameterMode] = 1.0f;
@@ -176,9 +174,6 @@ protected:
             parameters[kParameterRelease] = 100.0f;
             parameters[kParameterMode] = 3.0f;
             break;
-        default:
-            OneKnobPlugin::loadProgram(index);
-            break;
         }
 
         // activate filter parameters
@@ -190,9 +185,9 @@ protected:
 
     void activate() override
     {
+        OneKnobPlugin::activate();
+
         setParameterValue(kParameterRelease, parameters[kParameterRelease]);
-        fifoFrameCounter = 0;
-        highestIn = highestOut = 0.0f;
     }
 
     void deactivate() override

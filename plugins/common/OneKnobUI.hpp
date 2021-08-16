@@ -202,21 +202,6 @@ public:
 
 protected:
     // ----------------------------------------------------------------------------------------------------------------
-    // DSP Callbacks
-
-    void parameterChanged(uint32_t, float) override
-    {
-    }
-
-    void programLoaded(uint32_t) override
-    {
-    }
-
-    void stateChanged(const char*, const char*) override
-    {
-    }
-
-    // ----------------------------------------------------------------------------------------------------------------
 
     void onDisplay() override
     {

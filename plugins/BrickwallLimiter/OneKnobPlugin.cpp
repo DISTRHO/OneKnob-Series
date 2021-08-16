@@ -24,12 +24,6 @@ START_NAMESPACE_DISTRHO
 
 // -----------------------------------------------------------------------
 
-#ifdef __clang__
-# define MATH_CONSTEXPR
-#else
-# define MATH_CONSTEXPR constexpr
-#endif
-
 inline MATH_CONSTEXPR float db2linear(const float db)
 {
     return std::pow(10.0f, 0.05f * db);
@@ -98,7 +92,6 @@ protected:
             parameter.ranges.min = -50.0f;
             parameter.ranges.max = 0.0f;
             break;
-
         case kParameterAutoGain:
             parameter.hints      = kParameterIsAutomable | kParameterIsInteger | kParameterIsBoolean;
             parameter.name       = "Auto-Gain";
@@ -108,10 +101,6 @@ protected:
             parameter.ranges.min = 0.0f;
             parameter.ranges.max = 1.0f;
             break;
-
-        default:
-            OneKnobPlugin::initParameter(index, parameter);
-            break;
         }
     }
 
@@ -119,6 +108,9 @@ protected:
     {
         switch (index)
         {
+        case kProgramInit:
+            programName = "Init";
+            break;
         case kProgramGentle:
             programName = "Gentle";
             break;
@@ -127,9 +119,6 @@ protected:
             break;
         case kProgramInsane:
             programName = "Insane";
-            break;
-        default:
-            OneKnobPlugin::initProgramName(index, programName);
             break;
         }
     }
@@ -149,6 +138,9 @@ protected:
     {
         switch (index)
         {
+        case kProgramInit:
+            loadDefaultParameterValues();
+            break;
         case kProgramGentle:
             parameters[kParameterThreshold] = -8.0f;
             parameters[kParameterAutoGain] = 1.0f;
@@ -161,9 +153,6 @@ protected:
             parameters[kParameterThreshold] = -36.0f;
             parameters[kParameterAutoGain] = 1.0f;
             break;
-        default:
-            OneKnobPlugin::loadProgram(index);
-            break;
         }
 
         threshold_linear = db2linear(parameters[kParameterThreshold]);
@@ -174,9 +163,9 @@ protected:
 
     void activate() override
     {
+        OneKnobPlugin::activate();
+
         // TODO force smoothing into real
-        fifoFrameCounter = 0;
-        highestIn = highestOut = 0.0f;
     }
 
     void run(const float** const inputs, float** const outputs, const uint32_t frames) override
