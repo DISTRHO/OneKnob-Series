@@ -84,7 +84,7 @@ protected:
         {
             if (lineGraphsData.isCreatedOrConnected())
             {
-                DISTRHO_SAFE_ASSERT_RETURN(! lineGraphActive,);
+                DISTRHO_SAFE_ASSERT(! lineGraphActive);
                 lineGraphIn.setFloatFifo(nullptr);
                 lineGraphOut.setFloatFifo(nullptr);
                 lineGraphsData.close();

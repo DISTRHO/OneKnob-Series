@@ -44,12 +44,6 @@ struct FloatFifo {
       Increments when writing.
     */
     uint32_t writePosition;
-
-   /**
-      Counters used to track available space.
-      TODO get rid of these
-    */
-    uint32_t readCounter, writeCounter;
 };
 
 // -----------------------------------------------------------------------
@@ -105,18 +99,9 @@ public:
     // -------------------------------------------------------------------
     // check operations
 
-    inline uint32_t readSpace() const noexcept
+    inline bool canRead() const noexcept
     {
-        DISTRHO_SAFE_ASSERT_RETURN(fifoPtr != nullptr, 0);
-
-        return fifoPtr->writeCounter - fifoPtr->readCounter;
-    }
-
-    inline uint32_t writeSpace() const noexcept
-    {
-        DISTRHO_SAFE_ASSERT_RETURN(fifoPtr != nullptr, 0);
-
-        return numSamples - readSpace();
+        return fifoPtr != nullptr && fifoPtr->readPosition != fifoPtr->writePosition;
     }
 
     // -------------------------------------------------------------------
@@ -131,7 +116,6 @@ public:
         DISTRHO_SAFE_ASSERT_RETURN(fifoPtr != nullptr,);
 
         fifoPtr->readPosition = fifoPtr->writePosition = 0;
-        fifoPtr->readCounter = fifoPtr->writeCounter = 0;
         std::memset(fifoPtr->buffer, 0, sizeof(float)*numSamples);
     }
 
@@ -165,7 +149,6 @@ public:
         if (++readPosition == numSamples)
             readPosition = 0;
 
-        ++fifoPtr->readCounter;
         fifoPtr->readPosition = readPosition;
         return ret;
     }
@@ -184,7 +167,6 @@ public:
         if (++writePosition == numSamples)
             writePosition = 0;
 
-        ++fifoPtr->writeCounter;
         fifoPtr->writePosition = writePosition;
     }
 

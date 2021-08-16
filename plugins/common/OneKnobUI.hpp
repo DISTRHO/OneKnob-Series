@@ -264,19 +264,19 @@ protected:
     {
         bool shouldRepaint = false;
 
-        if (lineGraphIn.readSpace() != 0)
+        if (lineGraphIn.canRead())
         {
             float value = lineGraphIn.read();
-            if (lineGraphIn.readSpace() != 0)
+            if (lineGraphIn.canRead())
                 value = lineGraphIn.read();
             pushInputMeter(value);
             shouldRepaint = true;
         }
 
-        if (lineGraphOut.readSpace() != 0)
+        if (lineGraphOut.canRead())
         {
             float value = lineGraphOut.read();
-            if (lineGraphOut.readSpace() != 0)
+            if (lineGraphOut.canRead())
                 value = lineGraphOut.read();
             pushOutputMeter(value);
             shouldRepaint = true;
