@@ -17,7 +17,7 @@
 
 #pragma once
 
-typedef unsigned int uint;
+#include "FloatFifo.hpp"
 
 // --------------------------------------------------------------------------------------------------------------------
 
@@ -28,10 +28,26 @@ typedef unsigned int uint;
 #define DISTRHO_PLUGIN_NUM_INPUTS    2
 #define DISTRHO_PLUGIN_NUM_OUTPUTS   2
 #define DISTRHO_PLUGIN_WANT_PROGRAMS 1
-#define DISTRHO_PLUGIN_WANT_STATE    0
+#define DISTRHO_PLUGIN_WANT_STATE    1
 
-// TODO setup shared memory
-#define DISTRHO_PLUGIN_WANT_DIRECT_ACCESS 1
+// --------------------------------------------------------------------------------------------------------------------
+
+#ifdef __clang__
+# define MATH_CONSTEXPR
+#else
+# define MATH_CONSTEXPR constexpr
+#endif
+
+// --------------------------------------------------------------------------------------------------------------------
+
+struct OneKnobLineGraphFifo : FloatFifo {
+    float fifoBuffer[32];
+};
+
+struct OneKnobLineGraphFifos {
+    OneKnobLineGraphFifo in;
+    OneKnobLineGraphFifo out;
+};
 
 // --------------------------------------------------------------------------------------------------------------------
 

@@ -46,5 +46,5 @@ enum States
 
 static const float kParameterDefaults[kParameterCount] = {
     0.0f,
-    0.0f
+    1.0f
 };

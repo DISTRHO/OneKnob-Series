@@ -218,15 +218,15 @@ protected:
         for (uint32_t i=0; i<frames; ++i)
         {
             tmp = *in1++;
-            highestIn = std::max(highestIn, std::abs(tmp));
+            lineGraphHighestIn = std::max(lineGraphHighestIn, std::abs(tmp));
             tmp = *out1++;
-            highestOut = std::max(highestOut, std::abs(tmp));
+            lineGraphHighestOut = std::max(lineGraphHighestOut, std::abs(tmp));
 
-            if (++fifoFrameCounter == fifoFrameToReset)
+            if (++lineGraphFrameCounter == lineGraphFrameToReset)
             {
-                fifoFrameCounter = 0;
-                setMeters(highestIn, highestOut);
-                highestIn = highestOut = 0.0f;
+                lineGraphFrameCounter = 0;
+                setMeters(lineGraphHighestIn, lineGraphHighestOut);
+                lineGraphHighestIn = lineGraphHighestOut = 0.0f;
             }
         }
     }

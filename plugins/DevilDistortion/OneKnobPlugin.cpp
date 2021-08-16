@@ -199,14 +199,14 @@ protected:
             out2[i] = buffer2[(buffer_pos_run - delay) & MAXIMIZER_BUFFER_MASK] * env_sc;
             buffer_pos_run = (buffer_pos_run + 1) & MAXIMIZER_BUFFER_MASK;
 
-            highestIn = std::max(highestIn, in_abs);
-            highestOut = std::max(highestOut, std::abs(out1[i]));
+            lineGraphHighestIn = std::max(lineGraphHighestIn, in_abs);
+            lineGraphHighestOut = std::max(lineGraphHighestOut, std::abs(out1[i]));
 
-            if (++fifoFrameCounter == fifoFrameToReset)
+            if (++lineGraphFrameCounter == lineGraphFrameToReset)
             {
-                fifoFrameCounter = 0;
-                setMeters(highestIn, highestOut);
-                highestIn = highestOut = 0.0f;
+                lineGraphFrameCounter = 0;
+                setMeters(lineGraphHighestIn, lineGraphHighestOut);
+                lineGraphHighestIn = lineGraphHighestOut = 0.0f;
             }
         }
 

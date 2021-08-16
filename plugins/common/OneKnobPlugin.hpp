@@ -18,17 +18,9 @@
 #pragma once
 
 #include "DistrhoPlugin.hpp"
-#include "FloatFifo.hpp"
+#include "SharedMemory.hpp"
 
 START_NAMESPACE_DISTRHO
-
-// -----------------------------------------------------------------------
-
-#ifdef __clang__
-# define MATH_CONSTEXPR
-#else
-# define MATH_CONSTEXPR constexpr
-#endif
 
 // -----------------------------------------------------------------------
 
@@ -37,12 +29,9 @@ class OneKnobPlugin : public Plugin
 public:
     OneKnobPlugin()
         : Plugin(kParameterCount, kProgramCount, 0),
-          fifoFrameToReset(getSampleRate() / 120)
+          lineGraphFrameToReset(getSampleRate() / 120)
     {
         std::memset(parameters, 0, sizeof(parameters));
-
-        lineGraphFifoIn.alloc(32);
-        lineGraphFifoOut.alloc(32);
     }
 
 protected:
@@ -70,7 +59,7 @@ protected:
     }
 
     // -------------------------------------------------------------------
-    // Internal data
+    // Parameters
 
     float getParameterValue(const uint32_t index) const override
     {
@@ -82,19 +71,38 @@ protected:
         parameters[index] = value;
     }
 
+    // -------------------------------------------------------------------
+    // State
+
+    void initState(uint32_t, String&, String&) override
+    {
+    }
+
+    void setState(const char* const key, const char* const value) override
+    {
+        if (std::strcmp(key, "filemapping") == 0)
+        {
+            if (OneKnobLineGraphFifos* const fifos = lineGraphsData.connect(value))
+            {
+                lineGraphIn.setFloatFifo(&fifos->in, true);
+                lineGraphOut.setFloatFifo(&fifos->out, true);
+                lineGraphActive = true;
+            }
+        }
+    }
 
     // -------------------------------------------------------------------
     // Process
 
     void activate() override
     {
-        fifoFrameCounter = 0;
-        highestIn = highestOut = 0.0f;
+        lineGraphFrameCounter = 0;
+        lineGraphHighestIn = lineGraphHighestOut = 0.0f;
     }
 
     void sampleRateChanged(const double newSampleRate) override
     {
-        fifoFrameToReset = newSampleRate / 120;
+        lineGraphFrameToReset = newSampleRate / 120;
     }
 
     // -------------------------------------------------------------------
@@ -114,22 +122,28 @@ protected:
             parameters[i] = kParameterDefaults[i];
     }
 
-    void setMeters(const float in, const float out)
+    inline void setMeters(const float in, const float out)
     {
-        lineGraphFifoIn.write(in);
-        lineGraphFifoOut.write(out);
+        if (! lineGraphActive)
+            return;
+        lineGraphIn.write(in);
+        lineGraphOut.write(out);
     }
 
     // -------------------------------------------------------------------
 
     float parameters[kParameterCount];
 
-public: // TODO setup shared memory
-    HeapFloatFifo lineGraphFifoIn, lineGraphFifoOut;
+    bool lineGraphActive = false;
+    uint32_t lineGraphFrameCounter = 0;
+    uint32_t lineGraphFrameToReset;
+    float lineGraphHighestIn = 0.0f;
+    float lineGraphHighestOut = 0.0f;
 
-    uint32_t fifoFrameCounter = 0;
-    uint32_t fifoFrameToReset;
-    float highestIn = 0.0f, highestOut = 0.0f;
+private:
+    FloatFifoControl lineGraphIn;
+    FloatFifoControl lineGraphOut;
+    SharedMemory<OneKnobLineGraphFifos> lineGraphsData;
 
     DISTRHO_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(OneKnobPlugin)
 };

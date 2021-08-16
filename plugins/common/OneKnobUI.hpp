@@ -21,20 +21,12 @@
 #include "OpenGL.hpp"
 
 #include "DistrhoUI.hpp"
+#include "SharedMemory.hpp"
 #include "Blendish.hpp"
-
-// TODO setup shared memory
-#include "OneKnobPlugin.hpp"
 
 START_NAMESPACE_DISTRHO
 
 // --------------------------------------------------------------------------------------------------------------------
-
-#ifdef __clang__
-# define MATH_CONSTEXPR
-#else
-# define MATH_CONSTEXPR constexpr
-#endif
 
 static inline MATH_CONSTEXPR int lin2dbint(const float value)
 {
@@ -53,7 +45,7 @@ struct ThemeInitializer {
         BlendishTheme theme = blendishGetDefaultTheme();
         theme.labelTheme.textColor = Color::fromHTML("#cacacb");
         theme.checkBoxTheme.textColor = Color::fromHTML("#cacacb");
-//         theme.checkBoxTheme.textSelectedColor = Color::fromHTML("#fff");
+        // theme.checkBoxTheme.textSelectedColor = Color::fromHTML("#fff");
         blendishSetTheme(theme);
     }
 
@@ -88,7 +80,7 @@ public:
 
     void push(const float value)
     {
-        lines[writeIndex] = std::abs(value);
+        lines[writeIndex] = value;
         if (++writeIndex == sizeof(lines)/sizeof(lines[0]))
             writeIndex = 0;
     }
@@ -145,13 +137,9 @@ class OneKnobUI : public UI,
                   public KnobEventHandler::Callback
                   , public IdleCallback
 {
-    // TODO setup shared memory
-    OneKnobPlugin* const pluginPtr;
-
 public:
     OneKnobUI(const uint width, const uint height)
         : UI(width, height),
-          pluginPtr((OneKnobPlugin*)getPluginInstancePointer()),
           tisi(),
           blendish(this),
           blendishTopLabel(&blendish),
@@ -162,7 +150,8 @@ public:
           blendishMeterOutLabel(&blendish),
           blendishMeterOutLabelValue(&blendish),
           blendishMeterOutLine(&blendish, Color::fromHTML("#c90054")),
-          blendishMeterInLine(&blendish, Color(0x3E, 0xB8, 0xBE, 0.75f))
+          blendishMeterInLine(&blendish, Color(0x3E, 0xB8, 0xBE, 0.75f)),
+          firstIdle(true)
     {
         const double scaleFactor = getScaleFactor();
 
@@ -191,13 +180,15 @@ public:
         blendishMeterOutLabelValue.setColor(Color::fromHTML("#c90054"));
         blendishMeterOutLabelValue.setLabel("-inf dB");
         blendishMeterOutLabelValue.setFontSize(8);
-
-        addIdleCallback(this, 1000 / 60); // 60fps
     }
 
     ~OneKnobUI() override
     {
-        removeIdleCallback(this);
+        if (lineGraphsData.isCreatedOrConnected())
+        {
+            removeIdleCallback(this);
+            lineGraphsData.close();
+        }
     }
 
 protected:
@@ -247,29 +238,48 @@ protected:
 
     // ----------------------------------------------------------------------------------------------------------------
 
-    void idleCallback() override
-    // void uiIdle() override
+    void uiIdle() override
     {
-        DISTRHO_SAFE_ASSERT_RETURN(pluginPtr != nullptr,);
-
-        bool shouldRepaint = false;
-        HeapFloatFifo& lineGraphFifoIn(pluginPtr->lineGraphFifoIn);
-        HeapFloatFifo& lineGraphFifoOut(pluginPtr->lineGraphFifoOut);
-
-        if (lineGraphFifoIn.readSpace() != 0)
+        if (firstIdle)
         {
-            float value = lineGraphFifoIn.read();
-            if (lineGraphFifoIn.readSpace() != 0)
-                value = lineGraphFifoIn.read();
+            firstIdle = false;
+            d_stdout("first idle");
+
+            if (! lineGraphsData.create())
+                return;
+            d_stdout("first created");
+
+            OneKnobLineGraphFifos* const fifos = lineGraphsData.getDataPointer();
+            fifos->in.buffer = fifos->in.fifoBuffer;
+            fifos->out.buffer = fifos->out.fifoBuffer;
+            fifos->in.numSamples = sizeof(fifos->in.fifoBuffer)/sizeof(fifos->in.fifoBuffer[0]);
+            fifos->out.numSamples = sizeof(fifos->out.fifoBuffer)/sizeof(fifos->out.fifoBuffer[0]);
+            lineGraphIn.setFloatFifo(&fifos->in, true);
+            lineGraphOut.setFloatFifo(&fifos->out, true);
+
+            setState("filemapping", lineGraphsData.getDataFilename());
+            addIdleCallback(this, 1000 / 60); // 60fps
+        }
+    }
+
+    void idleCallback() override
+    {
+        bool shouldRepaint = false;
+
+        if (lineGraphIn.readSpace() != 0)
+        {
+            float value = lineGraphIn.read();
+            if (lineGraphIn.readSpace() != 0)
+                value = lineGraphIn.read();
             pushInputMeter(value);
             shouldRepaint = true;
         }
 
-        if (lineGraphFifoOut.readSpace() != 0)
+        if (lineGraphOut.readSpace() != 0)
         {
-            float value = lineGraphFifoOut.read();
-            if (lineGraphFifoOut.readSpace() != 0)
-                value = lineGraphFifoOut.read();
+            float value = lineGraphOut.read();
+            if (lineGraphOut.readSpace() != 0)
+                value = lineGraphOut.read();
             pushOutputMeter(value);
             shouldRepaint = true;
         }
@@ -296,6 +306,8 @@ protected:
             onMotion(ev);
         }
     }
+
+    void stateChanged(const char*, const char*) override {}
 
     // ----------------------------------------------------------------------------------------------------------------
     // main control
@@ -580,6 +592,14 @@ private:
     BlendishLabel blendishMeterOutLabelValue;
     BlendishMeterLine blendishMeterOutLine;
     BlendishMeterLine blendishMeterInLine;
+
+    // wait until first idle to setup fifo, in case UI is created as test
+    bool firstIdle;
+
+    // metering fifo
+    FloatFifoControl lineGraphIn;
+    FloatFifoControl lineGraphOut;
+    SharedMemory<OneKnobLineGraphFifos> lineGraphsData;
 
     Rectangle<uint> getScaledArea(const Rectangle<uint>& area) const
     {
