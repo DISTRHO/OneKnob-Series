@@ -26,6 +26,9 @@
 
 START_NAMESPACE_DISTRHO
 
+// line below fixes windows build
+using DGL_NAMESPACE::Rectangle;
+
 // --------------------------------------------------------------------------------------------------------------------
 
 static inline MATH_CONSTEXPR int lin2dbint(const float value)

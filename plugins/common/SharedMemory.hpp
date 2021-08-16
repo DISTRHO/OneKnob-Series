@@ -19,7 +19,11 @@
 
 #include "extra/String.hpp"
 
-#ifndef DISTRHO_OS_WINDOWS
+#ifdef DISTRHO_OS_WINDOWS
+# define WIN32_LEAN_AND_MEAN
+# include <winsock2.h>
+# include <windows.h>
+#else
 # include <cerrno>
 # include <fcntl.h>
 # include <unistd.h>
@@ -87,7 +91,7 @@ public:
             const DWORD error = ::GetLastError();
             ::CloseHandle(h);
 
-            if (error == ERROR_NONE)
+            if (error == 0) // FIXME ERROR_NONE or similar?
                 break;
 
             if (error == ERROR_ALREADY_EXISTS)
@@ -127,7 +131,7 @@ public:
         sa.bInheritHandle = TRUE;
 
         void* const map2 = ::CreateFileMappingA(INVALID_HANDLE_VALUE, &sa, PAGE_READWRITE|SEC_COMMIT, 0,
-                                                sizeof(*S), filename2);
+                                                sizeof(S), filename2);
 
         if (map2 == nullptr || map2 == INVALID_HANDLE_VALUE)
         {
@@ -137,7 +141,7 @@ public:
             return false;
         }
 
-        void* const ptr2 = ::MapViewOfFile(map2, FILE_MAP_ALL_ACCESS, 0, 0, size);
+        void* const ptr2 = ::MapViewOfFile(map2, FILE_MAP_ALL_ACCESS, 0, 0, sizeof(S));
 
         if (ptr2 == nullptr)
         {
@@ -193,7 +197,7 @@ public:
         DISTRHO_SAFE_ASSERT_RETURN(map2 != nullptr, nullptr);
         DISTRHO_SAFE_ASSERT_RETURN(map2 != INVALID_HANDLE_VALUE, nullptr);
 
-        void* const ptr2 = ::MapViewOfFile(map2, FILE_MAP_ALL_ACCESS, 0, 0, size);
+        void* const ptr2 = ::MapViewOfFile(map2, FILE_MAP_ALL_ACCESS, 0, 0, sizeof(S));
 
         if (ptr2 == nullptr)
         {
