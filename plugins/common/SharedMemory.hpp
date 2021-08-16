@@ -33,6 +33,8 @@
 # endif
 #endif
 
+#include <ctime>
+
 START_NAMESPACE_DISTRHO
 
 // -----------------------------------------------------------------------
@@ -70,6 +72,8 @@ public:
 #endif
         const std::size_t filename2len = std::strlen(filename2);
 
+        std::srand(static_cast<uint>(std::time(nullptr)));
+
         // Step 1. Find a valid shared memory segment (keep trying until one is obtained or an error occurs)
         for (;;)
         {
@@ -103,6 +107,8 @@ public:
             d_stderr("SharedMemory::create: file '%s' failed, error code 0x%x", filename2, error);
             return false;
 #else
+            fd2 = -1;
+
             try {
                 fd2 = ::shm_open(filename2, O_CREAT|O_EXCL|O_RDWR, 0600);
             } DISTRHO_SAFE_EXCEPTION("SharedMemory::create");
@@ -241,7 +247,7 @@ public:
 
     void close()
     {
-        if (ptr == nullptr)
+        if (ptr != nullptr)
         {
 #ifdef DISTRHO_OS_WINDOWS
             ::UnmapViewOfFile(ptr);

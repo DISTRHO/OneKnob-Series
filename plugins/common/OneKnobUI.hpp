@@ -190,6 +190,7 @@ public:
         if (lineGraphsData.isCreatedOrConnected())
         {
             removeIdleCallback(this);
+            lineGraphsData.getDataPointer()->closed = true;
             lineGraphsData.close();
         }
     }
@@ -251,10 +252,6 @@ protected:
                 return;
 
             OneKnobLineGraphFifos* const fifos = lineGraphsData.getDataPointer();
-            fifos->in.buffer = fifos->in.fifoBuffer;
-            fifos->out.buffer = fifos->out.fifoBuffer;
-            fifos->in.numSamples = sizeof(fifos->in.fifoBuffer)/sizeof(fifos->in.fifoBuffer[0]);
-            fifos->out.numSamples = sizeof(fifos->out.fifoBuffer)/sizeof(fifos->out.fifoBuffer[0]);
             lineGraphIn.setFloatFifo(&fifos->in, true);
             lineGraphOut.setFloatFifo(&fifos->out, true);
 
@@ -598,8 +595,8 @@ private:
     bool firstIdle;
 
     // metering fifo
-    FloatFifoControl lineGraphIn;
-    FloatFifoControl lineGraphOut;
+    OneKnobFloatFifoControl lineGraphIn;
+    OneKnobFloatFifoControl lineGraphOut;
     SharedMemory<OneKnobLineGraphFifos> lineGraphsData;
 
     Rectangle<uint> getScaledArea(const Rectangle<uint>& area) const

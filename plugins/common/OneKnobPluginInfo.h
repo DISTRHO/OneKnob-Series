@@ -40,13 +40,13 @@
 
 // --------------------------------------------------------------------------------------------------------------------
 
-struct OneKnobLineGraphFifo : FloatFifo {
-    float fifoBuffer[32];
-};
+typedef FloatFifo<32> OneKnobFloatFifo;
+typedef FloatFifoControl<32> OneKnobFloatFifoControl;
 
 struct OneKnobLineGraphFifos {
-    OneKnobLineGraphFifo in;
-    OneKnobLineGraphFifo out;
+    OneKnobFloatFifo in;
+    OneKnobFloatFifo out;
+    bool closed;
 };
 
 // --------------------------------------------------------------------------------------------------------------------

@@ -23,32 +23,31 @@ START_NAMESPACE_DISTRHO
 
 // -----------------------------------------------------------------------
 
+/**
+  Amount of float/audio samples in the buffer.
+ */
+template <uint32_t numSamples>
 struct FloatFifo {
    /**
-      Pointer to buffer data.
-      This can be either stack or heap data, depending on the usecase.
+      Fifo buffer data.
     */
-    float* buffer;
+    float buffer[numSamples];
 
    /**
       Current reading position.
       Increments when reading.
     */
-    float* readPointer;
+    uint32_t readPosition;
 
    /**
       Current writing position.
       Increments when writing.
     */
-    float* writePointer;
-
-   /**
-      Amount of float/audio samples in the buffer.
-    */
-    uint32_t numSamples;
+    uint32_t writePosition;
 
    /**
       Counters used to track available space.
+      TODO get rid of these
     */
     uint32_t readCounter, writeCounter;
 };
@@ -65,26 +64,28 @@ struct FloatFifo {
    Typically usage involves:
    ```
    // definition
-   HeapFloatFifo myFifo;
+   FloatFifo fifoData;
+   FloatFifoControl fifo;
 
-   // construction for 512 samples, only needed for heap buffers
-   myFifo.alloc(512);
+   // assign fifo and clear data
+   fifo.setFloatFifo(&fifoData, true);
 
    // writing data
-   myFifo.write(0.0f);
-   myFifo.write(0.5f);
-   myFifo.write(1.0f);
+   fifo.write(0.0f);
+   fifo.write(0.5f);
+   fifo.write(1.0f);
 
    // reading data
-   if (myFifo.readSpace())
+   if (fifo.readSpace())
    {
-      const float value = myFifo.read();
+      const float value = fifo.read();
       // do something with "value"
    }
    ```
 
    @see FloatFifo
  */
+template <uint32_t numSamples>
 class FloatFifoControl
 {
 public:
@@ -104,18 +105,18 @@ public:
     // -------------------------------------------------------------------
     // check operations
 
-    inline uint32_t readSpace()
+    inline uint32_t readSpace() const noexcept
     {
         DISTRHO_SAFE_ASSERT_RETURN(fifoPtr != nullptr, 0);
 
         return fifoPtr->writeCounter - fifoPtr->readCounter;
     }
 
-    inline uint32_t writeSpace()
+    inline uint32_t writeSpace() const noexcept
     {
         DISTRHO_SAFE_ASSERT_RETURN(fifoPtr != nullptr, 0);
 
-        return fifoPtr->numSamples - readSpace();
+        return numSamples - readSpace();
     }
 
     // -------------------------------------------------------------------
@@ -129,9 +130,9 @@ public:
     {
         DISTRHO_SAFE_ASSERT_RETURN(fifoPtr != nullptr,);
 
-        fifoPtr->readPointer = fifoPtr->writePointer = fifoPtr->buffer;
+        fifoPtr->readPosition = fifoPtr->writePosition = 0;
         fifoPtr->readCounter = fifoPtr->writeCounter = 0;
-        std::memset(fifoPtr->buffer, 0, sizeof(float)*fifoPtr->numSamples);
+        std::memset(fifoPtr->buffer, 0, sizeof(float)*numSamples);
     }
 
     // -------------------------------------------------------------------
@@ -139,7 +140,7 @@ public:
     /*
      * Tie this float fifo control to a float fifo struct, optionally clearing its data.
      */
-    void setFloatFifo(FloatFifo* const floatFifo, const bool clearFifoData) noexcept
+    void setFloatFifo(FloatFifo<numSamples>* const floatFifo, const bool clearFifoData = true) noexcept
     {
         DISTRHO_SAFE_ASSERT_RETURN(fifoPtr != floatFifo,);
 
@@ -151,144 +152,50 @@ public:
 
     // -------------------------------------------------------------------
 
+    /*
+     * Read one single sample.
+     */
     float read()
     {
         DISTRHO_SAFE_ASSERT_RETURN(fifoPtr != nullptr, 0.0f);
 
-        float* tmp = fifoPtr->readPointer;
-        const float ret = *tmp;
+        uint32_t readPosition = fifoPtr->readPosition;
+        const float ret = *(fifoPtr->buffer + readPosition);
 
-        if (++tmp == fifoPtr->buffer + fifoPtr->numSamples)
-            tmp = fifoPtr->buffer;
+        if (++readPosition == numSamples)
+            readPosition = 0;
 
         ++fifoPtr->readCounter;
-        fifoPtr->readPointer = tmp;
+        fifoPtr->readPosition = readPosition;
         return ret;
     }
 
+    /*
+     * Write one single sample.
+     */
     void write(const float value)
     {
         DISTRHO_SAFE_ASSERT_RETURN(fifoPtr != nullptr,);
 
-        float* tmp = fifoPtr->writePointer;
+        uint32_t writePosition = fifoPtr->writePosition;
 
-        *tmp = value;
+        *(fifoPtr->buffer + writePosition) = value;
 
-        if (++tmp == fifoPtr->buffer + fifoPtr->numSamples)
-            tmp = fifoPtr->buffer;
+        if (++writePosition == numSamples)
+            writePosition = 0;
 
         ++fifoPtr->writeCounter;
-        fifoPtr->writePointer = tmp;
+        fifoPtr->writePosition = writePosition;
     }
 
     // -------------------------------------------------------------------
 
 private:
     /** Fifo struct pointer. */
-    FloatFifo* fifoPtr;
+    FloatFifo<numSamples>* fifoPtr;
 
     DISTRHO_PREVENT_VIRTUAL_HEAP_ALLOCATION
     DISTRHO_DECLARE_NON_COPYABLE(FloatFifoControl)
-};
-
-// -----------------------------------------------------------------------
-// FloatFifo using heap space
-
-#ifdef DISTRHO_PROPER_CPP11_SUPPORT
-# define FloatFifo_INIT  {nullptr, nullptr, nullptr, 0, 0, 0}
-#else
-# define FloatFifo_INIT
-#endif
-
-/**
-   FloatFifoControl with a heap buffer.
-   This is a convenience class that provides a method for creating and destroying the heap data.
-   Requires the use of alloc(uint32_t) to make the float fifo usable.
-*/
-class HeapFloatFifo : public FloatFifoControl
-{
-public:
-    /** Constructor. */
-    HeapFloatFifo() noexcept
-        : fifo(FloatFifo_INIT)
-    {
-#ifndef DISTRHO_PROPER_CPP11_SUPPORT
-        std::memset(&fifo, 0, sizeof(fifo));
-#endif
-    }
-
-    /** Destructor. */
-    ~HeapFloatFifo() noexcept override
-    {
-        free();
-    }
-
-    /** Create a buffer of the specified size. */
-    bool alloc(const uint32_t numSamples) noexcept
-    {
-        DISTRHO_SAFE_ASSERT_RETURN(fifo.buffer == nullptr, false);
-        DISTRHO_SAFE_ASSERT_RETURN(numSamples > 0,  false);
-
-        try {
-            fifo.buffer = new float[numSamples];
-        } DISTRHO_SAFE_EXCEPTION_RETURN("HeapFloatFifo::createBuffer", false);
-
-        fifo.numSamples = numSamples;
-        setFloatFifo(&fifo, true);
-        return true;
-    }
-
-    /** Delete the previously allocated buffer. */
-    void free() noexcept
-    {
-        if (fifo.buffer == nullptr)
-            return;
-
-        setFloatFifo(nullptr, false);
-
-        delete[] fifo.buffer;
-        fifo.buffer = fifo.readPointer = fifo.writePointer = nullptr;
-        fifo.numSamples = fifo.readCounter = fifo.writeCounter = 0;
-    }
-
-private:
-    /** The heap buffer used for this class. */
-    FloatFifo fifo;
-
-    DISTRHO_PREVENT_VIRTUAL_HEAP_ALLOCATION
-    DISTRHO_DECLARE_NON_COPYABLE(HeapFloatFifo)
-};
-
-// -----------------------------------------------------------------------
-// FloatFifo using stack space
-
-/**
-   FloatFifoControl with a stack buffer.
-   No setup is necessary, this class is usable as-is.
-*/
-template<int numSamples>
-class StackFloatFifo : public FloatFifoControl
-{
-public:
-    /** Constructor. */
-    StackFloatFifo() noexcept
-        : fifo(FloatFifo_INIT)
-    {
-#ifndef DISTRHO_PROPER_CPP11_SUPPORT
-        std::memset(&fifo, 0, sizeof(fifo));
-#endif
-        fifo.buffer = fifoBuffer;
-        fifo.numSamples = numSamples;
-        setFloatFifo(&fifo, true);
-    }
-
-private:
-    /** The small stack buffer used for this class. */
-    FloatFifo fifo;
-    float fifoBuffer[numSamples];
-
-    DISTRHO_PREVENT_VIRTUAL_HEAP_ALLOCATION
-    DISTRHO_DECLARE_NON_COPYABLE(StackFloatFifo)
 };
 
 // -----------------------------------------------------------------------

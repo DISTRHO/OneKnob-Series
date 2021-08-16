@@ -41,7 +41,7 @@ clean:
 	$(MAKE) clean -C plugins/BrickwallLimiter
 	$(MAKE) clean -C plugins/Compressor
 	$(MAKE) clean -C plugins/DevilDistortion
-	rm -rf bin build
+	rm -rf bin build dpf-widgets/opengl/*.d dpf-widgets/opengl/*.o
 
 # --------------------------------------------------------------
 

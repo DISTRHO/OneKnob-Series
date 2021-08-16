@@ -82,10 +82,18 @@ protected:
     {
         if (std::strcmp(key, "filemapping") == 0)
         {
+            if (lineGraphsData.isCreatedOrConnected())
+            {
+                DISTRHO_SAFE_ASSERT_RETURN(! lineGraphActive,);
+                lineGraphIn.setFloatFifo(nullptr);
+                lineGraphOut.setFloatFifo(nullptr);
+                lineGraphsData.close();
+            }
+
             if (OneKnobLineGraphFifos* const fifos = lineGraphsData.connect(value))
             {
-                lineGraphIn.setFloatFifo(&fifos->in, true);
-                lineGraphOut.setFloatFifo(&fifos->out, true);
+                lineGraphIn.setFloatFifo(&fifos->in);
+                lineGraphOut.setFloatFifo(&fifos->out);
                 lineGraphActive = true;
             }
         }
@@ -126,6 +134,13 @@ protected:
     {
         if (! lineGraphActive)
             return;
+
+        if (lineGraphsData.getDataPointer()->closed)
+        {
+            lineGraphActive = false;
+            return;
+        }
+
         lineGraphIn.write(in);
         lineGraphOut.write(out);
     }
@@ -141,8 +156,8 @@ protected:
     float lineGraphHighestOut = 0.0f;
 
 private:
-    FloatFifoControl lineGraphIn;
-    FloatFifoControl lineGraphOut;
+    OneKnobFloatFifoControl lineGraphIn;
+    OneKnobFloatFifoControl lineGraphOut;
     SharedMemory<OneKnobLineGraphFifos> lineGraphsData;
 
     DISTRHO_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(OneKnobPlugin)
