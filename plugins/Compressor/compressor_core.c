@@ -44,7 +44,7 @@ typedef struct {
 	float detectoravg;
 	float compgain;
 	float maxcompdiffdb;
-	int samplerate;
+	float samplerate;
 	float ang90;
 	float ang90inv;
 } sf_compressor_state_st;
@@ -90,6 +90,14 @@ static inline float clampf(float v, float min, float max){
 	return v < min ? min : (v > max ? max : v);
 }
 
+static inline float absf(float v){
+	return v < 0.0f ? -v : v;
+}
+
+static inline float maxf(float v1, float v2){
+	return v1 > v2 ? v1 : v2;
+}
+
 static inline float fixf(float v, float def){
 	if (isnan(v) || isinf(v))
 		return def;
@@ -119,7 +127,7 @@ static void compressor_set_params(sf_compressor_state_st *state, float threshold
 	float attacksamplesinv = 1.0f / attacksamples;
 	float releasesamples = state->samplerate * release;
 	float satrelease = 0.0025f; // seconds
-	float satreleasesamplesinv = 1.0f / ((float)state->samplerate * satrelease);
+	float satreleasesamplesinv = 1.0f / (state->samplerate * satrelease);
 
 	// calculate knee curve parameters
 	float k = 5.0f; // initial guess
@@ -216,7 +224,8 @@ static void compressor_process(sf_compressor_state_st *state, int size,
 			maxcompdiffdb = -1; // reset for a future attack mode
 			// apply the adaptive release curve
 			// scale compdiffdb between 0-3
-			float releasesamples = adaptivereleasecurve(((clampf(compdiffdb, -12.0f, 0.0f) + 12.0f) * 0.25f), a, b, c, d);
+			float x = (clampf(compdiffdb, -12.0f, 0.0f) + 12.0f) * 0.25f;
+			float releasesamples = adaptivereleasecurve(x, a, b, c, d);
 			enveloperate = cmop_db2lin(5.0f / releasesamples);
 		}
 		else{ // compresorgain > scaleddesiredgain, so we're attacking
@@ -230,10 +239,9 @@ static void compressor_process(sf_compressor_state_st *state, int size,
 		}
 
 		// process the chunk
-		for (int chi = 0; chi < spu; chi++, samplepos++)
+		for (int chi = 0; chi < spu && samplepos < size; chi++, samplepos++)
 		{
-			float inputmax;
-			inputmax = fabs(input_L[samplepos]) > fabs(input_R[samplepos]) ? fabs(input_L[samplepos]) : fabs(input_R[samplepos]);
+			const float inputmax = maxf(absf(input_L[samplepos]), absf(input_R[samplepos]));
 
 			float attenuation;
 			if (inputmax < 0.0001f)
@@ -275,9 +283,11 @@ static void compressor_process(sf_compressor_state_st *state, int size,
 					compgain = 1.0f;
 			}
 
+			const float gain = mastergain * sinf(state->ang90 * compgain);
+
 			// apply the gain
-			output_L[samplepos] = input_L[samplepos] * mastergain * sinf(state->ang90 * compgain);
-			output_R[samplepos] = input_R[samplepos] * mastergain * sinf(state->ang90 * compgain);
+			output_L[samplepos] = input_L[samplepos] * gain;
+			output_R[samplepos] = input_R[samplepos] * gain;
 		}
 	}
 

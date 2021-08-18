@@ -268,7 +268,7 @@ protected:
         {
             float value = lineGraphIn.read();
             if (lineGraphIn.canRead())
-                value = lineGraphIn.read();
+                value = std::max(value, lineGraphIn.read());
             pushInputMeter(value);
             shouldRepaint = true;
         }
@@ -277,7 +277,7 @@ protected:
         {
             float value = lineGraphOut.read();
             if (lineGraphOut.canRead())
-                value = lineGraphOut.read();
+                value = std::max(value, lineGraphOut.read());
             pushOutputMeter(value);
             shouldRepaint = true;
         }
