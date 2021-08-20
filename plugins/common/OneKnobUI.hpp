@@ -252,8 +252,8 @@ protected:
                 return;
 
             OneKnobLineGraphFifos* const fifos = lineGraphsData.getDataPointer();
-            lineGraphIn.setFloatFifo(&fifos->in, true);
-            lineGraphOut.setFloatFifo(&fifos->out, true);
+            lineGraph1.setFloatFifo(&fifos->v1, true);
+            lineGraph2.setFloatFifo(&fifos->v2, true);
 
             setState("filemapping", lineGraphsData.getDataFilename());
             addIdleCallback(this, 1000 / 60); // 60fps
@@ -264,20 +264,20 @@ protected:
     {
         bool shouldRepaint = false;
 
-        if (lineGraphIn.canRead())
+        if (lineGraph1.canRead())
         {
-            float value = lineGraphIn.read();
-            if (lineGraphIn.canRead())
-                value = std::max(value, lineGraphIn.read());
+            float value = lineGraph1.read();
+            if (lineGraph1.canRead())
+                value = std::max(value, lineGraph1.read());
             pushInputMeter(value);
             shouldRepaint = true;
         }
 
-        if (lineGraphOut.canRead())
+        if (lineGraph2.canRead())
         {
-            float value = lineGraphOut.read();
-            if (lineGraphOut.canRead())
-                value = std::max(value, lineGraphOut.read());
+            float value = lineGraph2.read();
+            if (lineGraph2.canRead())
+                value = std::max(value, lineGraph2.read());
             pushOutputMeter(value);
             shouldRepaint = true;
         }
@@ -595,8 +595,8 @@ private:
     bool firstIdle;
 
     // metering fifo
-    OneKnobFloatFifoControl lineGraphIn;
-    OneKnobFloatFifoControl lineGraphOut;
+    OneKnobFloatFifoControl lineGraph1;
+    OneKnobFloatFifoControl lineGraph2;
     SharedMemory<OneKnobLineGraphFifos> lineGraphsData;
 
     Rectangle<uint> getScaledArea(const Rectangle<uint>& area) const

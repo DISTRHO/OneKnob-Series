@@ -85,15 +85,15 @@ protected:
             if (lineGraphsData.isCreatedOrConnected())
             {
                 DISTRHO_SAFE_ASSERT(! lineGraphActive);
-                lineGraphIn.setFloatFifo(nullptr);
-                lineGraphOut.setFloatFifo(nullptr);
+                lineGraph1.setFloatFifo(nullptr);
+                lineGraph2.setFloatFifo(nullptr);
                 lineGraphsData.close();
             }
 
             if (OneKnobLineGraphFifos* const fifos = lineGraphsData.connect(value))
             {
-                lineGraphIn.setFloatFifo(&fifos->in);
-                lineGraphOut.setFloatFifo(&fifos->out);
+                lineGraph1.setFloatFifo(&fifos->v1);
+                lineGraph2.setFloatFifo(&fifos->v2);
                 lineGraphActive = true;
             }
         }
@@ -130,7 +130,7 @@ protected:
             parameters[i] = kParameterDefaults[i];
     }
 
-    inline void setMeters(const float in, const float out)
+    inline void setMeters(const float v1, const float v2)
     {
         if (! lineGraphActive)
             return;
@@ -141,8 +141,8 @@ protected:
             return;
         }
 
-        lineGraphIn.write(in);
-        lineGraphOut.write(out);
+        lineGraph1.write(v1);
+        lineGraph2.write(v2);
     }
 
     // -------------------------------------------------------------------
@@ -156,8 +156,8 @@ protected:
     float lineGraphHighest2 = 0.0f;
 
 private:
-    OneKnobFloatFifoControl lineGraphIn;
-    OneKnobFloatFifoControl lineGraphOut;
+    OneKnobFloatFifoControl lineGraph1;
+    OneKnobFloatFifoControl lineGraph2;
     SharedMemory<OneKnobLineGraphFifos> lineGraphsData;
 
     DISTRHO_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(OneKnobPlugin)

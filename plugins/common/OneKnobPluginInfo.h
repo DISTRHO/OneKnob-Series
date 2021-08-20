@@ -44,8 +44,8 @@ typedef FloatFifo<32> OneKnobFloatFifo;
 typedef FloatFifoControl<32> OneKnobFloatFifoControl;
 
 struct OneKnobLineGraphFifos {
-    OneKnobFloatFifo in;
-    OneKnobFloatFifo out;
+    OneKnobFloatFifo v1;
+    OneKnobFloatFifo v2;
     bool closed;
 };
 
