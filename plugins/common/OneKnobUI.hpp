@@ -39,6 +39,7 @@ static inline MATH_CONSTEXPR int lin2dbint(const float value)
 // --------------------------------------------------------------------------------------------------------------------
 
 static const uint kSidePanelWidth = 12;
+static const char* kDefaultLineMeterNames[2] = { "In:", "Out:" };
 
 // --------------------------------------------------------------------------------------------------------------------
 
@@ -141,7 +142,7 @@ class OneKnobUI : public UI,
                   , public IdleCallback
 {
 public:
-    OneKnobUI(const uint width, const uint height)
+    OneKnobUI(const uint width, const uint height, const char* lineMeterNames[2] = kDefaultLineMeterNames)
         : UI(width, height),
           tisi(),
           blendish(this),
@@ -167,7 +168,7 @@ public:
         blendishTopLabel.setLabel(DISTRHO_PLUGIN_BRAND " " DISTRHO_PLUGIN_NAME);
 
         blendishMeter1Label.setColor(Color(0x3E, 0xB8, 0xBE, 0.75f));
-        blendishMeter1Label.setLabel("In:");
+        blendishMeter1Label.setLabel(lineMeterNames[0]);
         blendishMeter1Label.setFontSize(8);
 
         blendishMeter1LabelValue.setAlignment(BlendishLabel::kAlignmentRight);
@@ -176,7 +177,7 @@ public:
         blendishMeter1LabelValue.setFontSize(8);
 
         blendishMeter2Label.setColor(Color::fromHTML("#c90054"));
-        blendishMeter2Label.setLabel("Out:");
+        blendishMeter2Label.setLabel(lineMeterNames[1]);
         blendishMeter2Label.setFontSize(8);
 
         blendishMeter2LabelValue.setAlignment(BlendishLabel::kAlignmentRight);

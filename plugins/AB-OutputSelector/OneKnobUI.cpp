@@ -52,13 +52,15 @@ static const OneKnobAuxiliaryComboBox comboBox = {
     comboBoxValues
 };
 
+static const char* lineMeterNames[2] = { "Out1:", "Out2:" };
+
 // --------------------------------------------------------------------------------------------------------------------
 
 class OneKnobOutputSelectorUI : public OneKnobUI
 {
 public:
     OneKnobOutputSelectorUI()
-        : OneKnobUI(kDefaultWidth, kDefaultHeight)
+        : OneKnobUI(kDefaultWidth, kDefaultHeight, lineMeterNames)
     {
         // setup OneKnob UI
         const Rectangle<uint> mainArea(kSidePanelWidth,
