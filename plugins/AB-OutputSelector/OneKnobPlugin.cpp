@@ -19,6 +19,7 @@
 #include "DistrhoPluginInfo.h"
 
 #include "OneKnobPlugin.hpp"
+#include "LinearSmoother.hpp"
 
 START_NAMESPACE_DISTRHO
 
@@ -31,6 +32,8 @@ public:
         : OneKnobPlugin()
     {
         init();
+        sampleRateChanged(getSampleRate());
+        fABSmooth.setTimeConstant(1e-3f);
     }
 
 protected:
@@ -115,19 +118,47 @@ protected:
     // -------------------------------------------------------------------
     // Process
 
+    void sampleRateChanged(const double newSampleRate) override
+    {
+        OneKnobPlugin::sampleRateChanged(newSampleRate);
+
+        fABSmooth.setSampleRate((float)newSampleRate);
+    }
+
     void activate() override
     {
         OneKnobPlugin::activate();
 
-        // TODO force smoothing into real
+        LinearSmoother &abSmooth = fABSmooth;
+        abSmooth.setTarget((parameters[kParameterSelect] + 100.0f) / 200.0f);
+        abSmooth.clearToTarget();
     }
 
     void run(const float** const inputs, float** const outputs, const uint32_t frames) override
     {
-        // TODO
+        const float *li = inputs[0];
+        const float *ri = inputs[1];
+        float *l1 = outputs[0];
+        float *r1 = outputs[1];
+        float *l2 = outputs[2];
+        float *r2 = outputs[3];
+
+        LinearSmoother &abSmooth = fABSmooth;
+        abSmooth.setTarget((parameters[kParameterSelect] + 100.0f) / 200.0f);
+
+        for (uint32_t i = 0; i < frames; ++i) {
+            float sel = fABSmooth.next();
+            float As = std::sqrt(1.0f - sel);
+            float Bs = std::sqrt(sel);
+            l1[i] = As*li[i];
+            r1[i] = As*ri[i];
+            l2[i] = Bs*li[i];
+            r2[i] = Bs*ri[i];
+        }
     }
 
     // -------------------------------------------------------------------
+    LinearSmoother fABSmooth;
 
     DISTRHO_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(OneKnobOutputSelectorPlugin)
 };
