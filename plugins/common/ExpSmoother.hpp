@@ -27,7 +27,7 @@
  * exponential curve.
  *
  * The length of the curve is defined by a T60 constant, which
- * is the take it takes for a 1-to-0 smoothing to fall to -60dB.
+ * is the time it takes for a 1-to-0 smoothing to fall to -60dB.
  *
  * Note that this smoother has asymptotical behavior, and it must
  * not be assumed that the final target is ever reached.
