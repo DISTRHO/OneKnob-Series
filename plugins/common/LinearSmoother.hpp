@@ -14,6 +14,9 @@
  * CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
+#ifndef DISTRHO_LINEAR_SMOOTHER_HPP_INCLUDED
+#define DISTRHO_LINEAR_SMOOTHER_HPP_INCLUDED
+
 #include <cmath>
 
 /**
@@ -95,3 +98,5 @@ private:
     float fTau = 0.0f;
     float fSampleRate = 0.0f;
 };
+
+#endif // DISTRHO_LINEAR_SMOOTHER_HPP_INCLUDED
