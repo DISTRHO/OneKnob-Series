@@ -72,6 +72,18 @@ protected:
             parameter.ranges.def = kParameterDefaults[kParameterSelect];
             parameter.ranges.min = -100.0f;
             parameter.ranges.max = 100.0f;
+            {
+                ParameterEnumerationValue *values = new ParameterEnumerationValue[3];
+                parameter.enumValues.values = values;
+                parameter.enumValues.count = 3;
+                parameter.enumValues.restrictedMode = false;
+                values[0].value = -100.0f;
+                values[0].label = "A";
+                values[1].value = 0.0f;
+                values[1].label = "A/B";
+                values[2].value = 100.0f;
+                values[2].label = "B";
+            }
             break;
         case kParameterMode:
             parameter.hints      = kParameterIsAutomable | kParameterIsInteger | kParameterIsBoolean;
