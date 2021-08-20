@@ -16,8 +16,8 @@ ifeq ($(HAVE_OPENGL),true)
 endif
 
 plugins: dgl
-	$(MAKE) all -C AB-InputSelector
-	$(MAKE) all -C AB-OutputSelector
+	$(MAKE) all -C plugins/AB-InputSelector
+	$(MAKE) all -C plugins/AB-OutputSelector
 	$(MAKE) all -C plugins/BrickwallLimiter
 	$(MAKE) all -C plugins/Compressor
 	$(MAKE) all -C plugins/DevilDistortion
@@ -40,8 +40,8 @@ endif
 clean:
 	$(MAKE) clean -C dpf/dgl
 	$(MAKE) clean -C dpf/utils/lv2-ttl-generator
-	$(MAKE) clean -C AB-InputSelector
-	$(MAKE) clean -C AB-OutputSelector
+	$(MAKE) clean -C plugins/AB-InputSelector
+	$(MAKE) clean -C plugins/AB-OutputSelector
 	$(MAKE) clean -C plugins/BrickwallLimiter
 	$(MAKE) clean -C plugins/Compressor
 	$(MAKE) clean -C plugins/DevilDistortion
