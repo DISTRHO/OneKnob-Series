@@ -7,11 +7,16 @@ often just one knob and a few options.
 This is very much WORK IN PROGRESS!
 
 This collection currently includes:<br/>
+ - A/B Input Selector
+ - A/B Output Selector
  - Brickwall Limiter
  - Compressor
  - Devil's Distortion
 
 ## Screenshots
+
+A/B Input/Output Selector:<br/>
+![AB-InputSelector](plugins/AB-InputSelector/Screenshot.png "A/B Input Selector")<br/>
 
 Brickwall Limiter:<br/>
 ![BrickwallLimiter](plugins/BrickwallLimiter/Screenshot.png "Brickwall Limiter")<br/>
