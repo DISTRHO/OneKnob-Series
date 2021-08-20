@@ -147,23 +147,35 @@ protected:
 
     void run(const float** const inputs, float** const outputs, const uint32_t frames) override
     {
-        const float *li = inputs[0];
-        const float *ri = inputs[1];
-        float *l1 = outputs[0];
-        float *r1 = outputs[1];
-        float *l2 = outputs[2];
-        float *r2 = outputs[3];
+        const float* const li = inputs[0];
+        const float* const ri = inputs[1];
+        /* */ float* const l1 = outputs[0];
+        /* */ float* const r1 = outputs[1];
+        /* */ float* const l2 = outputs[2];
+        /* */ float* const r2 = outputs[3];
 
         abSmooth.setTarget((parameters[kParameterSelect] + 100.0f) / 200.0f);
 
-        for (uint32_t i = 0; i < frames; ++i) {
-            float sel = abSmooth.next();
-            float As = std::sqrt(1.0f - sel);
-            float Bs = std::sqrt(sel);
+        float sel, As, Bs;
+        for (uint32_t i = 0; i < frames; ++i)
+        {
+            sel = abSmooth.next();
+            As = std::sqrt(1.0f - sel);
+            Bs = std::sqrt(sel);
             l1[i] = As*li[i];
             r1[i] = As*ri[i];
             l2[i] = Bs*li[i];
             r2[i] = Bs*ri[i];
+
+            lineGraphHighestIn = std::max(lineGraphHighestIn, std::abs(l1[i]));
+            lineGraphHighestOut = std::max(lineGraphHighestOut, std::abs(l2[i]));
+
+            if (++lineGraphFrameCounter == lineGraphFrameToReset)
+            {
+                lineGraphFrameCounter = 0;
+                setMeters(lineGraphHighestIn, lineGraphHighestOut);
+                lineGraphHighestIn = lineGraphHighestOut = 0.0f;
+            }
         }
     }
 
