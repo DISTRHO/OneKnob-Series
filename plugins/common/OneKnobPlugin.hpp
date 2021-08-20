@@ -105,7 +105,7 @@ protected:
     void activate() override
     {
         lineGraphFrameCounter = 0;
-        lineGraphHighestIn = lineGraphHighestOut = 0.0f;
+        lineGraphHighest1 = lineGraphHighest2 = 0.0f;
     }
 
     void sampleRateChanged(const double newSampleRate) override
@@ -152,8 +152,8 @@ protected:
     bool lineGraphActive = false;
     uint32_t lineGraphFrameCounter = 0;
     uint32_t lineGraphFrameToReset;
-    float lineGraphHighestIn = 0.0f;
-    float lineGraphHighestOut = 0.0f;
+    float lineGraphHighest1 = 0.0f;
+    float lineGraphHighest2 = 0.0f;
 
 private:
     OneKnobFloatFifoControl lineGraphIn;

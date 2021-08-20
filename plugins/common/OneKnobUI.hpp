@@ -148,12 +148,12 @@ public:
           blendishTopLabel(&blendish),
           blendishAuxButtonGroupValues(nullptr),
           blendishAuxComboBoxValues(nullptr),
-          blendishMeterInLabel(&blendish),
-          blendishMeterInLabelValue(&blendish),
-          blendishMeterOutLabel(&blendish),
-          blendishMeterOutLabelValue(&blendish),
-          blendishMeterOutLine(&blendish, Color::fromHTML("#c90054")),
-          blendishMeterInLine(&blendish, Color(0x3E, 0xB8, 0xBE, 0.75f)),
+          blendishMeter1Label(&blendish),
+          blendishMeter1LabelValue(&blendish),
+          blendishMeter2Label(&blendish),
+          blendishMeter2LabelValue(&blendish),
+          blendishMeter2Line(&blendish, Color::fromHTML("#c90054")),
+          blendishMeter1Line(&blendish, Color(0x3E, 0xB8, 0xBE, 0.75f)),
           firstIdle(true)
     {
         const double scaleFactor = getScaleFactor();
@@ -166,23 +166,23 @@ public:
         blendishTopLabel.setColor(Color(1.0, 1.0f, 1.0f));
         blendishTopLabel.setLabel(DISTRHO_PLUGIN_BRAND " " DISTRHO_PLUGIN_NAME);
 
-        blendishMeterInLabel.setColor(Color(0x3E, 0xB8, 0xBE, 0.75f));
-        blendishMeterInLabel.setLabel("In:");
-        blendishMeterInLabel.setFontSize(8);
+        blendishMeter1Label.setColor(Color(0x3E, 0xB8, 0xBE, 0.75f));
+        blendishMeter1Label.setLabel("In:");
+        blendishMeter1Label.setFontSize(8);
 
-        blendishMeterInLabelValue.setAlignment(BlendishLabel::kAlignmentRight);
-        blendishMeterInLabelValue.setColor(Color(0x3E, 0xB8, 0xBE, 0.75f));
-        blendishMeterInLabelValue.setLabel("-inf dB");
-        blendishMeterInLabelValue.setFontSize(8);
+        blendishMeter1LabelValue.setAlignment(BlendishLabel::kAlignmentRight);
+        blendishMeter1LabelValue.setColor(Color(0x3E, 0xB8, 0xBE, 0.75f));
+        blendishMeter1LabelValue.setLabel("-inf dB");
+        blendishMeter1LabelValue.setFontSize(8);
 
-        blendishMeterOutLabel.setColor(Color::fromHTML("#c90054"));
-        blendishMeterOutLabel.setLabel("Out:");
-        blendishMeterOutLabel.setFontSize(8);
+        blendishMeter2Label.setColor(Color::fromHTML("#c90054"));
+        blendishMeter2Label.setLabel("Out:");
+        blendishMeter2Label.setFontSize(8);
 
-        blendishMeterOutLabelValue.setAlignment(BlendishLabel::kAlignmentRight);
-        blendishMeterOutLabelValue.setColor(Color::fromHTML("#c90054"));
-        blendishMeterOutLabelValue.setLabel("-inf dB");
-        blendishMeterOutLabelValue.setFontSize(8);
+        blendishMeter2LabelValue.setAlignment(BlendishLabel::kAlignmentRight);
+        blendishMeter2LabelValue.setColor(Color::fromHTML("#c90054"));
+        blendishMeter2LabelValue.setLabel("-inf dB");
+        blendishMeter2LabelValue.setFontSize(8);
     }
 
     ~OneKnobUI() override
@@ -234,10 +234,10 @@ protected:
 
         // metering bounds
         Color::fromHTML("#31363b").setFor(context);
-        Rectangle<int>(blendishMeterInLine.getAbsoluteX() * 2 * scaleFactor,
-                       blendishMeterInLine.getAbsoluteY() * 2 * scaleFactor,
-                       blendishMeterInLine.getWidth() * 2 * scaleFactor,
-                       blendishMeterInLine.getHeight() * 2 * scaleFactor).drawOutline(context);
+        Rectangle<int>(blendishMeter1Line.getAbsoluteX() * 2 * scaleFactor,
+                       blendishMeter1Line.getAbsoluteY() * 2 * scaleFactor,
+                       blendishMeter1Line.getWidth() * 2 * scaleFactor,
+                       blendishMeter1Line.getHeight() * 2 * scaleFactor).drawOutline(context);
     }
 
     // ----------------------------------------------------------------------------------------------------------------
@@ -470,26 +470,26 @@ protected:
 
     void pushInputMeter(const float value)
     {
-        blendishMeterInLine.push(std::min(1.1f, value));
+        blendishMeter1Line.push(std::min(1.1f, value));
 
         if (value < 0.0001f)
-            return blendishMeterInLabelValue.setLabel("-inf dB", false);
+            return blendishMeter1LabelValue.setLabel("-inf dB", false);
 
         char strBuf[0xff];
         snprintf(strBuf, sizeof(strBuf), "%d dB", lin2dbint(value));
-        blendishMeterInLabelValue.setLabel(strBuf, false);
+        blendishMeter1LabelValue.setLabel(strBuf, false);
     }
 
     void pushOutputMeter(const float value)
     {
-        blendishMeterOutLine.push(std::min(1.1f, value));
+        blendishMeter2Line.push(std::min(1.1f, value));
 
         if (value < 0.0001f)
-            return blendishMeterOutLabelValue.setLabel("-inf dB", false);
+            return blendishMeter2LabelValue.setLabel("-inf dB", false);
 
         char strBuf[0xff];
         snprintf(strBuf, sizeof(strBuf), "%d dB", lin2dbint(value));
-        blendishMeterOutLabelValue.setLabel(strBuf, false);
+        blendishMeter2LabelValue.setLabel(strBuf, false);
     }
 
     void repositionWidgets()
@@ -548,18 +548,18 @@ protected:
         }
 
         // metering
-        blendishMeterInLine.setAbsolutePos(kSidePanelWidth,
-                                           height / 2 - blendishMeterInLine.getHeight() - kSidePanelWidth);
-        blendishMeterOutLine.setAbsolutePos(kSidePanelWidth,
-                                            height / 2 - blendishMeterOutLine.getHeight() - kSidePanelWidth);
+        blendishMeter1Line.setAbsolutePos(kSidePanelWidth,
+                                           height / 2 - blendishMeter1Line.getHeight() - kSidePanelWidth);
+        blendishMeter2Line.setAbsolutePos(kSidePanelWidth,
+                                            height / 2 - blendishMeter2Line.getHeight() - kSidePanelWidth);
 
-        blendishMeterInLabel.setAbsolutePos(width * scaleFactor / 2 - 58 * scaleFactor, (height - 240) * scaleFactor);
-        blendishMeterOutLabel.setAbsolutePos(width * scaleFactor / 2 - 58 * scaleFactor, (height - 230) * scaleFactor);
+        blendishMeter1Label.setAbsolutePos(width * scaleFactor / 2 - 58 * scaleFactor, (height - 240) * scaleFactor);
+        blendishMeter2Label.setAbsolutePos(width * scaleFactor / 2 - 58 * scaleFactor, (height - 230) * scaleFactor);
 
-        blendishMeterInLabelValue.setAbsolutePos(blendishMeterInLabel.getAbsoluteX() - 14 * scaleFactor,
-                                                 blendishMeterInLabel.getAbsoluteY());
-        blendishMeterOutLabelValue.setAbsolutePos(blendishMeterOutLabel.getAbsoluteX() - 14 * scaleFactor,
-                                                  blendishMeterOutLabel.getAbsoluteY());
+        blendishMeter1LabelValue.setAbsolutePos(blendishMeter1Label.getAbsoluteX() - 14 * scaleFactor,
+                                                 blendishMeter1Label.getAbsoluteY());
+        blendishMeter2LabelValue.setAbsolutePos(blendishMeter2Label.getAbsoluteX() - 14 * scaleFactor,
+                                                  blendishMeter2Label.getAbsoluteY());
     }
 
 private:
@@ -584,12 +584,12 @@ private:
     const OneKnobAuxiliaryComboBoxValue* blendishAuxComboBoxValues;
 
     // metering
-    BlendishLabel blendishMeterInLabel;
-    BlendishLabel blendishMeterInLabelValue;
-    BlendishLabel blendishMeterOutLabel;
-    BlendishLabel blendishMeterOutLabelValue;
-    BlendishMeterLine blendishMeterOutLine;
-    BlendishMeterLine blendishMeterInLine;
+    BlendishLabel blendishMeter1Label;
+    BlendishLabel blendishMeter1LabelValue;
+    BlendishLabel blendishMeter2Label;
+    BlendishLabel blendishMeter2LabelValue;
+    BlendishMeterLine blendishMeter2Line;
+    BlendishMeterLine blendishMeter1Line;
 
     // wait until first idle to setup fifo, in case UI is created as test
     bool firstIdle;

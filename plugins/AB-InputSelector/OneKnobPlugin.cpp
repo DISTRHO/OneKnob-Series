@@ -165,14 +165,14 @@ protected:
             lo[i] = As * l1[i]+Bs * l2[i];
             ro[i] = As * r1[i]+Bs * r2[i];
 
-            lineGraphHighestIn = std::max(lineGraphHighestIn, std::abs(l1[i]));
-            lineGraphHighestOut = std::max(lineGraphHighestOut, std::abs(l2[i]));
+            lineGraphHighest1 = std::max(lineGraphHighest1, std::abs(l1[i]));
+            lineGraphHighest2 = std::max(lineGraphHighest2, std::abs(l2[i]));
 
             if (++lineGraphFrameCounter == lineGraphFrameToReset)
             {
                 lineGraphFrameCounter = 0;
-                setMeters(lineGraphHighestIn, lineGraphHighestOut);
-                lineGraphHighestIn = lineGraphHighestOut = 0.0f;
+                setMeters(lineGraphHighest1, lineGraphHighest2);
+                lineGraphHighest1 = lineGraphHighest2 = 0.0f;
             }
         }
     }

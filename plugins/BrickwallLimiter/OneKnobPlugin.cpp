@@ -187,7 +187,7 @@ protected:
             for (uint32_t i=0; i<frames; ++i)
             {
                 tmp = *in1++;
-                lineGraphHighestIn = std::max(lineGraphHighestIn, std::abs(tmp));
+                lineGraphHighest1 = std::max(lineGraphHighest1, std::abs(tmp));
 
                 if (tmp > threshold)
                     tmp = threshold_with_gain;
@@ -197,7 +197,7 @@ protected:
                     tmp *= gain;
 
                 *out1++ = tmp;
-                lineGraphHighestOut = std::max(lineGraphHighestOut, std::abs(tmp));
+                lineGraphHighest2 = std::max(lineGraphHighest2, std::abs(tmp));
 
                 tmp = *in2++;
                 if (tmp > threshold)
@@ -210,8 +210,8 @@ protected:
                 if (++lineGraphFrameCounter == lineGraphFrameToReset)
                 {
                     lineGraphFrameCounter = 0;
-                    setMeters(lineGraphHighestIn, lineGraphHighestOut);
-                    lineGraphHighestIn = lineGraphHighestOut = 0.0f;
+                    setMeters(lineGraphHighest1, lineGraphHighest2);
+                    lineGraphHighest1 = lineGraphHighest2 = 0.0f;
                 }
             }
         }
@@ -225,15 +225,15 @@ protected:
             for (uint32_t i=0; i<frames; ++i)
             {
                 tmp = *in1++;
-                lineGraphHighestIn = std::max(lineGraphHighestIn, std::abs(tmp));
+                lineGraphHighest1 = std::max(lineGraphHighest1, std::abs(tmp));
                 tmp = *out1++;
-                lineGraphHighestOut = std::max(lineGraphHighestOut, std::abs(tmp));
+                lineGraphHighest2 = std::max(lineGraphHighest2, std::abs(tmp));
 
                 if (++lineGraphFrameCounter == lineGraphFrameToReset)
                 {
                     lineGraphFrameCounter = 0;
-                    setMeters(lineGraphHighestIn, lineGraphHighestOut);
-                    lineGraphHighestIn = lineGraphHighestOut = 0.0f;
+                    setMeters(lineGraphHighest1, lineGraphHighest2);
+                    lineGraphHighest1 = lineGraphHighest2 = 0.0f;
                 }
             }
         }
