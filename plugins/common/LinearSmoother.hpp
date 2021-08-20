@@ -36,67 +36,67 @@ class LinearSmoother {
 public:
     void setSampleRate(float newSampleRate) noexcept
     {
-        if (fSampleRate != newSampleRate) {
-            fSampleRate = newSampleRate;
+        if (sampleRate != newSampleRate) {
+            sampleRate = newSampleRate;
             updateStep();
         }
     }
 
     void setTimeConstant(float newTau) noexcept
     {
-        if (fTau != newTau) {
-            fTau = newTau;
+        if (tau != newTau) {
+            tau = newTau;
             updateStep();
         }
     }
 
     float getCurrentValue() const noexcept
     {
-        return fMem;
+        return mem;
     }
 
     float getTarget() const noexcept
     {
-        return fTarget;
+        return target;
     }
 
-    void setTarget(float target) noexcept
+    void setTarget(float newTarget) noexcept
     {
-        if (fTarget != target) {
-            fTarget = target;
+        if (target != newTarget) {
+            target = newTarget;
             updateStep();
         }
     }
 
     void clear() noexcept
     {
-        fMem = 0.0f;
+        mem = 0.0f;
     }
 
     void clearToTarget() noexcept
     {
-        fMem = fTarget;
+        mem = target;
     }
 
     float next() noexcept
     {
-        float y0 = fMem;
-        float dy = fTarget - y0;
-        return (fMem = y0 + std::copysign(std::fmin(std::abs(dy), std::abs(fStep)), dy));
+        float y0 = mem;
+        float dy = target - y0;
+        return (mem = y0 + std::copysign(std::fmin(std::abs(dy), std::abs(step)), dy));
     }
 
 private:
     void updateStep() noexcept
     {
-        fStep = (fTarget - fMem) / (fTau * fSampleRate);
+        step = (target - mem) / (tau * sampleRate);
     }
 
 private:
-    float fStep = 0.0f;
-    float fTarget = 0.0f;
-    float fMem = 0.0f;
-    float fTau = 0.0f;
-    float fSampleRate = 0.0f;
+    float step = 0.0f;
+    float target = 0.0f;
+    float mem = 0.0f;
+    float tau = 0.0f;
+    float sampleRate = 0.0f;
 };
 
 #endif // DISTRHO_LINEAR_SMOOTHER_HPP_INCLUDED

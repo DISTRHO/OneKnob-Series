@@ -36,8 +36,8 @@ class ExpSmoother {
 public:
     void setSampleRate(float newSampleRate) noexcept
     {
-        if (fSampleRate != newSampleRate) {
-            fSampleRate = newSampleRate;
+        if (sampleRate != newSampleRate) {
+            sampleRate = newSampleRate;
             updateCoef();
         }
     }
@@ -45,55 +45,54 @@ public:
     void setTimeConstant(float newT60) noexcept
     {
         float newTau = newT60 * (float)(1.0 / 6.91);
-        if (fTau != newTau) {
-            fTau = newTau;
+        if (tau != newTau) {
+            tau = newTau;
             updateCoef();
         }
     }
 
     float getCurrentValue() const noexcept
     {
-        return fMem;
+        return mem;
     }
 
     float getTarget() const noexcept
     {
-        return fTarget;
+        return target;
     }
 
-    void setTarget(float target) noexcept
+    void setTarget(float newTarget) noexcept
     {
-        fTarget = target;
+        target = newTarget;
     }
 
     void clear() noexcept
     {
-        fMem = 0.0f;
+        mem = 0.0f;
     }
 
     void clearToTarget() noexcept
     {
-        fMem = fTarget;
+        mem = target;
     }
 
     float next() noexcept
     {
-        float coef = fCoef;
-        return (fMem = fMem * coef + fTarget * (1.0f - coef));
+        return (mem = mem * coef + target * (1.0f - coef));
     }
 
 private:
     void updateCoef() noexcept
     {
-        fCoef = std::exp(-1.0f / (fTau * fSampleRate));
+        coef = std::exp(-1.0f / (tau * sampleRate));
     }
 
 private:
-    float fCoef = 0.0f;
-    float fTarget = 0.0f;
-    float fMem = 0.0f;
-    float fTau = 0.0f;
-    float fSampleRate = 0.0f;
+    float coef = 0.0f;
+    float target = 0.0f;
+    float mem = 0.0f;
+    float tau = 0.0f;
+    float sampleRate = 0.0f;
 };
 
 #endif // DISTRHO_EXP_SMOOTHER_HPP_INCLUDED

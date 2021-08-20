@@ -33,7 +33,7 @@ public:
     {
         init();
         sampleRateChanged(getSampleRate());
-        fABSmooth.setTimeConstant(1e-3f);
+        abSmooth.setTimeConstant(1e-3f);
     }
 
 protected:
@@ -122,14 +122,13 @@ protected:
     {
         OneKnobPlugin::sampleRateChanged(newSampleRate);
 
-        fABSmooth.setSampleRate((float)newSampleRate);
+        abSmooth.setSampleRate((float)newSampleRate);
     }
 
     void activate() override
     {
         OneKnobPlugin::activate();
 
-        LinearSmoother &abSmooth = fABSmooth;
         abSmooth.setTarget((parameters[kParameterSelect] + 100.0f) / 200.0f);
         abSmooth.clearToTarget();
     }
@@ -143,11 +142,10 @@ protected:
         float *l2 = outputs[2];
         float *r2 = outputs[3];
 
-        LinearSmoother &abSmooth = fABSmooth;
         abSmooth.setTarget((parameters[kParameterSelect] + 100.0f) / 200.0f);
 
         for (uint32_t i = 0; i < frames; ++i) {
-            float sel = fABSmooth.next();
+            float sel = abSmooth.next();
             float As = std::sqrt(1.0f - sel);
             float Bs = std::sqrt(sel);
             l1[i] = As*li[i];
@@ -158,7 +156,7 @@ protected:
     }
 
     // -------------------------------------------------------------------
-    LinearSmoother fABSmooth;
+    LinearSmoother abSmooth;
 
     DISTRHO_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(OneKnobOutputSelectorPlugin)
 };
