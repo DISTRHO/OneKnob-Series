@@ -20,7 +20,7 @@
 #include <cmath>
 
 /**
- * @brief An exponential smoother for control values
+ * @brief A linear smoother for control values
  *
  * This continually smooths a value towards a defined target,
  * using linear segments.
