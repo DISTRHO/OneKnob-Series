@@ -16,6 +16,19 @@
 
 #include <cmath>
 
+/**
+ * @brief An exponential smoother for control values
+ *
+ * This continually smooths a value towards a defined target,
+ * using a low-pass filter of the 1st order, which creates an
+ * exponential curve.
+ *
+ * The length of the curve is defined by a T60 constant, which
+ * is the take it takes for a 1-to-0 smoothing to fall to -60dB.
+ *
+ * Note that this smoother has asymptotical behavior, and it must
+ * not be assumed that the final target is ever reached.
+ */
 class ExpSmoother {
 public:
     void setSampleRate(float newSampleRate) noexcept
@@ -76,6 +89,6 @@ private:
     float fCoef = 0.0f;
     float fTarget = 0.0f;
     float fMem = 0.0f;
-    float fTau = 1e-3f;
-    float fSampleRate = 44100.0f;
+    float fTau = 0.0f;
+    float fSampleRate = 0.0f;
 };

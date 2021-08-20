@@ -16,6 +16,19 @@
 
 #include <cmath>
 
+/**
+ * @brief An exponential smoother for control values
+ *
+ * This continually smooths a value towards a defined target,
+ * using linear segments.
+ *
+ * The duration of the smoothing segment is defined by the given
+ * time constant. Every time the target changes, a new segment
+ * restarts for the whole duration of the time constant.
+ *
+ * Note that this smoother, unlike an exponential smoother,
+ * eventually should converge to its target value.
+ */
 class LinearSmoother {
 public:
     void setSampleRate(float newSampleRate) noexcept
