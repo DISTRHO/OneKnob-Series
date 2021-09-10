@@ -26,6 +26,7 @@ include ../../dpf/Makefile.plugins.mk
 
 BUILD_CXX_FLAGS += -I../common
 BUILD_CXX_FLAGS += -I../../dpf-widgets/opengl
+BUILD_CXX_FLAGS += -fno-finite-math-only
 LINK_FLAGS      += $(SHARED_MEMORY_LIBS)
 
 # --------------------------------------------------------------
