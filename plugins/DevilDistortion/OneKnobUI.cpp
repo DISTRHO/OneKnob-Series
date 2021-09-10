@@ -48,7 +48,7 @@ static const OneKnobAuxiliaryButtonGroupValue buttonGroupValues[] = {
 
 static const OneKnobAuxiliaryButtonGroup buttonGroup = {
     kParameterDecayTime,
-    "How many samples...",
+    "How many samples to use for the envelope decay",
     sizeof(buttonGroupValues)/sizeof(buttonGroupValues[0]),
     buttonGroupValues
 };

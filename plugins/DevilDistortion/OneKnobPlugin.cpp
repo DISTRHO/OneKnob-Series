@@ -62,7 +62,7 @@ protected:
         return ""
         "A port of Steve Harris' Barry's Satan Maximizer, formely known as Stupid Compressor.\n"
         "Compresses signals with a stupidly short attack and decay, infinite ratio and hard knee.\n"
-        "Not really as a compressor, but good harsh (non-musical) distortion";
+        "It is not really a compressor, but more of a good harsh (non-musical) distortion.";
     }
 
     const char* getLicense() const noexcept override
@@ -84,8 +84,8 @@ protected:
         {
         case kParameterKneePoint:
             parameter.hints       = kParameterIsAutomable;
-            parameter.name        = "Release";
-            parameter.symbol      = "release";
+            parameter.name        = "Knee Point";
+            parameter.symbol      = "knee_point";
             parameter.unit        = "dB";
             parameter.description = ""
             "Controls the knee roll-off point, ie. the point above which the compression kicks in.\n"
