@@ -1,6 +1,8 @@
 /*
  * DISTRHO OneKnob Sampler
+ * Based on DSSI Simple Sampler
  * Copyright (C) 2021 Filipe Coelho <falktx@falktx.com>
+ * Copyright (C) 2008 Chris Cannam <cannam@all-day-breakfast.com>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -62,6 +64,56 @@ protected:
     {
         switch (index)
         {
+        case kParameterRetune:
+            parameter.hints      = kParameterIsAutomable | kParameterIsInteger | kParameterIsBoolean;
+            parameter.name       = "Retune";
+            parameter.symbol     = "retune";
+            parameter.unit       = "";
+            parameter.midiCC     = 12;
+            parameter.ranges.def = kParameterDefaults[index];
+            parameter.ranges.min = 0.0f;
+            parameter.ranges.max = 1.0f;
+            break;
+        case kParameterBasePitch:
+            parameter.hints      = kParameterIsAutomable;
+            parameter.name       = "Base Pitch";
+            parameter.symbol     = "basepitch";
+            parameter.unit       = "midiNote";
+            parameter.midiCC     = 13;
+            parameter.ranges.def = kParameterDefaults[index];
+            parameter.ranges.min = 0.0f;
+            parameter.ranges.max = 127.0f;
+            break;
+        case kParameterSustain:
+            parameter.hints      = kParameterIsAutomable | kParameterIsInteger | kParameterIsBoolean;
+            parameter.name       = "Sustain";
+            parameter.symbol     = "sustain";
+            parameter.unit       = "";
+            parameter.midiCC     = 64;
+            parameter.ranges.def = kParameterDefaults[index];
+            parameter.ranges.min = 0.0f;
+            parameter.ranges.max = 1.0f;
+            break;
+        case kParameterReleaseTime:
+            parameter.hints      = kParameterIsAutomable | kParameterIsLogarithmic;
+            parameter.name       = "Release Time";
+            parameter.symbol     = "release";
+            parameter.unit       = "s";
+            parameter.midiCC     = 72;
+            parameter.ranges.def = kParameterDefaults[index];
+            parameter.ranges.min = 0.001f;
+            parameter.ranges.max = 2.0f;
+            break;
+        case kParameterBalance:
+            parameter.hints      = kParameterIsAutomable;
+            parameter.name       = "Balance";
+            parameter.symbol     = "balance";
+            parameter.unit       = "%";
+            parameter.midiCC     = 10;
+            parameter.ranges.def = kParameterDefaults[index];
+            parameter.ranges.min = -100.0f;
+            parameter.ranges.max = 100.0f;
+            break;
         }
     }
 
@@ -98,7 +150,8 @@ protected:
     // -------------------------------------------------------------------
     // Process
 
-    void run(const float** const inputs, float** const outputs, const uint32_t frames) override
+    void run(const float** const inputs, float** const outputs, const uint32_t frames,
+             const MidiEvent* const midiEvents, const uint32_t midiEventCount) override
     {
         float* const out1 = outputs[0];
         float* const out2 = outputs[1];

@@ -1,6 +1,8 @@
 /*
  * DISTRHO OneKnob Sampler
+ * Based on DSSI Simple Sampler
  * Copyright (C) 2021 Filipe Coelho <falktx@falktx.com>
+ * Copyright (C) 2008 Chris Cannam <cannam@all-day-breakfast.com>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -26,10 +28,15 @@
 #undef DISTRHO_PLUGIN_NUM_INPUTS
 #define DISTRHO_PLUGIN_NUM_INPUTS 0
 
-// TODO define synth
+#define DISTRHO_PLUGIN_IS_SYNTH 1
 
 enum Parameters
 {
+    kParameterRetune,
+    kParameterBasePitch,
+    kParameterSustain,
+    kParameterReleaseTime,
+    kParameterBalance,
     kParameterCount
 };
 
@@ -45,4 +52,9 @@ enum States
 };
 
 static const float kParameterDefaults[kParameterCount] = {
+    1.0f,
+    60.0f,
+    0.0f,
+    0.001f,
+    0.0f
 };

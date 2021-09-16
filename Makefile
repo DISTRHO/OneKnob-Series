@@ -21,6 +21,7 @@ plugins: dgl
 	$(MAKE) all -C plugins/BrickwallLimiter
 	$(MAKE) all -C plugins/Compressor
 	$(MAKE) all -C plugins/DevilDistortion
+	$(MAKE) all -C plugins/Sampler
 
 ifneq ($(CROSS_COMPILING),true)
 gen: plugins dpf/utils/lv2_ttl_generator
@@ -45,6 +46,7 @@ clean:
 	$(MAKE) clean -C plugins/BrickwallLimiter
 	$(MAKE) clean -C plugins/Compressor
 	$(MAKE) clean -C plugins/DevilDistortion
+	$(MAKE) clean -C plugins/Sampler
 	rm -rf bin build dpf-widgets/opengl/*.d dpf-widgets/opengl/*.o
 
 # --------------------------------------------------------------
