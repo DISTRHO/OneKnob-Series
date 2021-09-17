@@ -243,6 +243,13 @@ protected:
 
     // ----------------------------------------------------------------------------------------------------------------
 
+    // TESTING
+    bool onKeyboard(const KeyboardEvent&) override
+    {
+        getWindow().renderToPicture("testing.ppm");
+        return true;
+    }
+
     void uiIdle() override
     {
         if (firstIdle)
