@@ -1,5 +1,5 @@
 /*
- * DISTRHO OneKnob A/B Input Selector
+ * DISTRHO OneKnob Sampler
  * Copyright (C) 2021 Filipe Coelho <falktx@falktx.com>
  *
  * This program is free software; you can redistribute it and/or
