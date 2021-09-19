@@ -50,7 +50,8 @@ class OneKnobBrickwallLimiterPlugin : public OneKnobPlugin
 {
 public:
     OneKnobBrickwallLimiterPlugin()
-        : OneKnobPlugin()
+        : OneKnobPlugin(),
+          threshold_linear(1.0f)
     {
         init();
     }
