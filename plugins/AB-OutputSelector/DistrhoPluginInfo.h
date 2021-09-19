@@ -39,11 +39,6 @@ enum Programs
     kProgramCount
 };
 
-enum States
-{
-    kStateCount
-};
-
 static const float kParameterDefaults[kParameterCount] = {
     0.0f,
     0.0f

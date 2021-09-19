@@ -23,12 +23,13 @@
 
 #define DISTRHO_PLUGIN_BRAND "DISTRHO"
 
-#define DISTRHO_PLUGIN_HAS_UI        1
-#define DISTRHO_PLUGIN_IS_RT_SAFE    1
-#define DISTRHO_PLUGIN_NUM_INPUTS    2
-#define DISTRHO_PLUGIN_NUM_OUTPUTS   2
-#define DISTRHO_PLUGIN_WANT_PROGRAMS 1
-#define DISTRHO_PLUGIN_WANT_STATE    1
+#define DISTRHO_PLUGIN_HAS_UI          1
+#define DISTRHO_PLUGIN_IS_RT_SAFE      1
+#define DISTRHO_PLUGIN_NUM_INPUTS      2
+#define DISTRHO_PLUGIN_NUM_OUTPUTS     2
+#define DISTRHO_PLUGIN_WANT_PROGRAMS   1
+#define DISTRHO_PLUGIN_WANT_STATE      1
+#define DISTRHO_PLUGIN_WANT_FULL_STATE 0
 
 // --------------------------------------------------------------------------------------------------------------------
 

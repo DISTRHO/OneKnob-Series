@@ -74,10 +74,6 @@ protected:
     // -------------------------------------------------------------------
     // State
 
-    void initState(uint32_t, String&, String&) override
-    {
-    }
-
     void setState(const char* const key, const char* const value) override
     {
         if (std::strcmp(key, "filemapping") == 0)
