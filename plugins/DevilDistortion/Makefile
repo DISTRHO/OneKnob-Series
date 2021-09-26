@@ -33,18 +33,14 @@ LINK_FLAGS      += $(SHARED_MEMORY_LIBS)
 
 TARGETS += jack
 TARGETS += ladspa
-TARGETS += vst
+TARGETS += lv2_sep
+TARGETS += vst2
+TARGETS += vst3
 
 ifeq ($(HAVE_OPENGL),true)
 ifeq ($(HAVE_LIBLO),true)
 TARGETS += dssi
 endif
-endif
-
-ifeq ($(HAVE_OPENGL),true)
-TARGETS += lv2_sep
-else
-TARGETS += lv2_dsp
 endif
 
 all: $(TARGETS)
