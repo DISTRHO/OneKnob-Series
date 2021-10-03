@@ -20,7 +20,7 @@
 #include "OneKnobPluginInfo.h"
 
 #define DISTRHO_PLUGIN_NAME         "OneKnob A/B Output Selector"
-#define DISTRHO_PLUGIN_URI          "https://kx.studio/Plugins:OneKnob#AB-OutputSelector"
+#define DISTRHO_PLUGIN_URI          "https://distrho.kx.studio/plugins/oneknob#AB-OutputSelector"
 #define DISTRHO_PLUGIN_LV2_CATEGORY "lv2:UtilityPlugin"
 
 #undef DISTRHO_PLUGIN_NUM_OUTPUTS

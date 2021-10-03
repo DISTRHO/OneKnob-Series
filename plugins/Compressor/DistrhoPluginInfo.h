@@ -20,7 +20,7 @@
 #include "OneKnobPluginInfo.h"
 
 #define DISTRHO_PLUGIN_NAME         "OneKnob Compressor"
-#define DISTRHO_PLUGIN_URI          "https://kx.studio/Plugins:OneKnob#Compressor"
+#define DISTRHO_PLUGIN_URI          "https://distrho.kx.studio/plugins/oneknob#Compressor"
 #define DISTRHO_PLUGIN_LV2_CATEGORY "lv2:CompressorPlugin"
 
 enum Parameters

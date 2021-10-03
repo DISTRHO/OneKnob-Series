@@ -20,7 +20,7 @@
 #include "OneKnobPluginInfo.h"
 
 #define DISTRHO_PLUGIN_NAME         "OneKnob BrickWall Limiter"
-#define DISTRHO_PLUGIN_URI          "https://kx.studio/Plugins:OneKnob#BrickWallLimiter"
+#define DISTRHO_PLUGIN_URI          "https://distrho.kx.studio/plugins/oneknob#BrickWallLimiter"
 #define DISTRHO_PLUGIN_LV2_CATEGORY "lv2:LimiterPlugin"
 
 enum Parameters

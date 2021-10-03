@@ -22,7 +22,7 @@
 #include "OneKnobPluginInfo.h"
 
 #define DISTRHO_PLUGIN_NAME         "OneKnob Sampler"
-#define DISTRHO_PLUGIN_URI          "https://kx.studio/Plugins:OneKnob#Sampler"
+#define DISTRHO_PLUGIN_URI          "https://distrho.kx.studio/plugins/oneknob#Sampler"
 #define DISTRHO_PLUGIN_LV2_CATEGORY "lv2:GeneratorPlugin"
 
 #undef DISTRHO_PLUGIN_NUM_INPUTS

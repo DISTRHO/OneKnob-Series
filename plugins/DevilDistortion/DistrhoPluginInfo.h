@@ -22,7 +22,7 @@
 #include "OneKnobPluginInfo.h"
 
 #define DISTRHO_PLUGIN_NAME         "OneKnob Devil's Distortion"
-#define DISTRHO_PLUGIN_URI          "https://kx.studio/Plugins:OneKnob#DevilDistortion"
+#define DISTRHO_PLUGIN_URI          "https://distrho.kx.studio/plugins/oneknob#DevilDistortion"
 #define DISTRHO_PLUGIN_LV2_CATEGORY "lv2:DistortionPlugin"
 
 enum Parameters
