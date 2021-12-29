@@ -83,7 +83,7 @@ protected:
         switch (index)
         {
         case kParameterKneePoint:
-            parameter.hints       = kParameterIsAutomable;
+            parameter.hints       = kParameterIsAutomatable;
             parameter.name        = "Knee Point";
             parameter.symbol      = "knee_point";
             parameter.unit        = "dB";
@@ -95,7 +95,7 @@ protected:
             parameter.ranges.max  = 0.0f;
             break;
         case kParameterDecayTime:
-            parameter.hints       = kParameterIsAutomable | kParameterIsInteger;
+            parameter.hints       = kParameterIsAutomatable | kParameterIsInteger;
             parameter.name        = "Decay Time";
             parameter.symbol      = "decay_time";
             parameter.unit        = "samples";

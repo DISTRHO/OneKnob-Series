@@ -64,7 +64,7 @@ protected:
         switch (index)
         {
         case kParameterRelease:
-            parameter.hints      = kParameterIsAutomable;
+            parameter.hints      = kParameterIsAutomatable;
             parameter.name       = "Release";
             parameter.symbol     = "release";
             parameter.unit       = "ms";
@@ -73,7 +73,7 @@ protected:
             parameter.ranges.max = 500.0f;
             break;
         case kParameterMode:
-            parameter.hints      = kParameterIsAutomable | kParameterIsInteger;
+            parameter.hints      = kParameterIsAutomatable | kParameterIsInteger;
             parameter.name       = "Mode";
             parameter.symbol     = "mode";
             parameter.unit       = "";

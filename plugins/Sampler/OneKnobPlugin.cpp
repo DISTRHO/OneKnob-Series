@@ -65,7 +65,7 @@ protected:
         switch (index)
         {
         case kParameterRetune:
-            parameter.hints      = kParameterIsAutomable | kParameterIsInteger | kParameterIsBoolean;
+            parameter.hints      = kParameterIsAutomatable | kParameterIsInteger | kParameterIsBoolean;
             parameter.name       = "Retune";
             parameter.symbol     = "retune";
             parameter.unit       = "";
@@ -75,7 +75,7 @@ protected:
             parameter.ranges.max = 1.0f;
             break;
         case kParameterBasePitch:
-            parameter.hints      = kParameterIsAutomable;
+            parameter.hints      = kParameterIsAutomatable;
             parameter.name       = "Base Pitch";
             parameter.symbol     = "basepitch";
             parameter.unit       = "midiNote";
@@ -85,7 +85,7 @@ protected:
             parameter.ranges.max = 127.0f;
             break;
         case kParameterSustain:
-            parameter.hints      = kParameterIsAutomable | kParameterIsInteger | kParameterIsBoolean;
+            parameter.hints      = kParameterIsAutomatable | kParameterIsInteger | kParameterIsBoolean;
             parameter.name       = "Sustain";
             parameter.symbol     = "sustain";
             parameter.unit       = "";
@@ -95,7 +95,7 @@ protected:
             parameter.ranges.max = 1.0f;
             break;
         case kParameterReleaseTime:
-            parameter.hints      = kParameterIsAutomable | kParameterIsLogarithmic;
+            parameter.hints      = kParameterIsAutomatable | kParameterIsLogarithmic;
             parameter.name       = "Release Time";
             parameter.symbol     = "release";
             parameter.unit       = "s";
@@ -105,7 +105,7 @@ protected:
             parameter.ranges.max = 2.0f;
             break;
         case kParameterBalance:
-            parameter.hints      = kParameterIsAutomable;
+            parameter.hints      = kParameterIsAutomatable;
             parameter.name       = "Balance";
             parameter.symbol     = "balance";
             parameter.unit       = "%";

@@ -85,7 +85,7 @@ protected:
         switch (index)
         {
         case kParameterThreshold:
-            parameter.hints      = kParameterIsAutomable;
+            parameter.hints      = kParameterIsAutomatable;
             parameter.name       = "Threshold";
             parameter.symbol     = "threshold";
             parameter.unit       = "dB";
@@ -94,7 +94,7 @@ protected:
             parameter.ranges.max = 0.0f;
             break;
         case kParameterAutoGain:
-            parameter.hints      = kParameterIsAutomable | kParameterIsInteger | kParameterIsBoolean;
+            parameter.hints      = kParameterIsAutomatable | kParameterIsInteger | kParameterIsBoolean;
             parameter.name       = "Auto-Gain";
             parameter.symbol     = "autogain";
             parameter.unit       = "";

@@ -65,7 +65,7 @@ protected:
         switch (index)
         {
         case kParameterSelect:
-            parameter.hints      = kParameterIsAutomable;
+            parameter.hints      = kParameterIsAutomatable;
             parameter.name       = "A/B Select";
             parameter.symbol     = "select";
             parameter.unit       = "%";
@@ -86,7 +86,7 @@ protected:
             }
             break;
         case kParameterMode:
-            parameter.hints      = kParameterIsAutomable | kParameterIsInteger | kParameterIsBoolean;
+            parameter.hints      = kParameterIsAutomatable | kParameterIsInteger | kParameterIsBoolean;
             parameter.name       = "Mode";
             parameter.symbol     = "mode";
             parameter.unit       = "";
