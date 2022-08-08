@@ -329,7 +329,7 @@ protected:
         knob->setLabel(control.label);
         knob->setRange(control.min, control.max);
         knob->setDefault(control.def);
-        knob->setUnit(control.unit);
+        //knob->setUnit(control.unit);
 
         mainControlArea = getScaledArea(area);
         blendishMainControl = knob;
