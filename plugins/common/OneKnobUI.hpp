@@ -46,10 +46,60 @@ static const char* kDefaultLineMeterNames[2] = { "In:", "Out:" };
 struct ThemeInitializer {
     ThemeInitializer()
     {
-        BlendishTheme theme = blendishGetDefaultTheme();
-        theme.labelTheme.textColor = Color::fromHTML("#cacacb");
-        theme.checkBoxTheme.textColor = Color::fromHTML("#cacacb");
-        // theme.checkBoxTheme.textSelectedColor = Color::fromHTML("#fff");
+        const Color bg(Color::fromHTML("#222126"));
+        const Color fg(0xf0, 0xf0, 0xf0);
+
+        const BlendishWidgetTheme w = {
+            bg.plus(0x50), // outlineColor: color of widget box outline
+            fg,            // itemColor: color of widget item (meaning changes depending on class)
+            bg.plus(0x10), // innerColor: fill color of widget box
+            bg.plus(0x30), // innerSelectedColor: fill color of widget box when active
+            fg,            // textColor: color of text label
+            fg,            // textSelectedColor: color of text label when active
+            0,             // shadeTop: delta modifier for upper part of gradient (-100 to 100)
+            0,             // shadeDown: delta modifier for lower part of gradient (-100 to 100)
+        };
+
+        BlendishTheme theme = {
+            bg, // backgroundColor: the background color of panels and windows
+            w,             // labelTheme: theme for labels
+            w,             // toolButtonTheme: theme for tool buttons
+           #if 0
+            w,             // radioButtonTheme: theme for radio buttons
+            w,             // textFieldTheme: theme for text fields
+            /*
+            = sliderTheme;
+            textColor = textSelectedColor = bg.minus(0x20);
+            itemColor = bg.plus(0x30);
+            */
+           #endif
+            w,             // checkBoxTheme: theme for checkboxes (option buttons)
+            w,             // comboBoxTheme: theme for comboboxes (choice buttons), Blender calls them "menu buttons"
+            w,             // numberFieldTheme: theme for number fields
+           #if 0
+            w,             // sliderTheme: theme for slider controls
+            /*
+            itemColor = bg;
+            innerColor = bg.plus(0x50);
+            innerSelectedColor = bg.plus(0x60);
+            */
+            w,             // scrollBarTheme: theme for scrollbars
+            /*
+            itemColor = bg.plus(0x50);
+            innerColor = bg;
+            */
+            w,             // tooltipTheme: theme for tooltips
+           #endif
+            w,             // menuTheme: theme for menu backgrounds
+            w,             // menuItemTheme: theme for menu items
+           #if 0
+            w,             // nodeTheme: theme for nodes
+           #endif
+        };
+
+        theme.menuTheme.innerColor = bg; // .minus(0x10);
+        theme.menuTheme.textColor = theme.menuTheme.textSelectedColor = fg.minus(0x50);
+
         blendishSetTheme(theme);
     }
 
@@ -329,7 +379,8 @@ protected:
         knob->setLabel(control.label);
         knob->setRange(control.min, control.max);
         knob->setDefault(control.def);
-        //knob->setUnit(control.unit);
+        knob->setUnitLabel(control.unit);
+        knob->setUnitColor(Color::fromHTML("#cacacb")); // FIXME label color autmatically
 
         mainControlArea = getScaledArea(area);
         blendishMainControl = knob;
