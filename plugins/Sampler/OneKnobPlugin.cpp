@@ -127,6 +127,21 @@ protected:
         }
     }
 
+    void initState(uint32_t index, State& state) override
+    {
+        switch (index)
+        {
+        case kStateFile:
+            state.hints = kStateIsFilenamePath;
+            state.key = "samplefile";
+            state.label = "Sample File";
+           #ifdef __MOD_DEVICES__
+            state.fileTypes = "audiosample";
+           #endif
+            break;
+        }
+    }
+
     // -------------------------------------------------------------------
     // Internal data
 
@@ -145,6 +160,17 @@ protected:
             loadDefaultParameterValues();
             break;
         }
+    }
+
+    void setState(const char* const key, const char* const value) override
+    {
+        if (std::strcmp(key, "samplefile") == 0)
+        {
+            // TODO
+            return;
+        }
+
+        OneKnobPlugin::setState(key, value);
     }
 
     // -------------------------------------------------------------------
