@@ -44,7 +44,6 @@ BUILD_CXX_FLAGS += -DAUDIOFFT_PFFFT -DPFFFT_ENABLE_NEON -Ipffft
 # Enable all possible plugin types
 
 TARGETS += jack
-TARGETS += ladspa
 TARGETS += lv2_sep
 TARGETS += vst2
 TARGETS += vst3

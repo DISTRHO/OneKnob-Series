@@ -326,19 +326,13 @@ protected:
 
         if (lineGraph1.canRead())
         {
-            float value = lineGraph1.read();
-            if (lineGraph1.canRead())
-                value = std::max(value, lineGraph1.read());
-            pushInputMeter(value);
+            pushInputMeter(lineGraph1.read());
             shouldRepaint = true;
         }
 
         if (lineGraph2.canRead())
         {
-            float value = lineGraph2.read();
-            if (lineGraph2.canRead())
-                value = std::max(value, lineGraph2.read());
-            pushOutputMeter(value);
+            pushOutputMeter(lineGraph2.read());
             shouldRepaint = true;
         }
 
@@ -354,7 +348,7 @@ protected:
         // fake event at (0,0) to close any open menus
         {
             MouseEvent ev;
-            ev.button = 1;
+            ev.button = kMouseButtonLeft;
             onMouse(ev);
         }
 
