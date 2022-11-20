@@ -14,7 +14,7 @@ NAME = OK-ConvolutionReverb
 
 FILES_DSP = \
 	OneKnobPlugin.cpp \
-	dr_wav.cpp \
+	3rd-party.cpp \
 	FFTConvolver/AudioFFT.cpp \
 	FFTConvolver/FFTConvolver.cpp \
 	FFTConvolver/TwoStageFFTConvolver.cpp \
@@ -34,6 +34,11 @@ BUILD_CXX_FLAGS += -I../../dpf-widgets/opengl
 BUILD_CXX_FLAGS += -IFFTConvolver
 BUILD_CXX_FLAGS += -pthread
 LINK_FLAGS      += $(SHARED_MEMORY_LIBS)
+
+# BUILD_CXX_FLAGS += -DAUDIOFFT_FFTW3 $(shell $(PKG_CONFIG) --cflags fftw3f)
+# LINK_FLAGS      += $(shell $(PKG_CONFIG) --libs fftw3f)
+
+BUILD_CXX_FLAGS += -DAUDIOFFT_PFFFT -DPFFFT_ENABLE_NEON -Ipffft
 
 # --------------------------------------------------------------
 # Enable all possible plugin types

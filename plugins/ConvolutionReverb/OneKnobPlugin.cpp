@@ -37,6 +37,8 @@ class TwoStageThreadedConvolver : public fftconvolver::TwoStageFFTConvolver,
     Semaphore semBgProcFinished;
 
 public:
+    Mutex mutex;
+
     TwoStageThreadedConvolver()
         : fftconvolver::TwoStageFFTConvolver(),
           Thread("TwoStageThreadedConvolver"),
@@ -111,7 +113,6 @@ public:
 
     ~OneKnobConvolutionReverbPlugin() override
     {
-        drwav_free(impulseResponse, nullptr);
     }
 
 protected:
@@ -142,14 +143,14 @@ protected:
     {
         switch (index)
         {
-        case kParameterWet:
+        case kParameterWetGain:
             parameter.hints      = kParameterIsAutomatable;
-            parameter.name       = "Wet";
-            parameter.symbol     = "wet";
-            parameter.unit       = "%";
-            parameter.ranges.def = kParameterDefaults[kParameterWet];
-            parameter.ranges.min = 0.0f;
-            parameter.ranges.max = 100.0f;
+            parameter.name       = "Wet Gain";
+            parameter.symbol     = "wetGain";
+            parameter.unit       = "dB";
+            parameter.ranges.def = kParameterDefaults[kParameterWetGain];
+            parameter.ranges.min = -60.0f;
+            parameter.ranges.max = 0.0f;
             break;
         }
     }
@@ -172,6 +173,9 @@ protected:
             state.hints = kStateIsFilenamePath;
             state.key = "irfile";
             state.label = "IR File";
+           #ifdef __MOD_DEVICES__
+            state.fileTypes = "ir";
+           #endif
             break;
         }
     }
@@ -201,9 +205,6 @@ protected:
     {
         if (std::strcmp(key, "irfile") == 0)
         {
-            convolverL.stop();
-            convolverR.stop();
-
             unsigned int channels;
             unsigned int sampleRate;
             drwav_uint64 impulseResponseSize;
@@ -211,16 +212,69 @@ protected:
             float* const newImpulseResponse = drwav_open_file_and_read_pcm_frames_f32(value, &channels, &sampleRate, &impulseResponseSize, nullptr);
             DISTRHO_SAFE_ASSERT_RETURN(newImpulseResponse != nullptr,);
 
-            const size_t headBlockSize = 64;
-            const size_t tailBlockSize = 1024;
-            convolverL.init(headBlockSize, tailBlockSize, newImpulseResponse, impulseResponseSize);
-            convolverR.init(headBlockSize, tailBlockSize, newImpulseResponse, impulseResponseSize);
+            float* irBufL;
+            float* irBufR;
+            switch (channels)
+            {
+            case 1:
+                irBufL = newImpulseResponse;
+                irBufR = new float[impulseResponseSize];
+                std::memcpy(irBufR, irBufL, sizeof(float)*impulseResponseSize);
+                break;
+            case 2:
+                irBufL = new float[impulseResponseSize];
+                irBufR = new float[impulseResponseSize];
+                for (drwav_uint64 i=0, j=0; i<impulseResponseSize; ++i)
+                {
+                    irBufL[i] = newImpulseResponse[j++];
+                    irBufR[i] = newImpulseResponse[j++];
+                }
+                break;
+            case 4:
+                irBufL = new float[impulseResponseSize];
+                irBufR = new float[impulseResponseSize];
+                for (drwav_uint64 i=0, j=0; i<impulseResponseSize; ++i, j+=4)
+                {
+                    irBufL[i] = newImpulseResponse[j+0] + newImpulseResponse[j+2];
+                    irBufR[i] = newImpulseResponse[j+1] + newImpulseResponse[j+3];
+                }
+                break;
+            default:
+                irBufL = new float[impulseResponseSize];
+                irBufR = new float[impulseResponseSize];
+                for (drwav_uint64 i=0, j=0; i<impulseResponseSize; ++i)
+                {
+                    irBufL[i] = irBufR[i] = newImpulseResponse[j];
+                    j += channels;
+                }
+                break;
+            }
 
-            drwav_free(impulseResponse, nullptr);
-            impulseResponse = newImpulseResponse;
+            const size_t headBlockSize = 128;
+            const size_t tailBlockSize = 1024;
+
+            convolverL.stop();
+            convolverR.stop();
+
+            {
+                const MutexLocker cml(convolverL.mutex);
+                convolverL.init(headBlockSize, tailBlockSize, irBufL, impulseResponseSize);
+            }
+
+            {
+                const MutexLocker cml(convolverR.mutex);
+                convolverR.init(headBlockSize, tailBlockSize, irBufR, impulseResponseSize);
+            }
 
             convolverL.start();
             convolverR.start();
+
+            if (irBufL != newImpulseResponse)
+                delete[] irBufL;
+            if (irBufL != irBufR)
+                delete[] irBufR;
+
+            drwav_free(newImpulseResponse, nullptr);
             return;
         }
 
@@ -246,15 +300,52 @@ protected:
         float*       out1 = outputs[0];
         float*       out2 = outputs[1];
 
-        convolverL.process(in1, out1, frames);
-        convolverR.process(in2, out2, frames);
+        for (uint32_t i=0; i<frames; ++i)
+        {
+            if (!std::isfinite(in1[i]))
+                __builtin_unreachable();
+            if (!std::isfinite(in2[i]))
+                __builtin_unreachable();
+            if (!std::isfinite(out1[i]))
+                __builtin_unreachable();
+            if (!std::isfinite(out2[i]))
+                __builtin_unreachable();
+        }
+
+        // non-smoothed, we do not care yet
+        const float gain = std::pow(10.f, 0.05f * parameters[kParameterWetGain]);
+
+        if (convolverL.mutex.tryLock())
+        {
+            convolverL.process(in1, out1, frames);
+            convolverL.mutex.unlock();
+        }
+        else
+        {
+            std::memset(out1, 0, sizeof(float)*frames);
+        }
+
+        if (convolverR.mutex.tryLock())
+        {
+            convolverR.process(in2, out2, frames);
+            convolverR.mutex.unlock();
+        }
+        else
+        {
+            std::memset(out2, 0, sizeof(float)*frames);
+        }
+
+        for (uint32_t i=0; i<frames; ++i)
+        {
+            out1[i] *= gain;
+            out2[i] *= gain;
+        }
     }
 
     // -------------------------------------------------------------------
 
 private:
     TwoStageThreadedConvolver convolverL, convolverR;
-    float* impulseResponse = nullptr;
 
     DISTRHO_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(OneKnobConvolutionReverbPlugin)
 };

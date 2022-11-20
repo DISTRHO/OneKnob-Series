@@ -28,7 +28,7 @@
 # endif
 # include <winsock2.h>
 # include <windows.h>
-#elif defined(__MOD_DEVICES__)
+#elif defined(__MOD_DEVICES__) && defined(USE_FUTEXES)
 # include <linux/futex.h>
 # include <sys/time.h>
 # include <errno.h>
@@ -56,7 +56,7 @@ public:
        #elif defined(DISTRHO_OS_WINDOWS)
         handle = ::CreateSemaphoreA(nullptr, initialValue, std::max(initialValue, 1), nullptr);
         DISTRHO_SAFE_ASSERT_RETURN(handle != INVALID_HANDLE_VALUE,);
-       #elif defined(__MOD_DEVICES__)
+       #elif defined(__MOD_DEVICES__) && defined(USE_FUTEXES)
         value = initialValue;
        #else
         sem_init(&sem, 0, initialValue);
@@ -69,7 +69,7 @@ public:
         semaphore_destroy(mach_task_self(), sem);
        #elif defined(DISTRHO_OS_WINDOWS)
         ::CloseHandle(handle);
-       #elif defined(__MOD_DEVICES__)
+       #elif defined(__MOD_DEVICES__) && defined(USE_FUTEXES)
        #else
         sem_destroy(&sem);
        #endif
@@ -81,7 +81,7 @@ public:
         semaphore_signal(sem);
        #elif defined(DISTRHO_OS_WINDOWS)
         ::ReleaseSemaphore(handle, 1, nullptr);
-       #elif defined(__MOD_DEVICES__)
+       #elif defined(__MOD_DEVICES__) && defined(USE_FUTEXES)
         // if already unlocked, do not wake futex
         if (__sync_bool_compare_and_swap(&value, 0, 1))
             syscall(__NR_futex, &value, FUTEX_WAKE_PRIVATE, 1, nullptr, nullptr, 0);
@@ -96,7 +96,7 @@ public:
         return semaphore_wait(sem) == KERN_SUCCESS;
        #elif defined(DISTRHO_OS_WINDOWS)
         return ::WaitForSingleObject(handle, INFINITE) == WAIT_OBJECT_0;
-       #elif defined(__MOD_DEVICES__)
+       #elif defined(__MOD_DEVICES__) && defined(USE_FUTEXES)
         for (;;)
         {
             if (__sync_bool_compare_and_swap(&value, 1, 0))
@@ -120,7 +120,7 @@ public:
         return semaphore_timedwait(sem, time) == KERN_SUCCESS;
        #elif defined(DISTRHO_OS_WINDOWS)
         return ::WaitForSingleObject(handle, numSecs * 1000) == WAIT_OBJECT_0;
-       #elif defined(__MOD_DEVICES__)
+       #elif defined(__MOD_DEVICES__) && defined(USE_FUTEXES)
         const struct timespec timeout = { numSecs, 0 };
         for (;;)
         {
@@ -145,7 +145,7 @@ private:
     semaphore_t sem;
    #elif defined(DISTRHO_OS_WINDOWS)
     HANDLE handle;
-   #elif defined(__MOD_DEVICES__)
+   #elif defined(__MOD_DEVICES__) && defined(USE_FUTEXES)
     int value;
    #else
     sem_t sem;

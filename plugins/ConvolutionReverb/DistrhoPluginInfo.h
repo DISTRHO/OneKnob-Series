@@ -30,7 +30,7 @@
 #undef DISTRHO_PLUGIN_HAS_UI
 
 enum Parameters {
-    kParameterWet,
+    kParameterWetGain,
     kParameterCount
 };
 
@@ -45,5 +45,5 @@ enum States {
 };
 
 static const float kParameterDefaults[kParameterCount] = {
-    100.f,
+    -40.f,
 };
