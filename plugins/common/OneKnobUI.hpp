@@ -187,9 +187,10 @@ private:
 class OneKnobUI : public UI,
                   public BlendishButtonGroup::Callback,
                   public BlendishComboBox::Callback,
+                  public BlendishToolButton::Callback,
                   public ButtonEventHandler::Callback,
-                  public KnobEventHandler::Callback
-                  , public IdleCallback
+                  public KnobEventHandler::Callback,
+                  public IdleCallback
 {
 public:
     OneKnobUI(const uint width, const uint height, const char* lineMeterNames[2] = kDefaultLineMeterNames)
@@ -199,6 +200,7 @@ public:
           blendishTopLabel(&blendish),
           blendishAuxButtonGroupValues(nullptr),
           blendishAuxComboBoxValues(nullptr),
+          blendishAuxFileButtonKey(nullptr),
           blendishMeter1Label(&blendish),
           blendishMeter1LabelValue(&blendish),
           blendishMeter2Label(&blendish),
@@ -363,7 +365,14 @@ protected:
         }
     }
 
-    void stateChanged(const char*, const char*) override {}
+    void stateChanged(const char* const key, const char* const value) override
+    {
+        if (blendishAuxFileButtonKey != nullptr && value != nullptr)
+            if (std::strcmp(key, blendishAuxFileButtonKey) == 0)
+                if (const char* const rvalue = std::strrchr(value, DISTRHO_OS_SEP))
+                    if (BlendishLabel* const label = blendishAuxOptionLabel.get())
+                        label->setLabel(rvalue + 1);
+    }
 
     // ----------------------------------------------------------------------------------------------------------------
     // main control
@@ -509,6 +518,28 @@ protected:
         blendishAuxOptionLabel->setLabel(blendishAuxComboBoxValues[index].description, false);
     }
 
+    void createAuxiliaryFileButton(const Rectangle<uint>& area, const OneKnobAuxiliaryFileButton& option)
+    {
+        DISTRHO_SAFE_ASSERT_RETURN(blendishAuxOptionComboBox == nullptr,);
+        DISTRHO_SAFE_ASSERT_RETURN(blendishAuxOptionLabel == nullptr,);
+        DISTRHO_SAFE_ASSERT_RETURN(blendishAuxFileButtonKey == nullptr,);
+        DISTRHO_SAFE_ASSERT_RETURN(option.key != nullptr,);
+
+        BlendishToolButton* const fileButton = new BlendishToolButton(&blendish);
+        BlendishLabel* const label = new BlendishLabel(&blendish);
+
+        fileButton->setCallback(this);
+        fileButton->setLabel(option.label);
+
+        label->setLabel("(No file loaded yet)");
+        label->setFontSize(10);
+
+        auxOptionArea = getScaledArea(area);
+        blendishAuxFileButtonKey = option.key;
+        blendishAuxOptionFileButton = fileButton;
+        blendishAuxOptionLabel = label;
+    }
+
     // ----------------------------------------------------------------------------------------------------------------
     // aux text
 
@@ -598,6 +629,14 @@ protected:
             auxWidgetPosX = comboBox->getAbsoluteX();
         }
 
+        if (BlendishToolButton* const fileButton = blendishAuxOptionFileButton.get())
+        {
+            fileButton->setAbsoluteX(auxOptionArea.getX() + auxOptionArea.getWidth()/2 - fileButton->getWidth()/2);
+            fileButton->setAbsoluteY(auxOptionArea.getY());
+            auxWidgetHeight = fileButton->getHeight();
+            auxWidgetPosX = auxOptionArea.getX();
+        }
+
         if (BlendishLabel* const label = blendishAuxOptionLabel.get())
         {
             label->setAbsoluteX(auxWidgetPosX);
@@ -638,9 +677,11 @@ private:
     ScopedPointer<BlendishButtonGroup> blendishAuxOptionButtonGroup;
     ScopedPointer<BlendishCheckBox> blendishAuxOptionCheckBox;
     ScopedPointer<BlendishComboBox> blendishAuxOptionComboBox;
+    ScopedPointer<BlendishToolButton> blendishAuxOptionFileButton;
     ScopedPointer<BlendishLabel> blendishAuxOptionLabel;
     const OneKnobAuxiliaryButtonGroupValue* blendishAuxButtonGroupValues;
     const OneKnobAuxiliaryComboBoxValue* blendishAuxComboBoxValues;
+    const char* blendishAuxFileButtonKey;
 
     // metering
     BlendishLabel blendishMeter1Label;
@@ -683,6 +724,12 @@ private:
             label->setLabel(blendishAuxComboBoxValues[index].description, false);
 
         setParameterValue(comboBox->getId(), index);
+    }
+
+    void blendishToolButtonClicked(BlendishToolButton*, int) override
+    {
+        if (blendishAuxFileButtonKey != nullptr)
+            requestStateFile(blendishAuxFileButtonKey);
     }
 
     void buttonClicked(SubWidget* const widget, int) override

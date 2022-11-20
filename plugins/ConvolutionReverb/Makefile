@@ -20,9 +20,9 @@ FILES_DSP = \
 	FFTConvolver/TwoStageFFTConvolver.cpp \
 	FFTConvolver/Utilities.cpp
 
-# FILES_UI = \
-# 	OneKnobUI.cpp \
-# 	../../dpf-widgets/opengl/Blendish.cpp
+FILES_UI = \
+	OneKnobUI.cpp \
+	../../dpf-widgets/opengl/Blendish.cpp
 
 # --------------------------------------------------------------
 # Do some magic

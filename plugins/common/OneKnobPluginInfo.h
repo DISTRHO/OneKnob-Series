@@ -90,4 +90,9 @@ struct OneKnobAuxiliaryComboBox {
     const OneKnobAuxiliaryComboBoxValue* values;
 };
 
+struct OneKnobAuxiliaryFileButton {
+    const char* label;
+    const char* key;
+};
+
 // --------------------------------------------------------------------------------------------------------------------

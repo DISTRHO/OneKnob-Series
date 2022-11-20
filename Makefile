@@ -20,6 +20,7 @@ plugins: dgl
 	$(MAKE) all -C plugins/AB-OutputSelector
 	$(MAKE) all -C plugins/BrickwallLimiter
 	$(MAKE) all -C plugins/Compressor
+	$(MAKE) all -C plugins/ConvolutionReverb
 	$(MAKE) all -C plugins/DevilDistortion
 	$(MAKE) all -C plugins/Sampler
 
@@ -42,6 +43,7 @@ clean:
 	$(MAKE) clean -C plugins/AB-OutputSelector
 	$(MAKE) clean -C plugins/BrickwallLimiter
 	$(MAKE) clean -C plugins/Compressor
+	$(MAKE) clean -C plugins/ConvolutionReverb
 	$(MAKE) clean -C plugins/DevilDistortion
 	$(MAKE) clean -C plugins/Sampler
 	rm -rf bin build dpf-widgets/opengl/*.d dpf-widgets/opengl/*.o

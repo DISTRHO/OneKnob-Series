@@ -271,7 +271,7 @@ protected:
 
             if (irBufL != newImpulseResponse)
                 delete[] irBufL;
-            if (irBufL != irBufR)
+            if (irBufR != irBufL)
                 delete[] irBufR;
 
             drwav_free(newImpulseResponse, nullptr);
@@ -335,11 +335,30 @@ protected:
             std::memset(out2, 0, sizeof(float)*frames);
         }
 
+        float tmp1 = lineGraphHighest1;
+        float tmp2 = lineGraphHighest2;
+
         for (uint32_t i=0; i<frames; ++i)
         {
+            tmp1 = std::max(tmp1, std::abs(in1[i]));
+            tmp1 = std::max(tmp1, std::abs(in2[i]));
+
             out1[i] *= gain;
             out2[i] *= gain;
+
+            tmp2 = std::max(tmp2, std::abs(out1[i]));
+            tmp2 = std::max(tmp2, std::abs(out2[i]));
+
+            if (++lineGraphFrameCounter == lineGraphFrameToReset)
+            {
+                lineGraphFrameCounter = 0;
+                setMeters(tmp1, tmp2);
+                tmp1 = tmp2 = 0.f;
+            }
         }
+
+        lineGraphHighest1 = tmp1;
+        lineGraphHighest2 = tmp2;
     }
 
     // -------------------------------------------------------------------

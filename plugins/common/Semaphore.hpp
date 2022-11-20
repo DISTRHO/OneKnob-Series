@@ -52,7 +52,7 @@ public:
         DISTRHO_SAFE_ASSERT_RETURN(semaphore_create(mach_task_self(),
                                                     &sem,
                                                     SYNC_POLICY_FIFO,
-                                                    initialValue) != KERN_SUCCESS,);
+                                                    initialValue) == KERN_SUCCESS,);
        #elif defined(DISTRHO_OS_WINDOWS)
         handle = ::CreateSemaphoreA(nullptr, initialValue, std::max(initialValue, 1), nullptr);
         DISTRHO_SAFE_ASSERT_RETURN(handle != INVALID_HANDLE_VALUE,);
@@ -113,7 +113,7 @@ public:
        #endif
     }
 
-    bool timedWait(const int numSecs)
+    bool timedWait(const uint numSecs)
     {
        #if defined(DISTRHO_OS_MAC)
         const struct mach_timespec time = { numSecs, 0 };
