@@ -61,7 +61,7 @@ struct ThemeInitializer {
         };
 
         BlendishTheme theme = {
-            bg, // backgroundColor: the background color of panels and windows
+            Color(0,0,0,0.f), // backgroundColor: the background color of panels and windows
             w,             // labelTheme: theme for labels
             w,             // toolButtonTheme: theme for tool buttons
            #if 0
