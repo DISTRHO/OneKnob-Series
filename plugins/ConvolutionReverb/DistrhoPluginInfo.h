@@ -29,16 +29,19 @@
 
 #undef DISTRHO_PLUGIN_HAS_UI
 
-enum Parameters
-{
+enum Parameters {
     kParameterWet,
     kParameterCount
 };
 
-enum Programs
-{
+enum Programs {
     kProgramDefault,
     kProgramCount
+};
+
+enum States {
+    kStateFile,
+    kStateCount
 };
 
 static const float kParameterDefaults[kParameterCount] = {

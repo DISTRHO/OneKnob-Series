@@ -27,20 +27,22 @@
 #define DISTRHO_PLUGIN_LV2_CATEGORY    "lv2:LimiterPlugin"
 #define DISTRHO_PLUGIN_VST3_CATEGORIES "Fx|Dynamics|Stereo"
 
-enum Parameters
-{
+enum Parameters {
     kParameterThreshold,
     kParameterAutoGain,
     kParameterCount
 };
 
-enum Programs
-{
+enum Programs {
     kProgramInit,
     kProgramGentle,
     kProgramDestructive,
     kProgramInsane,
     kProgramCount
+};
+
+enum States {
+    kStateCount
 };
 
 static const float kParameterDefaults[kParameterCount] = {

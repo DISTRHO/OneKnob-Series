@@ -34,8 +34,7 @@
 
 #define DISTRHO_PLUGIN_IS_SYNTH 1
 
-enum Parameters
-{
+enum Parameters {
     kParameterRetune,
     kParameterBasePitch,
     kParameterSustain,
@@ -44,10 +43,14 @@ enum Parameters
     kParameterCount
 };
 
-enum Programs
-{
+enum Programs {
     kProgramInit,
     kProgramCount
+};
+
+enum States {
+    kStateFile,
+    kStateCount
 };
 
 static const float kParameterDefaults[kParameterCount] = {

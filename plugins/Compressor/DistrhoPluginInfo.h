@@ -27,20 +27,22 @@
 #define DISTRHO_PLUGIN_LV2_CATEGORY    "lv2:CompressorPlugin"
 #define DISTRHO_PLUGIN_VST3_CATEGORIES "Fx|Dynamics|Stereo"
 
-enum Parameters
-{
+enum Parameters {
     kParameterRelease = 0,
     kParameterMode,
     kParameterCount
 };
 
-enum Programs
-{
+enum Programs {
     kProgramDefault,
     kProgramConservative,
     kProgramLiberal,
     kProgramExtreme,
     kProgramCount
+};
+
+enum States {
+    kStateCount
 };
 
 static const float kParameterDefaults[kParameterCount] = {

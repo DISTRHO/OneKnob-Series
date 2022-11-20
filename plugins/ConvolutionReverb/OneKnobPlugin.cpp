@@ -43,12 +43,21 @@ public:
           semBgProcStart(1),
           semBgProcFinished(0)
     {
+    }
+
+    ~TwoStageThreadedConvolver() override
+    {
+        stop();
+    }
+
+    void start()
+    {
 #ifdef THREADED_CONVOLVER
         startThread(true);
 #endif
     }
 
-    ~TwoStageThreadedConvolver() override
+    void stop()
     {
 #ifdef THREADED_CONVOLVER
         signalThreadShouldExit();
@@ -98,20 +107,6 @@ public:
     OneKnobConvolutionReverbPlugin()
         : OneKnobPlugin()
     {
-        unsigned int channels;
-        unsigned int sampleRate;
-        drwav_uint64 impulseResponseSize;
-
-        if (impulseResponse == nullptr)
-        {
-            impulseResponse = drwav_open_file_and_read_pcm_frames_f32("/home/falktx/Source/DISTRHO/OneKnob-Series/plugins/ConvolutionReverb/hall1-medium.wav", &channels, &sampleRate, &impulseResponseSize, nullptr);
-            DISTRHO_SAFE_ASSERT(impulseResponse != nullptr);
-        }
-
-        const size_t headBlockSize = 64;
-        const size_t tailBlockSize = 1024;
-        convolverL.init(headBlockSize, tailBlockSize, impulseResponse, impulseResponseSize);
-        convolverR.init(headBlockSize, tailBlockSize, impulseResponse, impulseResponseSize);
     }
 
     ~OneKnobConvolutionReverbPlugin() override
@@ -169,6 +164,18 @@ protected:
         }
     }
 
+    void initState(uint32_t index, State& state) override
+    {
+        switch (index)
+        {
+        case kStateFile:
+            state.hints = kStateIsFilenamePath;
+            state.key = "irfile";
+            state.label = "IR File";
+            break;
+        }
+    }
+
     // -------------------------------------------------------------------
     // Internal data
 
@@ -188,6 +195,36 @@ protected:
 
         // activate filter parameters
         activate();
+    }
+
+    void setState(const char* const key, const char* const value) override
+    {
+        if (std::strcmp(key, "irfile") == 0)
+        {
+            convolverL.stop();
+            convolverR.stop();
+
+            unsigned int channels;
+            unsigned int sampleRate;
+            drwav_uint64 impulseResponseSize;
+
+            float* const newImpulseResponse = drwav_open_file_and_read_pcm_frames_f32(value, &channels, &sampleRate, &impulseResponseSize, nullptr);
+            DISTRHO_SAFE_ASSERT_RETURN(newImpulseResponse != nullptr,);
+
+            const size_t headBlockSize = 64;
+            const size_t tailBlockSize = 1024;
+            convolverL.init(headBlockSize, tailBlockSize, newImpulseResponse, impulseResponseSize);
+            convolverR.init(headBlockSize, tailBlockSize, newImpulseResponse, impulseResponseSize);
+
+            drwav_free(impulseResponse, nullptr);
+            impulseResponse = newImpulseResponse;
+
+            convolverL.start();
+            convolverR.start();
+            return;
+        }
+
+        OneKnobPlugin::setState(key, value);
     }
 
     // -------------------------------------------------------------------

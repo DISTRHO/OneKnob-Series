@@ -30,17 +30,19 @@
 #undef DISTRHO_PLUGIN_NUM_INPUTS
 #define DISTRHO_PLUGIN_NUM_INPUTS 4
 
-enum Parameters
-{
+enum Parameters {
     kParameterSelect,
     kParameterMode,
     kParameterCount
 };
 
-enum Programs
-{
+enum Programs {
     kProgramInit,
     kProgramCount
+};
+
+enum States {
+    kStateCount
 };
 
 static const float kParameterDefaults[kParameterCount] = {

@@ -29,17 +29,19 @@
 #define DISTRHO_PLUGIN_LV2_CATEGORY    "lv2:DistortionPlugin"
 #define DISTRHO_PLUGIN_VST3_CATEGORIES "Fx|Distortion|Stereo"
 
-enum Parameters
-{
+enum Parameters {
     kParameterKneePoint = 0,
     kParameterDecayTime,
     kParameterCount
 };
 
-enum Programs
-{
+enum Programs {
     kProgramDefault,
     kProgramCount
+};
+
+enum States {
+    kStateCount
 };
 
 static const float kParameterDefaults[kParameterCount] = {
