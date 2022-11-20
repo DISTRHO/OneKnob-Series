@@ -18,6 +18,7 @@
 #include "DistrhoPluginInfo.h"
 
 #include "OneKnobPlugin.hpp"
+#include "extra/ScopedPointer.hpp"
 #include "extra/Thread.hpp"
 #include "Semaphore.hpp"
 
@@ -37,8 +38,6 @@ class TwoStageThreadedConvolver : public fftconvolver::TwoStageFFTConvolver,
     Semaphore semBgProcFinished;
 
 public:
-    Mutex mutex;
-
     TwoStageThreadedConvolver()
         : fftconvolver::TwoStageFFTConvolver(),
           Thread("TwoStageThreadedConvolver"),
@@ -253,21 +252,21 @@ protected:
             const size_t headBlockSize = 128;
             const size_t tailBlockSize = 1024;
 
-            convolverL.stop();
-            convolverR.stop();
+            ScopedPointer<TwoStageThreadedConvolver> newConvolverL, newConvolverR;
+
+            newConvolverL = new TwoStageThreadedConvolver();
+            newConvolverL->init(headBlockSize, tailBlockSize, irBufL, impulseResponseSize);
+            newConvolverL->start();
+
+            newConvolverR = new TwoStageThreadedConvolver();
+            newConvolverR->init(headBlockSize, tailBlockSize, irBufR, impulseResponseSize);
+            newConvolverR->start();
 
             {
-                const MutexLocker cml(convolverL.mutex);
-                convolverL.init(headBlockSize, tailBlockSize, irBufL, impulseResponseSize);
+                const MutexLocker cml(mutex);
+                convolverL.swapWith(newConvolverL);
+                convolverR.swapWith(newConvolverR);
             }
-
-            {
-                const MutexLocker cml(convolverR.mutex);
-                convolverR.init(headBlockSize, tailBlockSize, irBufR, impulseResponseSize);
-            }
-
-            convolverL.start();
-            convolverR.start();
 
             if (irBufL != newImpulseResponse)
                 delete[] irBufL;
@@ -315,23 +314,23 @@ protected:
         // non-smoothed, we do not care yet
         const float gain = std::pow(10.f, 0.05f * parameters[kParameterWetGain]);
 
-        if (convolverL.mutex.tryLock())
+        if (mutex.tryLock())
         {
-            convolverL.process(in1, out1, frames);
-            convolverL.mutex.unlock();
+            if (TwoStageThreadedConvolver* const conv = convolverL.get())
+                conv->process(in1, out1, frames);
+            else if (out1 != in1)
+                std::memcpy(out1, in1, sizeof(float)*frames);
+
+            if (TwoStageThreadedConvolver* const conv = convolverR.get())
+                conv->process(in2, out2, frames);
+            else if (out2 != in2)
+                std::memcpy(out2, in2, sizeof(float)*frames);
+
+            mutex.unlock();
         }
         else
         {
             std::memset(out1, 0, sizeof(float)*frames);
-        }
-
-        if (convolverR.mutex.tryLock())
-        {
-            convolverR.process(in2, out2, frames);
-            convolverR.mutex.unlock();
-        }
-        else
-        {
             std::memset(out2, 0, sizeof(float)*frames);
         }
 
@@ -364,7 +363,8 @@ protected:
     // -------------------------------------------------------------------
 
 private:
-    TwoStageThreadedConvolver convolverL, convolverR;
+    ScopedPointer<TwoStageThreadedConvolver> convolverL, convolverR;
+    Mutex mutex;
 
     DISTRHO_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(OneKnobConvolutionReverbPlugin)
 };
