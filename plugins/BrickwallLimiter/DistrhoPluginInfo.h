@@ -21,7 +21,7 @@
 
 #define DISTRHO_PLUGIN_NAME    "OneKnob BrickWall Limiter"
 #define DISTRHO_PLUGIN_URI     "https://distrho.kx.studio/plugins/oneknob#BrickWallLimiter"
-#define DISTRHO_PLUGIN_CLAP_ID "studio.kx.distrho.oneknob.DevilDistortion"
+#define DISTRHO_PLUGIN_CLAP_ID "studio.kx.distrho.oneknob.BrickWallLimiter"
 
 #define DISTRHO_PLUGIN_CLAP_FEATURES   "audio-effect", "limiter", "stereo"
 #define DISTRHO_PLUGIN_LV2_CATEGORY    "lv2:LimiterPlugin"

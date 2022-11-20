@@ -21,7 +21,7 @@
 
 #define DISTRHO_PLUGIN_NAME    "OneKnob Compressor"
 #define DISTRHO_PLUGIN_URI     "https://distrho.kx.studio/plugins/oneknob#Compressor"
-#define DISTRHO_PLUGIN_CLAP_ID "studio.kx.distrho.oneknob.DevilDistortion"
+#define DISTRHO_PLUGIN_CLAP_ID "studio.kx.distrho.oneknob.Compressor"
 
 #define DISTRHO_PLUGIN_CLAP_FEATURES   "audio-effect", "compressor", "stereo"
 #define DISTRHO_PLUGIN_LV2_CATEGORY    "lv2:CompressorPlugin"

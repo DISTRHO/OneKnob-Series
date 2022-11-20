@@ -21,7 +21,7 @@
 
 #define DISTRHO_PLUGIN_NAME    "OneKnob A/B Input Selector"
 #define DISTRHO_PLUGIN_URI     "https://distrho.kx.studio/plugins/oneknob#AB-InputSelector"
-#define DISTRHO_PLUGIN_CLAP_ID "studio.kx.distrho.oneknob.DevilDistortion"
+#define DISTRHO_PLUGIN_CLAP_ID "studio.kx.distrho.oneknob.AB-InputSelector"
 
 #define DISTRHO_PLUGIN_CLAP_FEATURES   "audio-effect", "utility", "stereo"
 #define DISTRHO_PLUGIN_LV2_CATEGORY    "lv2:UtilityPlugin"
