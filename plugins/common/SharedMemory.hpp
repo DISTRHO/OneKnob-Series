@@ -1,6 +1,6 @@
 /*
  * DISTRHO Plugin Framework (DPF)
- * Copyright (C) 2012-2021 Filipe Coelho <falktx@falktx.com>
+ * Copyright (C) 2012-2022 Filipe Coelho <falktx@falktx.com>
  *
  * Permission to use, copy, modify, and/or distribute this software for any purpose with
  * or without fee is hereby granted, provided that the above copyright notice and this
@@ -28,9 +28,6 @@
 # include <fcntl.h>
 # include <unistd.h>
 # include <sys/mman.h>
-# ifndef MAP_LOCKED
-#  define MAP_LOCKED 0x0
-# endif
 #endif
 
 #include <ctime>
@@ -46,11 +43,11 @@ public:
     SharedMemory()
         : ptr(nullptr),
           filename(),
-#ifdef DISTRHO_OS_WINDOWS
-          map(INVALID_HANDLE_VALUE)
-#else
+         #ifdef DISTRHO_OS_WINDOWS
+          handle(INVALID_HANDLE_VALUE)
+         #else
           fd(-1)
-#endif
+         #endif
     {
     }
 
@@ -64,12 +61,12 @@ public:
         DISTRHO_SAFE_ASSERT_RETURN(ptr == nullptr, false);
 
         char filename2[64];
-#ifdef DISTRHO_OS_WINDOWS
+       #ifdef DISTRHO_OS_WINDOWS
         std::sprintf(filename2, "Local\\dpf_XXXXXX");
-#else
+       #else
         std::sprintf(filename2, "/dpf_XXXXXX");
         int fd2;
-#endif
+       #endif
         const std::size_t filename2len = std::strlen(filename2);
 
         std::srand(static_cast<uint>(std::time(nullptr)));
@@ -87,7 +84,7 @@ public:
             for (std::size_t c = filename2len - 6; c < filename2len; ++c)
                 filename2[c] = charSet[std::rand() % charSetLen];
 
-#ifdef DISTRHO_OS_WINDOWS
+           #ifdef DISTRHO_OS_WINDOWS
             const HANDLE h = ::CreateFileMapping(INVALID_HANDLE_VALUE, nullptr,
                                                  PAGE_READWRITE|SEC_COMMIT, 0, 8, filename2);
             DISTRHO_SAFE_ASSERT_RETURN(h != INVALID_HANDLE_VALUE, false);
@@ -106,7 +103,7 @@ public:
 
             d_stderr("SharedMemory::create: file '%s' failed, error code 0x%x", filename2, error);
             return false;
-#else
+           #else
             fd2 = -1;
 
             try {
@@ -126,20 +123,20 @@ public:
 
             d_stderr2("SharedMemory::create: shm_open failed: %s", std::strerror(error));
             return false;
-#endif
+           #endif
         }
 
         // Step 2. Memory-map the file contents
-#ifdef DISTRHO_OS_WINDOWS
+      #ifdef DISTRHO_OS_WINDOWS
         SECURITY_ATTRIBUTES sa;
         std::memset(&sa, 0, sizeof(sa));
         sa.nLength = sizeof(sa);
         sa.bInheritHandle = TRUE;
 
-        void* const map2 = ::CreateFileMappingA(INVALID_HANDLE_VALUE, &sa, PAGE_READWRITE|SEC_COMMIT, 0,
-                                                sizeof(S), filename2);
+        void* const handle2 = ::CreateFileMappingA(INVALID_HANDLE_VALUE, &sa, PAGE_READWRITE|SEC_COMMIT, 0,
+                                                   sizeof(S), filename2);
 
-        if (map2 == nullptr || map2 == INVALID_HANDLE_VALUE)
+        if (handle2 == nullptr || handle2 == INVALID_HANDLE_VALUE)
         {
             const DWORD errorCode = ::GetLastError();
             d_stderr2("SharedMemory::create: CreateFileMapping failed for '%s', errorCode:%x",
@@ -147,20 +144,20 @@ public:
             return false;
         }
 
-        void* const ptr2 = ::MapViewOfFile(map2, FILE_MAP_ALL_ACCESS, 0, 0, sizeof(S));
+        void* const ptr2 = ::MapViewOfFile(handle2, FILE_MAP_ALL_ACCESS, 0, 0, sizeof(S));
 
         if (ptr2 == nullptr)
         {
             const DWORD errorCode = ::GetLastError();
             d_stderr2("SharedMemory::create: MapViewOfFile failed for '%s', errorCode:%x",
                       filename2, errorCode);
-            ::CloseHandle(map2);
+            ::CloseHandle(handle2);
             return false;
         }
 
-        map = map2;
+        handle = handle2;
         ptr = (S*)ptr2;
-#else
+      #else
         int ret;
 
         try {
@@ -175,7 +172,14 @@ public:
             return false;
         }
 
-        void* const ptr2 = ::mmap(nullptr, sizeof(S), PROT_READ|PROT_WRITE, MAP_SHARED|MAP_LOCKED, fd2, 0);
+        void* ptr2;
+       #ifdef MAP_LOCKED
+        ptr2 = ::mmap(nullptr, sizeof(S), PROT_READ|PROT_WRITE, MAP_SHARED|MAP_LOCKED, fd2, 0);
+        if (ptr2 == nullptr || ptr2 == MAP_FAILED)
+       #endif
+        {
+            ptr2 = ::mmap(nullptr, sizeof(S), PROT_READ|PROT_WRITE, MAP_SHARED, fd2, 0);
+        }
 
         if (ptr2 == nullptr || ptr2 == MAP_FAILED)
         {
@@ -185,9 +189,13 @@ public:
             return false;
         }
 
+       #ifndef MAP_LOCKED
+        ::mlock(ptr2, sizeof(S));
+       #endif
+
         fd = fd2;
         ptr = (S*)ptr2;
-#endif
+      #endif
 
         filename = filename2;
         return true;
@@ -197,26 +205,26 @@ public:
     {
         DISTRHO_SAFE_ASSERT_RETURN(ptr == nullptr, nullptr);
 
-#ifdef DISTRHO_OS_WINDOWS
-        void* const map2 = ::OpenFileMappingA(FILE_MAP_ALL_ACCESS, FALSE, filename2);
+      #ifdef DISTRHO_OS_WINDOWS
+        void* const handle2 = ::OpenFileMappingA(FILE_MAP_ALL_ACCESS, FALSE, filename2);
 
-        DISTRHO_SAFE_ASSERT_RETURN(map2 != nullptr, nullptr);
-        DISTRHO_SAFE_ASSERT_RETURN(map2 != INVALID_HANDLE_VALUE, nullptr);
+        DISTRHO_SAFE_ASSERT_RETURN(handle2 != nullptr, nullptr);
+        DISTRHO_SAFE_ASSERT_RETURN(handle2 != INVALID_HANDLE_VALUE, nullptr);
 
-        void* const ptr2 = ::MapViewOfFile(map2, FILE_MAP_ALL_ACCESS, 0, 0, sizeof(S));
+        void* const ptr2 = ::MapViewOfFile(handle2, FILE_MAP_ALL_ACCESS, 0, 0, sizeof(S));
 
         if (ptr2 == nullptr)
         {
             const DWORD errorCode = ::GetLastError();
             d_stderr2("SharedMemory::create: MapViewOfFile failed for '%s', errorCode:%x",
                       filename2, errorCode);
-            ::CloseHandle(map2);
+            ::CloseHandle(handle2);
             return nullptr;
         }
 
-        map = map2;
+        handle = handle2;
         ptr = (S*)ptr2;
-#else
+      #else
         int fd2;
 
         try {
@@ -225,11 +233,18 @@ public:
 
         if (fd2 < 0)
         {
-            d_stderr2("SharedMemory::connect: ftruncate failed: %s", std::strerror(errno));
+            d_stderr2("SharedMemory::connect: open failed: %s", std::strerror(errno));
             return nullptr;
         }
 
-        void* const ptr2 = ::mmap(nullptr, sizeof(S), PROT_READ|PROT_WRITE, MAP_SHARED|MAP_LOCKED, fd2, 0);
+        void* ptr2;
+       #ifdef MAP_LOCKED
+        ptr2 = ::mmap(nullptr, sizeof(S), PROT_READ|PROT_WRITE, MAP_SHARED|MAP_LOCKED, fd2, 0);
+        if (ptr2 == nullptr || ptr2 == MAP_FAILED)
+       #endif
+        {
+            ptr2 = ::mmap(nullptr, sizeof(S), PROT_READ|PROT_WRITE, MAP_SHARED, fd2, 0);
+        }
 
         if (ptr2 == nullptr || ptr2 == MAP_FAILED)
         {
@@ -238,9 +253,13 @@ public:
             return nullptr;
         }
 
+       #ifndef MAP_LOCKED
+        ::mlock(ptr2, sizeof(S));
+       #endif
+
         fd = fd2;
         ptr = (S*)ptr2;
-#endif
+      #endif
 
         return ptr;
     }
@@ -249,11 +268,11 @@ public:
     {
         if (ptr != nullptr)
         {
-#ifdef DISTRHO_OS_WINDOWS
+           #ifdef DISTRHO_OS_WINDOWS
             ::UnmapViewOfFile(ptr);
-            ::CloseHandle(map);
-            map = INVALID_HANDLE_VALUE;
-#else
+            ::CloseHandle(handle);
+            handle = INVALID_HANDLE_VALUE;
+           #else
             try {
                 ::munmap(ptr, sizeof(S));
             } DISTRHO_SAFE_EXCEPTION("SharedMemory::close");
@@ -262,17 +281,17 @@ public:
                 ::close(fd);
             } DISTRHO_SAFE_EXCEPTION("SharedMemory::close");
             fd = -1;
-#endif
+           #endif
             ptr = nullptr;
         }
 
         if (filename.isNotEmpty())
         {
-#ifndef DISTRHO_OS_WINDOWS
+           #ifndef DISTRHO_OS_WINDOWS
             try {
                 ::shm_unlink(filename);
             } DISTRHO_SAFE_EXCEPTION("SharedMemory::close");
-#endif
+           #endif
             filename.clear();
         }
     }
@@ -297,11 +316,11 @@ private:
     S* ptr;
     String filename;
 
-#ifdef DISTRHO_OS_WINDOWS
-    HANDLE map;
-#else
+   #ifdef DISTRHO_OS_WINDOWS
+    HANDLE handle;
+   #else
     int fd;
-#endif
+   #endif
 
     DISTRHO_PREVENT_VIRTUAL_HEAP_ALLOCATION
     DISTRHO_DECLARE_NON_COPYABLE(SharedMemory)
