@@ -18,11 +18,77 @@
 #include "DistrhoPluginInfo.h"
 
 #include "OneKnobPlugin.hpp"
+#include "extra/Thread.hpp"
+#include "Semaphore.hpp"
 
 #include "dr_wav.h"
 #include "FFTConvolver/TwoStageFFTConvolver.h"
 
 START_NAMESPACE_DISTRHO
+
+// -----------------------------------------------------------------------
+
+#define THREADED_CONVOLVER
+
+class TwoStageThreadedConvolver : public fftconvolver::TwoStageFFTConvolver,
+                                  private Thread
+{
+    Semaphore semBgProcStart;
+    Semaphore semBgProcFinished;
+
+public:
+    TwoStageThreadedConvolver()
+        : fftconvolver::TwoStageFFTConvolver(),
+          Thread("TwoStageThreadedConvolver"),
+          semBgProcStart(1),
+          semBgProcFinished(0)
+    {
+#ifdef THREADED_CONVOLVER
+        startThread(true);
+#endif
+    }
+
+    ~TwoStageThreadedConvolver() override
+    {
+#ifdef THREADED_CONVOLVER
+        signalThreadShouldExit();
+        semBgProcStart.post();
+        stopThread(5000);
+#endif
+    }
+
+protected:
+#ifdef THREADED_CONVOLVER
+    void startBackgroundProcessing() override
+    {
+        semBgProcStart.post();
+    }
+
+    void waitForBackgroundProcessing() override
+    {
+        if (isThreadRunning() && !shouldThreadExit())
+            semBgProcFinished.wait();
+    }
+#endif
+
+    void run() override
+    {
+#ifdef THREADED_CONVOLVER
+        while (!shouldThreadExit())
+        {
+            semBgProcStart.wait();
+
+            if (shouldThreadExit())
+                break;
+
+            doBackgroundProcessing();
+            semBgProcFinished.post();
+        }
+#endif
+    }
+
+    DISTRHO_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(TwoStageThreadedConvolver)
+};
 
 // -----------------------------------------------------------------------
 
@@ -32,6 +98,20 @@ public:
     OneKnobConvolutionReverbPlugin()
         : OneKnobPlugin()
     {
+        unsigned int channels;
+        unsigned int sampleRate;
+        drwav_uint64 impulseResponseSize;
+
+        if (impulseResponse == nullptr)
+        {
+            impulseResponse = drwav_open_file_and_read_pcm_frames_f32("/home/falktx/Source/DISTRHO/OneKnob-Series/plugins/ConvolutionReverb/hall1-medium.wav", &channels, &sampleRate, &impulseResponseSize, nullptr);
+            DISTRHO_SAFE_ASSERT(impulseResponse != nullptr);
+        }
+
+        const size_t headBlockSize = 64;
+        const size_t tailBlockSize = 1024;
+        convolverL.init(headBlockSize, tailBlockSize, impulseResponse, impulseResponseSize);
+        convolverR.init(headBlockSize, tailBlockSize, impulseResponse, impulseResponseSize);
     }
 
     ~OneKnobConvolutionReverbPlugin() override
@@ -116,18 +196,6 @@ protected:
     void activate() override
     {
         OneKnobPlugin::activate();
-
-        unsigned int channels;
-        unsigned int sampleRate;
-        drwav_uint64 impulseResponseSize;
-
-        if (impulseResponse == nullptr)
-            impulseResponse = drwav_open_file_and_read_pcm_frames_f32("/home/falktx/Source/DISTRHO/OneKnob-Series/plugins/ConvolutionReverb/hall1-medium.wav", &channels, &sampleRate, &impulseResponseSize, nullptr);
-
-        const size_t headBlockSize = 64;
-        const size_t tailBlockSize = 1024;
-        convolverL.init(headBlockSize, tailBlockSize, impulseResponse, impulseResponseSize);
-        convolverR.init(headBlockSize, tailBlockSize, impulseResponse, impulseResponseSize);
     }
 
     void deactivate() override
@@ -148,7 +216,7 @@ protected:
     // -------------------------------------------------------------------
 
 private:
-    fftconvolver::TwoStageFFTConvolver convolverL, convolverR;
+    TwoStageThreadedConvolver convolverL, convolverR;
     float* impulseResponse = nullptr;
 
     DISTRHO_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(OneKnobConvolutionReverbPlugin)
