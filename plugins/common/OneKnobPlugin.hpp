@@ -29,7 +29,7 @@ class OneKnobPlugin : public Plugin
 public:
     OneKnobPlugin()
         : Plugin(kParameterCount, kProgramCount, kStateCount),
-          lineGraphFrameToReset(getSampleRate() / 120)
+          lineGraphFrameToReset(getSampleRate() / 60)
     {
         std::memset(parameters, 0, sizeof(parameters));
     }
@@ -106,7 +106,7 @@ protected:
 
     void sampleRateChanged(const double newSampleRate) override
     {
-        lineGraphFrameToReset = newSampleRate / 120;
+        lineGraphFrameToReset = newSampleRate / 60;
     }
 
     // -------------------------------------------------------------------
