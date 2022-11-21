@@ -27,6 +27,9 @@
 
 START_NAMESPACE_DISTRHO
 
+static constexpr const size_t headBlockSize = 128;
+static constexpr const size_t tailBlockSize = 2048;
+
 // -----------------------------------------------------------------------
 
 #define THREADED_CONVOLVER
@@ -249,9 +252,6 @@ protected:
                 break;
             }
 
-            const size_t headBlockSize = 128;
-            const size_t tailBlockSize = 1024;
-
             ScopedPointer<TwoStageThreadedConvolver> newConvolverL, newConvolverR;
 
             newConvolverL = new TwoStageThreadedConvolver();
@@ -334,16 +334,19 @@ protected:
             std::memset(out2, 0, sizeof(float)*frames);
         }
 
+       #ifdef HAVE_OPENGL
         float tmp1 = lineGraphHighest1;
         float tmp2 = lineGraphHighest2;
+       #endif
 
         for (uint32_t i=0; i<frames; ++i)
         {
-            tmp1 = std::max(tmp1, std::abs(in1[i]));
-            tmp1 = std::max(tmp1, std::abs(in2[i]));
-
             out1[i] *= gain;
             out2[i] *= gain;
+
+           #ifdef HAVE_OPENGL
+            tmp1 = std::max(tmp1, std::abs(in1[i]));
+            tmp1 = std::max(tmp1, std::abs(in2[i]));
 
             tmp2 = std::max(tmp2, std::abs(out1[i]));
             tmp2 = std::max(tmp2, std::abs(out2[i]));
@@ -354,10 +357,13 @@ protected:
                 setMeters(tmp1, tmp2);
                 tmp1 = tmp2 = 0.f;
             }
+           #endif
         }
 
+       #ifdef HAVE_OPENGL
         lineGraphHighest1 = tmp1;
         lineGraphHighest2 = tmp2;
+       #endif
     }
 
     // -------------------------------------------------------------------
