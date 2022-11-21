@@ -28,7 +28,7 @@
 # endif
 # include <winsock2.h>
 # include <windows.h>
-#elif defined(__MOD_DEVICES__) && defined(USE_FUTEXES)
+#elif defined(__MOD_DEVICES__)
 # include <linux/futex.h>
 # include <sys/time.h>
 # include <errno.h>
@@ -56,60 +56,61 @@ public:
        #elif defined(DISTRHO_OS_WINDOWS)
         handle = ::CreateSemaphoreA(nullptr, initialValue, std::max(initialValue, 1), nullptr);
         DISTRHO_SAFE_ASSERT_RETURN(handle != INVALID_HANDLE_VALUE,);
-       #elif defined(__MOD_DEVICES__) && defined(USE_FUTEXES)
+       #elif defined(__MOD_DEVICES__)
         value = initialValue;
        #else
-        sem_init(&sem, 0, initialValue);
+        ::sem_init(&sem, 0, initialValue);
        #endif
     }
 
     ~Semaphore()
     {
        #if defined(DISTRHO_OS_MAC)
-        semaphore_destroy(mach_task_self(), sem);
+        ::semaphore_destroy(mach_task_self(), sem);
        #elif defined(DISTRHO_OS_WINDOWS)
         ::CloseHandle(handle);
-       #elif defined(__MOD_DEVICES__) && defined(USE_FUTEXES)
+       #elif defined(__MOD_DEVICES__)
+        // nothing here
        #else
-        sem_destroy(&sem);
+        ::sem_destroy(&sem);
        #endif
     }
 
     void post()
     {
        #if defined(DISTRHO_OS_MAC)
-        semaphore_signal(sem);
+        ::semaphore_signal(sem);
        #elif defined(DISTRHO_OS_WINDOWS)
         ::ReleaseSemaphore(handle, 1, nullptr);
-       #elif defined(__MOD_DEVICES__) && defined(USE_FUTEXES)
+       #elif defined(__MOD_DEVICES__)
         // if already unlocked, do not wake futex
-        if (__sync_bool_compare_and_swap(&value, 0, 1))
-            syscall(__NR_futex, &value, FUTEX_WAKE_PRIVATE, 1, nullptr, nullptr, 0);
+        if (::__sync_bool_compare_and_swap(&value, 0, 1))
+            ::syscall(__NR_futex, &value, FUTEX_WAKE_PRIVATE, 1, nullptr, nullptr, 0);
        #else
-        sem_post(&sem);
+        ::sem_post(&sem);
        #endif
     }
 
     bool wait()
     {
        #if defined(DISTRHO_OS_MAC)
-        return semaphore_wait(sem) == KERN_SUCCESS;
+        return ::semaphore_wait(sem) == KERN_SUCCESS;
        #elif defined(DISTRHO_OS_WINDOWS)
         return ::WaitForSingleObject(handle, INFINITE) == WAIT_OBJECT_0;
-       #elif defined(__MOD_DEVICES__) && defined(USE_FUTEXES)
+       #elif defined(__MOD_DEVICES__)
         for (;;)
         {
-            if (__sync_bool_compare_and_swap(&value, 1, 0))
+            if (::__sync_bool_compare_and_swap(&value, 1, 0))
                 return true;
 
-            if (syscall(__NR_futex, &value, FUTEX_WAIT_PRIVATE, 0, nullptr, nullptr, 0) != 0)
+            if (::syscall(__NR_futex, &value, FUTEX_WAIT_PRIVATE, 0, nullptr, nullptr, 0) != 0)
             {
                 if (errno != EAGAIN && errno != EINTR)
                     return false;
             }
         }
        #else
-        return sem_wait(&sem) == 0;
+        return ::sem_wait(&sem) == 0;
        #endif
     }
 
@@ -117,17 +118,17 @@ public:
     {
        #if defined(DISTRHO_OS_MAC)
         const struct mach_timespec time = { numSecs, 0 };
-        return semaphore_timedwait(sem, time) == KERN_SUCCESS;
+        return ::semaphore_timedwait(sem, time) == KERN_SUCCESS;
        #elif defined(DISTRHO_OS_WINDOWS)
         return ::WaitForSingleObject(handle, numSecs * 1000) == WAIT_OBJECT_0;
-       #elif defined(__MOD_DEVICES__) && defined(USE_FUTEXES)
+       #elif defined(__MOD_DEVICES__)
         const struct timespec timeout = { numSecs, 0 };
         for (;;)
         {
-            if (__sync_bool_compare_and_swap(&value, 1, 0))
+            if (::__sync_bool_compare_and_swap(&value, 1, 0))
                 return true;
 
-            if (syscall(__NR_futex, &value, FUTEX_WAIT_PRIVATE, 0, &timeout, nullptr, 0) != 0)
+            if (::syscall(__NR_futex, &value, FUTEX_WAIT_PRIVATE, 0, &timeout, nullptr, 0) != 0)
             {
                 if (errno != EAGAIN && errno != EINTR)
                     return false;
@@ -135,20 +136,20 @@ public:
         }
        #else
         struct timespec timeout;
-        clock_gettime(CLOCK_REALTIME, &timeout);
+        ::clock_gettime(CLOCK_REALTIME, &timeout);
         timeout.tv_sec += numSecs;
-        return sem_timedwait(&sem, &timeout) == 0;
+        return ::sem_timedwait(&sem, &timeout) == 0;
        #endif
     }
 private:
    #if defined(DISTRHO_OS_MAC)
-    semaphore_t sem;
+    ::semaphore_t sem;
    #elif defined(DISTRHO_OS_WINDOWS)
-    HANDLE handle;
-   #elif defined(__MOD_DEVICES__) && defined(USE_FUTEXES)
+    ::HANDLE handle;
+   #elif defined(__MOD_DEVICES__)
     int value;
    #else
-    sem_t sem;
+    ::sem_t sem;
    #endif
 };
 
