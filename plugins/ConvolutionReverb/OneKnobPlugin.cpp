@@ -144,12 +144,12 @@ protected:
     {
         switch (index)
         {
-        case kParameterWetGain:
+        case kParameterLevel:
             parameter.hints      = kParameterIsAutomatable;
-            parameter.name       = "Wet Gain";
-            parameter.symbol     = "wetGain";
+            parameter.name       = "Level";
+            parameter.symbol     = "level";
             parameter.unit       = "dB";
-            parameter.ranges.def = kParameterDefaults[kParameterWetGain];
+            parameter.ranges.def = kParameterDefaults[kParameterLevel];
             parameter.ranges.min = -60.0f;
             parameter.ranges.max = 0.0f;
             break;
@@ -311,7 +311,7 @@ protected:
         }
 
         // non-smoothed, we do not care yet
-        const float gain = std::pow(10.f, 0.05f * parameters[kParameterWetGain]);
+        const float gain = std::pow(10.f, 0.05f * parameters[kParameterLevel]);
 
         if (mutex.tryLock())
         {

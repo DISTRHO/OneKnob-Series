@@ -27,7 +27,7 @@
 #define DISTRHO_PLUGIN_VST3_CATEGORIES "Fx|Reverb|Stereo"
 
 enum Parameters {
-    kParameterWetGain,
+    kParameterLevel,
     kParameterCount
 };
 

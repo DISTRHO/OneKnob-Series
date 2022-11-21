@@ -27,8 +27,8 @@ static const uint kDefaultWidth = 640;
 static const uint kDefaultHeight = 400;
 
 static const OneKnobMainControl main = {
-    kParameterWetGain,
-    "Wet Gain",
+    kParameterLevel,
+    "Level",
     "dB",
     -60.0f,
     0.0f,
@@ -75,7 +75,7 @@ protected:
     {
         switch (index)
         {
-        case kParameterWetGain:
+        case kParameterLevel:
             setMainControlValue(value);
             break;
         }
@@ -88,7 +88,7 @@ protected:
         switch (index)
         {
         case kProgramDefault:
-            setMainControlValue(kParameterDefaults[kParameterWetGain]);
+            setMainControlValue(kParameterDefaults[kParameterLevel]);
             break;
         }
 
