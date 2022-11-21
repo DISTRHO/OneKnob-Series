@@ -11,18 +11,25 @@ This collection currently includes:<br/>
  - A/B Output Selector
  - Brickwall Limiter
  - Compressor
+ - Convolution Reverb
  - Devil's Distortion
 
 ## Screenshots
 
-A/B Input/Output Selector:<br/>
+A/B Input Selector:<br/>
 ![AB-InputSelector](plugins/AB-InputSelector/Screenshot.png "A/B Input Selector")<br/>
+
+A/B Output Selector:<br/>
+![AB-OutputSelector](plugins/AB-OutputSelector/Screenshot.png "A/B Output Selector")<br/>
 
 Brickwall Limiter:<br/>
 ![BrickwallLimiter](plugins/BrickwallLimiter/Screenshot.png "Brickwall Limiter")<br/>
 
 Compressor:<br/>
 ![Compressor](plugins/Compressor/Screenshot.png "Compressor")<br/>
+
+Convolution Reverb:<br/>
+![ConvolutionReverb](plugins/ConvolutionReverb/Screenshot.png "ConvolutionReverb")<br/>
 
 Devil's Distortion:<br/>
 ![DevilDistortion](plugins/DevilDistortion/Screenshot.png "Devil's Distortion")<br/>
