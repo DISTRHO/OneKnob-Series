@@ -4,9 +4,9 @@
 [submodule "dpf-widgets"]
 	path = dpf-widgets
 	url = https://github.com/DISTRHO/DPF-Widgets.git
-[submodule "plugins/ConvolutionReverb/FFTConvolver"]
-	path = plugins/ConvolutionReverb/FFTConvolver
+[submodule "3rd-party/FFTConvolver"]
+	path = 3rd-party/FFTConvolver
 	url = https://github.com/falkTX/FFTConvolver.git
-[submodule "plugins/ConvolutionReverb/pffft"]
-	path = plugins/ConvolutionReverb/pffft
+[submodule "3rd-party/pffft"]
+	path = 3rd-party/pffft
 	url = https://github.com/marton78/pffft.git
