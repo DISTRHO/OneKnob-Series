@@ -396,6 +396,23 @@ protected:
         blendishMainControl->setValue(value, false);
     }
 
+    void setAuxiliaryButtonGroupValue(const float value)
+    {
+        DISTRHO_SAFE_ASSERT_RETURN(blendishAuxOptionButtonGroup != nullptr,);
+        DISTRHO_SAFE_ASSERT_RETURN(value >= 0.0f,);
+
+        const uint index = static_cast<uint>(value + 0.5f);
+
+        blendishAuxOptionButtonGroup->setActiveButton(index, false);
+    }
+
+    void setAuxiliaryNumFieldValue(const float value)
+    {
+        DISTRHO_SAFE_ASSERT_RETURN(blendishAuxOptionNumberField != nullptr,);
+
+        blendishAuxOptionNumberField->setValue(value, false);
+    }
+
     // ----------------------------------------------------------------------------------------------------------------
     // aux buttongroup
 
@@ -423,16 +440,6 @@ protected:
         blendishAuxButtonGroupValues = option.values;
         blendishAuxOptionButtonGroup = buttonGroup;
         blendishAuxOptionLabel = label;
-    }
-
-    void setAuxiliaryButtonGroupValue(const float value)
-    {
-        DISTRHO_SAFE_ASSERT_RETURN(blendishAuxOptionButtonGroup != nullptr,);
-        DISTRHO_SAFE_ASSERT_RETURN(value >= 0.0f,);
-
-        const uint index = static_cast<uint>(value + 0.5f);
-
-        blendishAuxOptionButtonGroup->setActiveButton(index, false);
     }
 
     // ----------------------------------------------------------------------------------------------------------------
@@ -512,16 +519,28 @@ protected:
         blendishAuxOptionLabel->setLabel(blendishAuxComboBoxValues[index].description, false);
     }
 
-    void createAuxiliaryFileButton(const Rectangle<uint>& area, const OneKnobAuxiliaryFileButton& option, const OneKnobAuxiliarySlider& numFieldOpts)
+    void createAuxiliaryFileButton(const Rectangle<uint>& area,
+                                   const OneKnobAuxiliaryButtonGroup& buttonGroupOpts,
+                                   const OneKnobAuxiliarySlider& numFieldOpts,
+                                   const OneKnobAuxiliaryFileButton& fileButtonOpts)
     {
-        DISTRHO_SAFE_ASSERT_RETURN(blendishAuxOptionComboBox == nullptr,);
+        DISTRHO_SAFE_ASSERT_RETURN(blendishAuxOptionButtonGroup == nullptr,);
+        DISTRHO_SAFE_ASSERT_RETURN(blendishAuxOptionNumberField == nullptr,);
+        DISTRHO_SAFE_ASSERT_RETURN(blendishAuxOptionFileButton == nullptr,);
         DISTRHO_SAFE_ASSERT_RETURN(blendishAuxOptionLabel == nullptr,);
         DISTRHO_SAFE_ASSERT_RETURN(blendishAuxFileButtonKey == nullptr,);
-        DISTRHO_SAFE_ASSERT_RETURN(option.key != nullptr,);
+        DISTRHO_SAFE_ASSERT_RETURN(fileButtonOpts.key != nullptr,);
 
-        BlendishToolButton* const fileButton = new BlendishToolButton(&blendish);
+        BlendishButtonGroup* const buttonGroup = new BlendishButtonGroup(&blendish);
         BlendishNumberField* const numField = new BlendishNumberField(&blendish);
+        BlendishToolButton* const fileButton = new BlendishToolButton(&blendish);
         BlendishLabel* const label = new BlendishLabel(&blendish);
+
+        for (uint i=0; i<buttonGroupOpts.count; ++i)
+            buttonGroup->addButton(buttonGroupOpts.values[i].value, buttonGroupOpts.values[i].label);
+
+        buttonGroup->setCallback(this);
+        buttonGroup->setId(buttonGroupOpts.id);
 
         numField->setCallback(this);
         numField->setId(numFieldOpts.id);
@@ -530,16 +549,17 @@ protected:
         numField->setValue(numFieldOpts.def);
 
         fileButton->setCallback(this);
-        fileButton->setLabel(option.label);
+        fileButton->setLabel(fileButtonOpts.label);
 
         label->setLabel("(No file loaded yet)");
         label->setFontSize(9);
 
         auxOptionArea = getScaledArea(area);
-        blendishAuxFileButtonKey = option.key;
-        blendishAuxOptionFileButton = fileButton;
+        blendishAuxOptionButtonGroup = buttonGroup;
         blendishAuxOptionNumberField = numField;
+        blendishAuxOptionFileButton = fileButton;
         blendishAuxOptionLabel = label;
+        blendishAuxFileButtonKey = fileButtonOpts.key;
     }
 
     // ----------------------------------------------------------------------------------------------------------------

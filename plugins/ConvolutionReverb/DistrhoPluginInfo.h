@@ -30,8 +30,8 @@
 #define DISTRHO_PLUGIN_IS_RT_SAFE 0
 
 enum Parameters {
-    kParameterDryLevel,
     kParameterWetLevel,
+    kParameterDryLevel,
     kParameterLowPassFilter,
     kParameterCount
 };
@@ -47,7 +47,7 @@ enum States {
 };
 
 static const float kParameterDefaults[kParameterCount] = {
-    -60.f,
     -30.f,
+    -60.f,
     0.f
 };

@@ -36,7 +36,8 @@ class LinearSmoother {
 public:
     void setSampleRate(float newSampleRate) noexcept
     {
-        if (sampleRate != newSampleRate) {
+        if (sampleRate != newSampleRate)
+        {
             sampleRate = newSampleRate;
             updateStep();
         }
@@ -44,7 +45,8 @@ public:
 
     void setTimeConstant(float newTau) noexcept
     {
-        if (tau != newTau) {
+        if (tau != newTau)
+        {
             tau = newTau;
             updateStep();
         }
@@ -62,7 +64,8 @@ public:
 
     void setTarget(float newTarget) noexcept
     {
-        if (target != newTarget) {
+        if (target != newTarget)
+        {
             target = newTarget;
             updateStep();
         }
@@ -78,7 +81,7 @@ public:
         mem = target;
     }
 
-    float next() noexcept
+    inline float next() noexcept
     {
         float y0 = mem;
         float dy = target - y0;
