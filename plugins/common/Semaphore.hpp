@@ -122,7 +122,7 @@ public:
        #elif defined(DISTRHO_OS_WINDOWS)
         return ::WaitForSingleObject(handle, numSecs * 1000) == WAIT_OBJECT_0;
        #elif defined(__MOD_DEVICES__)
-        const struct timespec timeout = { numSecs, 0 };
+        const struct timespec timeout = { static_cast<time_t>(numSecs), 0 };
         for (;;)
         {
             if (::__sync_bool_compare_and_swap(&value, 1, 0))

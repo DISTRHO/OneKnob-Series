@@ -27,8 +27,16 @@
 
 START_NAMESPACE_DISTRHO
 
+#if defined(_MOD_DEVICE_DUO)
+static constexpr const size_t headBlockSize = 256;
+static constexpr const size_t tailBlockSize = 4096;
+#elif defined(_MOD_DEVICE_DWARF)
 static constexpr const size_t headBlockSize = 128;
 static constexpr const size_t tailBlockSize = 2048;
+#else
+static constexpr const size_t headBlockSize = 128;
+static constexpr const size_t tailBlockSize = 1024;
+#endif
 
 // -----------------------------------------------------------------------
 
