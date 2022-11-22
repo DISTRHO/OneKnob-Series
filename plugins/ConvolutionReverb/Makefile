@@ -15,10 +15,10 @@ NAME = OK-ConvolutionReverb
 FILES_DSP = \
 	OneKnobPlugin.cpp \
 	3rd-party.cpp \
-	FFTConvolver/AudioFFT.cpp \
-	FFTConvolver/FFTConvolver.cpp \
-	FFTConvolver/TwoStageFFTConvolver.cpp \
-	FFTConvolver/Utilities.cpp
+	../../3rd-party/FFTConvolver/AudioFFT.cpp \
+	../../3rd-party/FFTConvolver/FFTConvolver.cpp \
+	../../3rd-party/FFTConvolver/TwoStageFFTConvolver.cpp \
+	../../3rd-party/FFTConvolver/Utilities.cpp
 
 FILES_UI = \
 	OneKnobUI.cpp \
@@ -30,8 +30,9 @@ FILES_UI = \
 include ../../dpf/Makefile.plugins.mk
 
 BUILD_CXX_FLAGS += -I../common
+BUILD_CXX_FLAGS += -I../../3rd-party
+BUILD_CXX_FLAGS += -I../../3rd-party/FFTConvolver
 BUILD_CXX_FLAGS += -I../../dpf-widgets/opengl
-BUILD_CXX_FLAGS += -IFFTConvolver
 BUILD_CXX_FLAGS += -pthread
 LINK_FLAGS      += $(SHARED_MEMORY_LIBS)
 

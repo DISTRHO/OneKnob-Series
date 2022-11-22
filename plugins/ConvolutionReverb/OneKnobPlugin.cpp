@@ -152,14 +152,32 @@ protected:
     {
         switch (index)
         {
-        case kParameterLevel:
+        case kParameterDryLevel:
             parameter.hints      = kParameterIsAutomatable;
-            parameter.name       = "Level";
-            parameter.symbol     = "level";
+            parameter.name       = "Dry Level";
+            parameter.symbol     = "drylevel";
             parameter.unit       = "dB";
-            parameter.ranges.def = kParameterDefaults[kParameterLevel];
-            parameter.ranges.min = -60.0f;
-            parameter.ranges.max = 0.0f;
+            parameter.ranges.def = kParameterDefaults[kParameterDryLevel];
+            parameter.ranges.min = -60.f;
+            parameter.ranges.max = 0.f;
+            break;
+        case kParameterWetLevel:
+            parameter.hints      = kParameterIsAutomatable;
+            parameter.name       = "Wet Level";
+            parameter.symbol     = "wetlevel";
+            parameter.unit       = "dB";
+            parameter.ranges.def = kParameterDefaults[kParameterWetLevel];
+            parameter.ranges.min = -60.f;
+            parameter.ranges.max = 0.f;
+            break;
+        case kParameterLowPassFilter:
+            parameter.hints      = kParameterIsAutomatable;
+            parameter.name       = "Low Pass Filter";
+            parameter.symbol     = "lpf";
+            parameter.unit       = "Hz";
+            parameter.ranges.def = kParameterDefaults[kParameterLowPassFilter];
+            parameter.ranges.min = 0.f;
+            parameter.ranges.max = 300.f;
             break;
         }
     }
@@ -292,71 +310,119 @@ protected:
 
     void activate() override
     {
+        const uint32_t bufSize = getBufferSize();
+        inlineProcBufL = new float[bufSize];
+        inlineProcBufR = new float[bufSize];
+
         OneKnobPlugin::activate();
     }
 
     void deactivate() override
     {
+        delete[] inlineProcBufL;
+        delete[] inlineProcBufR;
+        inlineProcBufL = inlineProcBufR = nullptr;
     }
 
     void run(const float** const inputs, float** const outputs, const uint32_t frames) override
     {
-        const float* in1  = inputs[0];
-        const float* in2  = inputs[1];
-        float*       out1 = outputs[0];
-        float*       out2 = outputs[1];
-
+        // optimize for non-denormal usage
         for (uint32_t i=0; i<frames; ++i)
         {
-            if (!std::isfinite(in1[i]))
+            if (!std::isfinite(inputs[0][i]))
                 __builtin_unreachable();
-            if (!std::isfinite(in2[i]))
+            if (!std::isfinite(inputs[1][i]))
                 __builtin_unreachable();
-            if (!std::isfinite(out1[i]))
+            if (!std::isfinite(outputs[0][i]))
                 __builtin_unreachable();
-            if (!std::isfinite(out2[i]))
+            if (!std::isfinite(outputs[1][i]))
                 __builtin_unreachable();
         }
 
-        // non-smoothed, we do not care yet
-        const float gain = std::pow(10.f, 0.05f * parameters[kParameterLevel]);
+        const float* const inL  = inlineProcBufL;
+        const float* const inR  = inlineProcBufR;
+        /* */ float* const outL = outputs[0];
+        /* */ float* const outR = outputs[1];
 
-        if (mutex.tryLock())
+        const int lpf = static_cast<int>(parameters[kParameterLowPassFilter] + 0.5f);
+
+        if (lpf == 0)
         {
-            if (TwoStageThreadedConvolver* const conv = convolverL.get())
-                conv->process(in1, out1, frames);
-            else if (out1 != in1)
-                std::memcpy(out1, in1, sizeof(float)*frames);
-
-            if (TwoStageThreadedConvolver* const conv = convolverR.get())
-                conv->process(in2, out2, frames);
-            else if (out2 != in2)
-                std::memcpy(out2, in2, sizeof(float)*frames);
-
-            mutex.unlock();
+            std::memcpy(inlineProcBufL, inputs[0], sizeof(float)*frames);
+            std::memcpy(inlineProcBufR, inputs[1], sizeof(float)*frames);
         }
         else
         {
-            std::memset(out1, 0, sizeof(float)*frames);
-            std::memset(out2, 0, sizeof(float)*frames);
+            // TODO apply filtering
+            std::memcpy(inlineProcBufL, inputs[0], sizeof(float)*frames);
+            std::memcpy(inlineProcBufR, inputs[1], sizeof(float)*frames);
         }
+
+        // non-smoothed, we do not care yet
+        const float dryGain = std::pow(10.f, 0.05f * parameters[kParameterDryLevel]);
+        const float wetGain = std::pow(10.f, 0.05f * parameters[kParameterWetLevel]);
 
        #ifdef HAVE_OPENGL
         float tmp1 = lineGraphHighest1;
         float tmp2 = lineGraphHighest2;
        #endif
 
+        const MutexTryLocker cmtl(mutex);
+
+        if (cmtl.wasLocked())
+        {
+            TwoStageThreadedConvolver* const convL = convolverL.get();
+            TwoStageThreadedConvolver* const convR = convolverR.get();
+
+            if (convL != nullptr && convR != nullptr)
+            {
+                convL->process(inL, outL, frames);
+                convR->process(inR, outR, frames);
+
+                for (uint32_t i=0; i<frames; ++i)
+                {
+                    outL[i] *= wetGain;
+                    outR[i] *= wetGain;
+
+                   #ifdef HAVE_OPENGL
+                    tmp1 = std::max(tmp1, std::abs(inL[i] * dryGain));
+                    tmp1 = std::max(tmp1, std::abs(inR[i] * dryGain));
+
+                    tmp2 = std::max(tmp2, std::abs(outL[i]));
+                    tmp2 = std::max(tmp2, std::abs(outR[i]));
+
+                    if (++lineGraphFrameCounter == lineGraphFrameToReset)
+                    {
+                        lineGraphFrameCounter = 0;
+                        setMeters(tmp1, tmp2);
+                        tmp1 = tmp2 = 0.f;
+                    }
+                   #endif
+                }
+
+                for (uint32_t i=0; i<frames; ++i)
+                {
+                    outL[i] += inL[i] * dryGain;
+                    outR[i] += inR[i] * dryGain;
+                }
+
+               #ifdef HAVE_OPENGL
+                lineGraphHighest1 = tmp1;
+                lineGraphHighest2 = tmp2;
+               #endif
+
+                return;
+            }
+        }
+
         for (uint32_t i=0; i<frames; ++i)
         {
-            out1[i] *= gain;
-            out2[i] *= gain;
+            outL[i] = inL[i] * dryGain;
+            outR[i] = inR[i] * dryGain;
 
            #ifdef HAVE_OPENGL
-            tmp1 = std::max(tmp1, std::abs(in1[i]));
-            tmp1 = std::max(tmp1, std::abs(in2[i]));
-
-            tmp2 = std::max(tmp2, std::abs(out1[i]));
-            tmp2 = std::max(tmp2, std::abs(out2[i]));
+            tmp1 = std::max(tmp1, std::abs(outL[i]));
+            tmp1 = std::max(tmp1, std::abs(outR[i]));
 
             if (++lineGraphFrameCounter == lineGraphFrameToReset)
             {
@@ -378,6 +444,10 @@ protected:
 private:
     ScopedPointer<TwoStageThreadedConvolver> convolverL, convolverR;
     Mutex mutex;
+
+    // if doing inline processing, copy buffers here before convolution
+    float* inlineProcBufL = nullptr;
+    float* inlineProcBufR = nullptr;
 
     DISTRHO_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(OneKnobConvolutionReverbPlugin)
 };

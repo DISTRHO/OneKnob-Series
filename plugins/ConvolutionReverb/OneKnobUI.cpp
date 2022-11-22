@@ -27,12 +27,12 @@ static const uint kDefaultWidth = 640;
 static const uint kDefaultHeight = 400;
 
 static const OneKnobMainControl main = {
-    kParameterLevel,
-    "Level",
+    kParameterWetLevel,
+    "Wet Level",
     "dB",
     -60.0f,
     0.0f,
-    -40.0f
+    kParameterDefaults[kParameterWetLevel]
 };
 
 static const OneKnobAuxiliaryFileButton fileButton = {
@@ -40,13 +40,24 @@ static const OneKnobAuxiliaryFileButton fileButton = {
     "irfile"
 };
 
+const OneKnobAuxiliarySlider numFieldOpts = {
+    kParameterDryLevel,
+    "Dry Level",
+    "dB",
+    -60,
+    0,
+    kParameterDefaults[kParameterDryLevel]
+};
+
+static const char* kConvolutionLineMeterNames[2] = { "Dry:", "Wet:" };
+
 // --------------------------------------------------------------------------------------------------------------------
 
 class OneKnobConvolutionReverbUI : public OneKnobUI
 {
 public:
     OneKnobConvolutionReverbUI()
-        : OneKnobUI(kDefaultWidth, kDefaultHeight)
+        : OneKnobUI(kDefaultWidth, kDefaultHeight, kConvolutionLineMeterNames)
     {
         // setup OneKnob UI
         const Rectangle<uint> mainArea(kSidePanelWidth,
@@ -59,7 +70,7 @@ public:
                                              kDefaultHeight/4,
                                              kDefaultWidth/2 - kSidePanelWidth,
                                              kDefaultHeight*3/4);
-        createAuxiliaryFileButton(fileButtonArea, fileButton);
+        createAuxiliaryFileButton(fileButtonArea, fileButton, numFieldOpts);
 
         repositionWidgets();
 
@@ -75,7 +86,7 @@ protected:
     {
         switch (index)
         {
-        case kParameterLevel:
+        case kParameterWetLevel:
             setMainControlValue(value);
             break;
         }
@@ -88,7 +99,7 @@ protected:
         switch (index)
         {
         case kProgramDefault:
-            setMainControlValue(kParameterDefaults[kParameterLevel]);
+            setMainControlValue(kParameterDefaults[kParameterWetLevel]);
             break;
         }
 

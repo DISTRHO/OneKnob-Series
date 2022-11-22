@@ -26,8 +26,13 @@
 #define DISTRHO_PLUGIN_LV2_CATEGORY    "lv2:ReverbPlugin"
 #define DISTRHO_PLUGIN_VST3_CATEGORIES "Fx|Reverb|Stereo"
 
+#undef DISTRHO_PLUGIN_IS_RT_SAFE
+#define DISTRHO_PLUGIN_IS_RT_SAFE 0
+
 enum Parameters {
-    kParameterLevel,
+    kParameterDryLevel,
+    kParameterWetLevel,
+    kParameterLowPassFilter,
     kParameterCount
 };
 
@@ -42,5 +47,7 @@ enum States {
 };
 
 static const float kParameterDefaults[kParameterCount] = {
-    -40.f,
+    -60.f,
+    -30.f,
+    0.f
 };

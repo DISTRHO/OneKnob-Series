@@ -90,6 +90,13 @@ struct OneKnobAuxiliaryComboBox {
     const OneKnobAuxiliaryComboBoxValue* values;
 };
 
+struct OneKnobAuxiliarySlider {
+    uint id;
+    const char* label;
+    const char* unit;
+    float min, max, def;
+};
+
 struct OneKnobAuxiliaryFileButton {
     const char* label;
     const char* key;

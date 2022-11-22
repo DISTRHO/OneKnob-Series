@@ -512,7 +512,7 @@ protected:
         blendishAuxOptionLabel->setLabel(blendishAuxComboBoxValues[index].description, false);
     }
 
-    void createAuxiliaryFileButton(const Rectangle<uint>& area, const OneKnobAuxiliaryFileButton& option)
+    void createAuxiliaryFileButton(const Rectangle<uint>& area, const OneKnobAuxiliaryFileButton& option, const OneKnobAuxiliarySlider& numFieldOpts)
     {
         DISTRHO_SAFE_ASSERT_RETURN(blendishAuxOptionComboBox == nullptr,);
         DISTRHO_SAFE_ASSERT_RETURN(blendishAuxOptionLabel == nullptr,);
@@ -520,17 +520,25 @@ protected:
         DISTRHO_SAFE_ASSERT_RETURN(option.key != nullptr,);
 
         BlendishToolButton* const fileButton = new BlendishToolButton(&blendish);
+        BlendishNumberField* const numField = new BlendishNumberField(&blendish);
         BlendishLabel* const label = new BlendishLabel(&blendish);
+
+        numField->setCallback(this);
+        numField->setId(numFieldOpts.id);
+        numField->setLabel(numFieldOpts.label);
+        numField->setRange(numFieldOpts.min, numFieldOpts.max);
+        numField->setValue(numFieldOpts.def);
 
         fileButton->setCallback(this);
         fileButton->setLabel(option.label);
 
         label->setLabel("(No file loaded yet)");
-        label->setFontSize(10);
+        label->setFontSize(9);
 
         auxOptionArea = getScaledArea(area);
         blendishAuxFileButtonKey = option.key;
         blendishAuxOptionFileButton = fileButton;
+        blendishAuxOptionNumberField = numField;
         blendishAuxOptionLabel = label;
     }
 
@@ -602,15 +610,15 @@ protected:
         if (BlendishButtonGroup* const buttonGroup = blendishAuxOptionButtonGroup.get())
         {
             buttonGroup->setAbsoluteX(auxOptionArea.getX() + auxOptionArea.getWidth()/2 - buttonGroup->getWidth()/2);
-            buttonGroup->setAbsoluteY(auxOptionArea.getY());
-            auxWidgetHeight = buttonGroup->getHeight();
+            buttonGroup->setAbsoluteY(auxOptionArea.getY() + auxWidgetHeight);
+            auxWidgetHeight += buttonGroup->getHeight() + 2;
             auxWidgetPosX = buttonGroup->getAbsoluteX();
         }
 
         if (BlendishCheckBox* const checkBox = blendishAuxOptionCheckBox.get())
         {
             checkBox->setAbsoluteX(auxOptionArea.getX() + auxOptionArea.getWidth()/2 - checkBox->getWidth()/2);
-            checkBox->setAbsoluteY(auxOptionArea.getY());
+            checkBox->setAbsoluteY(auxOptionArea.getY() + auxWidgetHeight);
             auxWidgetHeight = checkBox->getHeight();
             auxWidgetPosX = checkBox->getAbsoluteX();
         }
@@ -618,16 +626,24 @@ protected:
         if (BlendishComboBox* const comboBox = blendishAuxOptionComboBox.get())
         {
             comboBox->setAbsoluteX(auxOptionArea.getX() + auxOptionArea.getWidth()/2 - comboBox->getWidth()/2);
-            comboBox->setAbsoluteY(auxOptionArea.getY());
+            comboBox->setAbsoluteY(auxOptionArea.getY() + auxWidgetHeight);
             auxWidgetHeight = comboBox->getHeight();
             auxWidgetPosX = comboBox->getAbsoluteX();
+        }
+
+        if (BlendishNumberField* const numField = blendishAuxOptionNumberField.get())
+        {
+            numField->setAbsoluteX(auxOptionArea.getX() + auxOptionArea.getWidth()/2 - numField->getWidth()/2);
+            numField->setAbsoluteY(auxOptionArea.getY() + auxWidgetHeight);
+            auxWidgetHeight += numField->getHeight() + 2;
+            auxWidgetPosX = auxOptionArea.getX();
         }
 
         if (BlendishToolButton* const fileButton = blendishAuxOptionFileButton.get())
         {
             fileButton->setAbsoluteX(auxOptionArea.getX() + auxOptionArea.getWidth()/2 - fileButton->getWidth()/2);
-            fileButton->setAbsoluteY(auxOptionArea.getY());
-            auxWidgetHeight = fileButton->getHeight();
+            fileButton->setAbsoluteY(auxOptionArea.getY() + auxWidgetHeight);
+            auxWidgetHeight += fileButton->getHeight();
             auxWidgetPosX = auxOptionArea.getX();
         }
 
@@ -671,6 +687,7 @@ private:
     ScopedPointer<BlendishButtonGroup> blendishAuxOptionButtonGroup;
     ScopedPointer<BlendishCheckBox> blendishAuxOptionCheckBox;
     ScopedPointer<BlendishComboBox> blendishAuxOptionComboBox;
+    ScopedPointer<BlendishNumberField> blendishAuxOptionNumberField;
     ScopedPointer<BlendishToolButton> blendishAuxOptionFileButton;
     ScopedPointer<BlendishLabel> blendishAuxOptionLabel;
     const OneKnobAuxiliaryButtonGroupValue* blendishAuxButtonGroupValues;
@@ -735,23 +752,17 @@ private:
 
     void knobDragStarted(SubWidget* const widget) override
     {
-        if (blendishMainControl == widget)
-            if (BlendishKnob* const knob = blendishMainControl.get())
-                editParameter(knob->getId(), true);
+        editParameter(widget->getId(), true);
     }
 
     void knobDragFinished(SubWidget* const widget) override
     {
-        if (blendishMainControl == widget)
-            if (BlendishKnob* const knob = blendishMainControl.get())
-                editParameter(knob->getId(), false);
+        editParameter(widget->getId(), false);
     }
 
     void knobValueChanged(SubWidget* const widget, const float value) override
     {
-        if (blendishMainControl == widget)
-            if (BlendishKnob* const knob = blendishMainControl.get())
-                setParameterValue(knob->getId(), value);
+        setParameterValue(widget->getId(), value);
     }
 
     DISTRHO_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(OneKnobUI)
