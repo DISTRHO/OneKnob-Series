@@ -386,8 +386,6 @@ protected:
 
     void run(const float** const inputs, float** const outputs, const uint32_t frames) override
     {
-        DISTRHO_SAFE_ASSERT_RETURN(frames < bufferSize,);
-
         // optimize for non-denormal usage
         for (uint32_t i = 0; i < frames; ++i)
         {
@@ -401,10 +399,16 @@ protected:
                 __builtin_unreachable();
         }
 
-        const float* const inL = inputs[0];
-        const float* const inR = inputs[1];
-        /* */ float* const outL = outputs[0];
-        /* */ float* const outR = outputs[1];
+        for (uint32_t offset = 0; offset < frames; offset += bufferSize)
+            run(inputs, outputs, std::min(frames - offset, bufferSize), offset);
+    }
+
+    void run(const float** const inputs, float** const outputs, const uint32_t frames, const uint32_t offset)
+    {
+        const float* const inL = inputs[0] + offset;
+        const float* const inR = inputs[1] + offset;
+        /* */ float* const outL = outputs[0] + offset;
+        /* */ float* const outR = outputs[1] + offset;
 
         const float* dryBufL = inL;
         const float* dryBufR = inR;
