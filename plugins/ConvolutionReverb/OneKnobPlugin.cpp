@@ -357,7 +357,7 @@ protected:
 
     void activate() override
     {
-        const uint32_t bufSize = getBufferSize();
+        const uint32_t bufSize = bufferSize = getBufferSize();
 
         highpassBufL = new float[bufSize];
         highpassBufR = new float[bufSize];
@@ -379,12 +379,15 @@ protected:
         delete[] highpassBufR;
         delete[] inplaceProcBufL;
         delete[] inplaceProcBufR;
+        bufferSize = 0;
         highpassBufL = highpassBufR = nullptr;
         inplaceProcBufL = inplaceProcBufR = nullptr;
     }
 
     void run(const float** const inputs, float** const outputs, const uint32_t frames) override
     {
+        DISTRHO_SAFE_ASSERT_RETURN(frames < bufferSize,);
+
         // optimize for non-denormal usage
         for (uint32_t i = 0; i < frames; ++i)
         {
@@ -547,6 +550,8 @@ private:
     Korg35Filter korgFilterL, korgFilterR;
     Mutex mutex;
     String loadedFilename;
+
+    uint32_t bufferSize = 0;
 
     // smoothed parameters
     LinearSmoother smoothWetLevel;
