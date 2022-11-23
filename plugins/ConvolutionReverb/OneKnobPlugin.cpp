@@ -124,14 +124,14 @@ public:
         korgFilterL.setFrequency(kParameterDefaults[kParameterHighPassFilter]);
         korgFilterR.setFrequency(kParameterDefaults[kParameterHighPassFilter]);
 
-        smoothWetLevel.setSampleRate(sampleRate);
         smoothDryLevel.setSampleRate(sampleRate);
+        smoothWetLevel.setSampleRate(sampleRate);
 
-        smoothWetLevel.setTimeConstant(0.1f);
         smoothDryLevel.setTimeConstant(0.1f);
+        smoothWetLevel.setTimeConstant(0.1f);
 
-        smoothWetLevel.setTarget(std::pow(10.f, 0.05f * kParameterDefaults[kParameterWetLevel]));
         smoothDryLevel.setTarget(std::pow(10.f, 0.05f * kParameterDefaults[kParameterDryLevel]));
+        smoothWetLevel.setTarget(std::pow(10.f, 0.05f * kParameterDefaults[kParameterWetLevel]));
     }
 
     ~OneKnobConvolutionReverbPlugin() override
@@ -165,22 +165,6 @@ protected:
     {
         switch (index)
         {
-        case kParameterWetLevel:
-            parameter.hints = kParameterIsAutomatable;
-            parameter.name = "Wet Level";
-            parameter.symbol = "wetlevel";
-            parameter.unit = "dB";
-            parameter.ranges.def = kParameterDefaults[kParameterWetLevel];
-            parameter.ranges.min = -60.f;
-            parameter.ranges.max = 0.f;
-            {
-                ParameterEnumerationValue* const enumValues = new ParameterEnumerationValue[1];
-                enumValues[0].value = -60.f;
-                enumValues[0].label = "Off";
-                parameter.enumValues.count = 1;
-                parameter.enumValues.values = enumValues;
-            }
-            break;
         case kParameterDryLevel:
             parameter.hints = kParameterIsAutomatable;
             parameter.name = "Dry Level";
@@ -191,6 +175,22 @@ protected:
             parameter.ranges.max = 0.f;
             {
                 ParameterEnumerationValue* const enumValues =  new ParameterEnumerationValue[1];
+                enumValues[0].value = -60.f;
+                enumValues[0].label = "Off";
+                parameter.enumValues.count = 1;
+                parameter.enumValues.values = enumValues;
+            }
+            break;
+        case kParameterWetLevel:
+            parameter.hints = kParameterIsAutomatable;
+            parameter.name = "Wet Level";
+            parameter.symbol = "wetlevel";
+            parameter.unit = "dB";
+            parameter.ranges.def = kParameterDefaults[kParameterWetLevel];
+            parameter.ranges.min = -60.f;
+            parameter.ranges.max = 0.f;
+            {
+                ParameterEnumerationValue* const enumValues = new ParameterEnumerationValue[1];
                 enumValues[0].value = -60.f;
                 enumValues[0].label = "Off";
                 parameter.enumValues.count = 1;
@@ -259,13 +259,13 @@ protected:
     {
         switch (index)
         {
-        case kParameterWetLevel:
-            if (!bypassed)
-                smoothWetLevel.setTarget(std::pow(10.f, 0.05f * value));
-            break;
         case kParameterDryLevel:
             if (!bypassed)
                 smoothDryLevel.setTarget(std::pow(10.f, 0.05f * value));
+            break;
+        case kParameterWetLevel:
+            if (!bypassed)
+                smoothWetLevel.setTarget(std::pow(10.f, 0.05f * value));
             break;
         case kParameterHighPassFilter:
             korgFilterL.setFrequency(value);
@@ -280,15 +280,15 @@ protected:
             bypassed = value > 0.5f;
             if (bypassed)
             {
-                smoothWetLevel.setTarget(trails ? std::pow(10.f, 0.05f * parameters[kParameterWetLevel]) : 0.f);
                 smoothDryLevel.setTarget(1.f);
+                smoothWetLevel.setTarget(trails ? std::pow(10.f, 0.05f * parameters[kParameterWetLevel]) : 0.f);
             }
             else
             {
                 korgFilterL.reset();
                 korgFilterR.reset();
-                smoothWetLevel.setTarget(std::pow(10.f, 0.05f * parameters[kParameterWetLevel]));
                 smoothDryLevel.setTarget(std::pow(10.f, 0.05f * parameters[kParameterDryLevel]));
+                smoothWetLevel.setTarget(std::pow(10.f, 0.05f * parameters[kParameterWetLevel]));
             }
             break;
         }
@@ -405,8 +405,8 @@ protected:
         korgFilterL.reset();
         korgFilterR.reset();
 
-        smoothWetLevel.clearToTarget();
         smoothDryLevel.clearToTarget();
+        smoothWetLevel.clearToTarget();
 
         OneKnobPlugin::activate();
     }
@@ -501,8 +501,8 @@ protected:
 
                 for (uint32_t i = 0; i < frames; ++i)
                 {
-                    wetLevel = smoothWetLevel.next();
                     dryLevel = smoothDryLevel.next();
+                    wetLevel = smoothWetLevel.next();
 
                     if (wetLevel <= 0.001f)
                     {
@@ -579,8 +579,8 @@ protected:
         korgFilterL.setSampleRate(newSampleRate);
         korgFilterR.setSampleRate(newSampleRate);
 
-        smoothWetLevel.setSampleRate(newSampleRate);
         smoothDryLevel.setSampleRate(newSampleRate);
+        smoothWetLevel.setSampleRate(newSampleRate);
 
         // reload file
         if (char* const filename = loadedFilename.getAndReleaseBuffer())
@@ -603,8 +603,8 @@ private:
     uint32_t bufferSize = 0;
 
     // smoothed parameters
-    LinearSmoother smoothWetLevel;
     LinearSmoother smoothDryLevel;
+    LinearSmoother smoothWetLevel;
 
     // buffers for placing highpass signal before convolution
     float* highpassBufL = nullptr;

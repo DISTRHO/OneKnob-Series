@@ -35,8 +35,8 @@
 #define DISTRHO_PLUGIN_IS_RT_SAFE 0
 
 enum Parameters {
-    kParameterWetLevel,
     kParameterDryLevel,
+    kParameterWetLevel,
     kParameterHighPassFilter,
     kParameterTrails,
     kParameterBypass,
