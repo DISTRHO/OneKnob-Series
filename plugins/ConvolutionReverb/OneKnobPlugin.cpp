@@ -272,7 +272,7 @@ protected:
         activate();
     }
 
-    void setState(const char *const key, const char *const value) override
+    void setState(const char* const key, const char* const value) override
     {
         if (std::strcmp(key, "irfile") == 0)
         {
@@ -529,14 +529,11 @@ protected:
         korgFilterL.setSampleRate(newSampleRate);
         korgFilterR.setSampleRate(newSampleRate);
 
-        korgFilterL.setFrequency(parameters[kParameterHighPassFilter]);
-        korgFilterR.setFrequency(parameters[kParameterHighPassFilter]);
-
         smoothWetLevel.setSampleRate(newSampleRate);
         smoothDryLevel.setSampleRate(newSampleRate);
 
         // reload file
-        if (char *const filename = loadedFilename.getAndReleaseBuffer())
+        if (char* const filename = loadedFilename.getAndReleaseBuffer())
         {
             setState("irfile", filename);
             std::free(filename);

@@ -38,8 +38,15 @@ class Korg35Filter
     float r3[2];
     float r4[2];
     float freq;
+    float origfreq;
 
 public:
+    Korg35Filter(const float sampleRate = 48000.f)
+    {
+        origfreq = 0.f;
+        setSampleRate(sampleRate);
+    }
+
     void reset()
     {
         r1[0] = r1[1] = 0.f;
@@ -50,6 +57,7 @@ public:
 
     void setFrequency(const float frequency)
     {
+        origfreq = frequency;
         freq = c2 * frequency;
     }
 
@@ -59,6 +67,7 @@ public:
         c1 = 3.14159274f / c0;
         c2 = 44.0999985f / c0;
         c3 = 1.0f - c2;
+        freq = c2 * origfreq;
         reset();
     }
 
