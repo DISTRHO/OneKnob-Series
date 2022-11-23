@@ -18,16 +18,16 @@
 // IDE helper (not needed for building)
 #include "DistrhoPluginInfo.h"
 
-#include "LinearSmoother.hpp"
 #include "OneKnobPlugin.hpp"
+#include "LinearSmoother.hpp"
+#include "Korg35Filters.hpp"
+
 #include "Semaphore.hpp"
 #include "extra/ScopedPointer.hpp"
 #include "extra/Thread.hpp"
 
-
 #include "FFTConvolver/TwoStageFFTConvolver.h"
 #include "dr_wav.h"
-
 
 START_NAMESPACE_DISTRHO
 
@@ -43,70 +43,6 @@ static constexpr const size_t tailBlockSize = 1024;
 #endif
 
 // -----------------------------------------------------------------------
-
-class LowPassFilter {
-    float c1;
-    float c2;
-    float c3;
-    float r1[2];
-    float r2[2];
-    float r3[2];
-    float r4[2];
-    float freq;
-
-public:
-    void reset()
-    {
-        r1[0] = r1[1] = 0.f;
-        r2[0] = r2[1] = 0.f;
-        r3[0] = r3[1] = 0.f;
-        r4[0] = r4[1] = 0.f;
-    }
-
-    void setFrequency(const float frequency)
-    {
-        freq = c2 * frequency;
-    }
-
-    void setSampleRate(const float newSampleRate)
-    {
-        const float c0 = std::min<float>(192000.f, std::max<float>(1.f, newSampleRate));
-        c1 = 3.14159274f / c0;
-        c2 = 44.0999985f / c0;
-        c3 = 1.0f - c2;
-        reset();
-    }
-
-    inline void process(const float* const input, float* const output, const uint32_t frames)
-    {
-        static constexpr const float q = 0.06305821314233212f;
-
-        const float f = freq;
-
-        for (uint32_t i = 0; i < frames; ++i)
-        {
-            r4[0] = f + c3 * r4[1];
-
-            const float t1 = std::tan(c1 * r4[0]);
-            const float t2 = (float(input[i]) - r3[1]) * t1;
-            const float f3 = t1 + 1.0f;
-            const float t4 = 1.0f - t1 / f3;
-            const float t5 = (t1
-                           * ((r3[1] + (t2 + q * r1[1] * t4) / f3 + r2[1] * (0.f - 1.f / f3)) / (1.f - q * (t1 * t4) / f3) - r1[1])
-                           ) / f3;
-            const float t6 = r1[1] + t5;
-
-            r1[0] = r1[1] + 2.0f * t5;
-            r2[0] = r2[1] + 2.0f * (t1 * (q * t6 - r2[1])) / f3;
-            r3[0] = r3[1] + 2.0f * t2 / f3;
-            r4[1] = r4[0];
-            r1[1] = r1[0];
-            r2[1] = r2[0];
-            r3[1] = r3[0];
-            output[i] = t6;
-        }
-    }
-};
 
 #define THREADED_CONVOLVER
 
@@ -181,11 +117,11 @@ public:
     {
         const float sampleRate = static_cast<float>(getSampleRate());
 
-        lpfL.setSampleRate(sampleRate);
-        lpfR.setSampleRate(sampleRate);
+        korgFilterL.setSampleRate(sampleRate);
+        korgFilterR.setSampleRate(sampleRate);
 
-        lpfL.setFrequency(parameters[kParameterLowPassFilter]);
-        lpfR.setFrequency(parameters[kParameterLowPassFilter]);
+        korgFilterL.setFrequency(parameters[kParameterHighPassFilter]);
+        korgFilterR.setFrequency(parameters[kParameterHighPassFilter]);
 
         smoothWetLevel.setSampleRate(sampleRate);
         smoothDryLevel.setSampleRate(sampleRate);
@@ -257,25 +193,19 @@ protected:
                 parameter.enumValues.values = enumValues;
             }
             break;
-        case kParameterLowPassFilter:
+        case kParameterHighPassFilter:
             parameter.hints = kParameterIsAutomatable;
-            parameter.name = "Low Pass Filter";
-            parameter.symbol = "lpf";
+            parameter.name = "High Pass Filter";
+            parameter.symbol = "hpf";
             parameter.unit = "Hz";
-            parameter.ranges.def = kParameterDefaults[kParameterLowPassFilter];
+            parameter.ranges.def = kParameterDefaults[kParameterHighPassFilter];
             parameter.ranges.min = 0.f;
             parameter.ranges.max = 300.f;
             {
-                ParameterEnumerationValue* const enumValues = new ParameterEnumerationValue[4];
+                ParameterEnumerationValue* const enumValues = new ParameterEnumerationValue[1];
                 enumValues[0].value = 0.f;
                 enumValues[0].label = "Off";
-                enumValues[1].value = 75.f;
-                enumValues[1].label = "75";
-                enumValues[2].value = 150.f;
-                enumValues[2].label = "150";
-                enumValues[3].value = 300.f;
-                enumValues[3].label = "300";
-                parameter.enumValues.count = 4;
+                parameter.enumValues.count = 1;
                 parameter.enumValues.values = enumValues;
             }
             break;
@@ -320,9 +250,9 @@ protected:
         case kParameterDryLevel:
             smoothDryLevel.setTarget(std::pow(10.f, 0.05f * value));
             break;
-        case kParameterLowPassFilter:
-            lpfL.setFrequency(value);
-            lpfR.setFrequency(value);
+        case kParameterHighPassFilter:
+            korgFilterL.setFrequency(value);
+            korgFilterR.setFrequency(value);
             break;
         }
 
@@ -428,11 +358,14 @@ protected:
     void activate() override
     {
         const uint32_t bufSize = getBufferSize();
-        inlineProcBufL = new float[bufSize];
-        inlineProcBufR = new float[bufSize];
 
-        lpfL.reset();
-        lpfR.reset();
+        highpassBufL = new float[bufSize];
+        highpassBufR = new float[bufSize];
+        inplaceProcBufL = new float[bufSize];
+        inplaceProcBufR = new float[bufSize];
+
+        korgFilterL.reset();
+        korgFilterR.reset();
 
         smoothWetLevel.clearToTarget();
         smoothDryLevel.clearToTarget();
@@ -442,9 +375,12 @@ protected:
 
     void deactivate() override
     {
-        delete[] inlineProcBufL;
-        delete[] inlineProcBufR;
-        inlineProcBufL = inlineProcBufR = nullptr;
+        delete[] highpassBufL;
+        delete[] highpassBufR;
+        delete[] inplaceProcBufL;
+        delete[] inplaceProcBufR;
+        highpassBufL = highpassBufR = nullptr;
+        inplaceProcBufL = inplaceProcBufR = nullptr;
     }
 
     void run(const float** const inputs, float** const outputs, const uint32_t frames) override
@@ -462,22 +398,37 @@ protected:
                 __builtin_unreachable();
         }
 
-        const float* const inL = inlineProcBufL;
-        const float* const inR = inlineProcBufR;
+        const float* const inL = inputs[0];
+        const float* const inR = inputs[1];
         /* */ float* const outL = outputs[0];
         /* */ float* const outR = outputs[1];
 
-        const int lpf = static_cast<int>(parameters[kParameterLowPassFilter] + 0.5f);
+        const float* dryBufL = inL;
+        const float* dryBufR = inR;
 
-        if (lpf == 0)
+        const int hpf = static_cast<int>(parameters[kParameterHighPassFilter] + 0.5f);
+
+        if (hpf == 0)
         {
-            std::memcpy(inlineProcBufL, inputs[0], sizeof(float) * frames);
-            std::memcpy(inlineProcBufR, inputs[1], sizeof(float) * frames);
+            std::memcpy(highpassBufL, inL, sizeof(float) * frames);
+            std::memcpy(highpassBufR, inR, sizeof(float) * frames);
         }
         else
         {
-            lpfL.process(inputs[0], inlineProcBufL, frames);
-            lpfR.process(inputs[1], inlineProcBufR, frames);
+            korgFilterL.processHighPass(inL, highpassBufL, frames);
+            korgFilterR.processHighPass(inR, highpassBufR, frames);
+        }
+
+        if (outL == inL)
+        {
+            dryBufL = inplaceProcBufL;
+            std::memcpy(inplaceProcBufL, inL, sizeof(float) * frames);
+        }
+
+        if (outR == inR)
+        {
+            dryBufR = inplaceProcBufR;
+            std::memcpy(inplaceProcBufR, inR, sizeof(float) * frames);
         }
 
         float wetLevel, dryLevel;
@@ -490,15 +441,16 @@ protected:
 
         if (cmtl.wasLocked())
         {
-            TwoStageThreadedConvolver *const convL = convolverL.get();
-            TwoStageThreadedConvolver *const convR = convolverR.get();
+            TwoStageThreadedConvolver* const convL = convolverL.get();
+            TwoStageThreadedConvolver* const convR = convolverR.get();
 
             if (convL != nullptr && convR != nullptr)
             {
-                convL->process(inL, outL, frames);
-                convR->process(inR, outR, frames);
+                convL->process(highpassBufL, outL, frames);
+                convR->process(highpassBufR, outR, frames);
 
-                for (uint32_t i = 0; i < frames; ++i) {
+                for (uint32_t i = 0; i < frames; ++i)
+                {
                     wetLevel = smoothWetLevel.next();
                     dryLevel = smoothDryLevel.next();
 
@@ -510,20 +462,19 @@ protected:
                     {
                         outL[i] *= wetLevel;
                         outR[i] *= wetLevel;
+                       #ifdef HAVE_OPENGL
+                        tmp2 = std::max(tmp2, std::abs(outL[i]));
+                        tmp2 = std::max(tmp2, std::abs(outR[i]));
+                       #endif
                     }
-
-                   #ifdef HAVE_OPENGL
-                    tmp2 = std::max(tmp2, std::abs(outL[i]));
-                    tmp2 = std::max(tmp2, std::abs(outR[i]));
-                   #endif
 
                     if (dryLevel > 0.001f)
                     {
-                        outL[i] += inL[i] * dryLevel;
-                        outR[i] += inR[i] * dryLevel;
+                        outL[i] += dryBufL[i] * dryLevel;
+                        outR[i] += dryBufR[i] * dryLevel;
                        #ifdef HAVE_OPENGL
-                        tmp1 = std::max(tmp1, std::abs(inL[i] * dryLevel));
-                        tmp1 = std::max(tmp1, std::abs(inR[i] * dryLevel));
+                        tmp1 = std::max(tmp1, std::abs(dryBufL[i] * dryLevel));
+                        tmp1 = std::max(tmp1, std::abs(dryBufR[i] * dryLevel));
                        #endif
                     }
 
@@ -551,8 +502,8 @@ protected:
             smoothWetLevel.next();
             dryLevel = smoothDryLevel.next();
 
-            outL[i] = inL[i] * dryLevel;
-            outR[i] = inR[i] * dryLevel;
+            outL[i] = dryBufL[i] * dryLevel;
+            outR[i] = dryBufR[i] * dryLevel;
 
            #ifdef HAVE_OPENGL
             tmp1 = std::max(tmp1, std::abs(outL[i]));
@@ -575,11 +526,11 @@ protected:
 
     void sampleRateChanged(const double newSampleRate) override
     {
-        lpfL.setSampleRate(newSampleRate);
-        lpfR.setSampleRate(newSampleRate);
+        korgFilterL.setSampleRate(newSampleRate);
+        korgFilterR.setSampleRate(newSampleRate);
 
-        lpfL.setFrequency(parameters[kParameterLowPassFilter]);
-        lpfR.setFrequency(parameters[kParameterLowPassFilter]);
+        korgFilterL.setFrequency(parameters[kParameterHighPassFilter]);
+        korgFilterR.setFrequency(parameters[kParameterHighPassFilter]);
 
         smoothWetLevel.setSampleRate(newSampleRate);
         smoothDryLevel.setSampleRate(newSampleRate);
@@ -596,7 +547,7 @@ protected:
 
 private:
     ScopedPointer<TwoStageThreadedConvolver> convolverL, convolverR;
-    LowPassFilter lpfL, lpfR;
+    Korg35Filter korgFilterL, korgFilterR;
     Mutex mutex;
     String loadedFilename;
 
@@ -604,9 +555,13 @@ private:
     LinearSmoother smoothWetLevel;
     LinearSmoother smoothDryLevel;
 
+    // buffers for placing highpass signal before convolution
+    float* highpassBufL = nullptr;
+    float* highpassBufR = nullptr;
+
     // if doing inline processing, copy buffers here before convolution
-    float *inlineProcBufL = nullptr;
-    float *inlineProcBufR = nullptr;
+    float* inplaceProcBufL = nullptr;
+    float* inplaceProcBufR = nullptr;
 
     DISTRHO_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(OneKnobConvolutionReverbPlugin)
 };

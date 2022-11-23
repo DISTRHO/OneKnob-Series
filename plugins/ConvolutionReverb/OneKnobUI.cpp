@@ -35,7 +35,7 @@ static const OneKnobMainControl main = {
     kParameterDefaults[kParameterWetLevel]
 };
 
-static const OneKnobAuxiliaryButtonGroupValue lowPassFilterValues[] = {
+static const OneKnobAuxiliaryButtonGroupValue highPassFilterValues[] = {
     { 0, "Off" },
     { 75, "75" },
     { 150, "150" },
@@ -43,10 +43,10 @@ static const OneKnobAuxiliaryButtonGroupValue lowPassFilterValues[] = {
 };
 
 static const OneKnobAuxiliaryButtonGroup buttonGroupOpts = {
-    kParameterLowPassFilter,
-    "Low Pass Filter",
-    ARRAY_SIZE(lowPassFilterValues),
-    lowPassFilterValues
+    kParameterHighPassFilter,
+    "High Pass Filter",
+    ARRAY_SIZE(highPassFilterValues),
+    highPassFilterValues
 };
 
 static const OneKnobAuxiliarySlider numFieldOpts = {
@@ -106,7 +106,7 @@ protected:
         case kParameterDryLevel:
             setAuxiliaryNumFieldValue(value);
             break;
-        case kParameterLowPassFilter:
+        case kParameterHighPassFilter:
             setAuxiliaryButtonGroupValue(value);
             break;
         }
@@ -121,7 +121,7 @@ protected:
         case kProgramDefault:
             setMainControlValue(kParameterDefaults[kParameterWetLevel]);
             setAuxiliaryNumFieldValue(kParameterDefaults[kParameterDryLevel]);
-            setAuxiliaryButtonGroupValue(kParameterDefaults[kParameterLowPassFilter]);
+            setAuxiliaryButtonGroupValue(kParameterDefaults[kParameterHighPassFilter]);
             break;
         }
 

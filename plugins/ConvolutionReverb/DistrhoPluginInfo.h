@@ -32,7 +32,7 @@
 enum Parameters {
     kParameterWetLevel,
     kParameterDryLevel,
-    kParameterLowPassFilter,
+    kParameterHighPassFilter,
     kParameterCount
 };
 
