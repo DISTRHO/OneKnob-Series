@@ -120,14 +120,17 @@ public:
         korgFilterL.setSampleRate(sampleRate);
         korgFilterR.setSampleRate(sampleRate);
 
-        korgFilterL.setFrequency(parameters[kParameterHighPassFilter]);
-        korgFilterR.setFrequency(parameters[kParameterHighPassFilter]);
+        korgFilterL.setFrequency(kParameterDefaults[kParameterHighPassFilter]);
+        korgFilterR.setFrequency(kParameterDefaults[kParameterHighPassFilter]);
 
         smoothWetLevel.setSampleRate(sampleRate);
         smoothDryLevel.setSampleRate(sampleRate);
 
         smoothWetLevel.setTimeConstant(0.1f);
         smoothDryLevel.setTimeConstant(0.1f);
+
+        smoothWetLevel.setTarget(std::pow(10.f, 0.05f * kParameterDefaults[kParameterWetLevel]));
+        smoothDryLevel.setTarget(std::pow(10.f, 0.05f * kParameterDefaults[kParameterDryLevel]));
     }
 
     ~OneKnobConvolutionReverbPlugin() override
