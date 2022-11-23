@@ -27,6 +27,7 @@
 #include "extra/Thread.hpp"
 
 #include "FFTConvolver/TwoStageFFTConvolver.h"
+#include "dr_flac.h"
 #include "dr_wav.h"
 
 START_NAMESPACE_DISTRHO
@@ -314,11 +315,14 @@ protected:
         {
             unsigned int channels;
             unsigned int sampleRate;
-            drwav_uint64 impulseResponseSize;
+            drwav_uint64 numFrames;
 
-            float* const newImpulseResponse = drwav_open_file_and_read_pcm_frames_f32(
-                value, &channels, &sampleRate, &impulseResponseSize, nullptr);
-            DISTRHO_SAFE_ASSERT_RETURN(newImpulseResponse != nullptr,);
+            float* ir;
+            if (::strncasecmp(value + (std::max(size_t(0), std::strlen(value) - 5u)), ".flac", 5) == 0)
+                ir = drflac_open_file_and_read_pcm_frames_f32(value, &channels, &sampleRate, &numFrames, nullptr);
+            else
+                ir = drwav_open_file_and_read_pcm_frames_f32(value, &channels, &sampleRate, &numFrames, nullptr);
+            DISTRHO_SAFE_ASSERT_RETURN(ir != nullptr,);
 
             loadedFilename = value;
 
@@ -327,34 +331,32 @@ protected:
             switch (channels)
             {
             case 1:
-                irBufL = newImpulseResponse;
-                irBufR = new float[impulseResponseSize];
-                std::memcpy(irBufR, irBufL, sizeof(float) * impulseResponseSize);
+                irBufL = irBufR = ir;
                 break;
             case 2:
-                irBufL = new float[impulseResponseSize];
-                irBufR = new float[impulseResponseSize];
-                for (drwav_uint64 i = 0, j = 0; i < impulseResponseSize; ++i)
+                irBufL = new float[numFrames];
+                irBufR = new float[numFrames];
+                for (drwav_uint64 i = 0, j = 0; i < numFrames; ++i)
                 {
-                    irBufL[i] = newImpulseResponse[j++];
-                    irBufR[i] = newImpulseResponse[j++];
+                    irBufL[i] = ir[j++];
+                    irBufR[i] = ir[j++];
                 }
                 break;
             case 4:
-                irBufL = new float[impulseResponseSize];
-                irBufR = new float[impulseResponseSize];
-                for (drwav_uint64 i = 0, j = 0; i < impulseResponseSize; ++i, j += 4)
+                irBufL = new float[numFrames];
+                irBufR = new float[numFrames];
+                for (drwav_uint64 i = 0, j = 0; i < numFrames; ++i, j += 4)
                 {
-                    irBufL[i] = newImpulseResponse[j + 0] + newImpulseResponse[j + 2];
-                    irBufR[i] = newImpulseResponse[j + 1] + newImpulseResponse[j + 3];
+                    irBufL[i] = ir[j + 0] + ir[j + 2];
+                    irBufR[i] = ir[j + 1] + ir[j + 3];
                 }
                 break;
             default:
-                irBufL = new float[impulseResponseSize];
-                irBufR = new float[impulseResponseSize];
-                for (drwav_uint64 i = 0, j = 0; i < impulseResponseSize; ++i)
+                irBufL = new float[numFrames];
+                irBufR = new float[numFrames];
+                for (drwav_uint64 i = 0, j = 0; i < numFrames; ++i)
                 {
-                    irBufL[i] = irBufR[i] = newImpulseResponse[j];
+                    irBufL[i] = irBufR[i] = ir[j];
                     j += channels;
                 }
                 break;
@@ -363,11 +365,11 @@ protected:
             ScopedPointer<TwoStageThreadedConvolver> newConvolverL, newConvolverR;
 
             newConvolverL = new TwoStageThreadedConvolver();
-            newConvolverL->init(headBlockSize, tailBlockSize, irBufL, impulseResponseSize);
+            newConvolverL->init(headBlockSize, tailBlockSize, irBufL, numFrames);
             newConvolverL->start();
 
             newConvolverR = new TwoStageThreadedConvolver();
-            newConvolverR->init(headBlockSize, tailBlockSize, irBufR, impulseResponseSize);
+            newConvolverR->init(headBlockSize, tailBlockSize, irBufR, numFrames);
             newConvolverR->start();
 
             {
@@ -376,12 +378,12 @@ protected:
                 convolverR.swapWith(newConvolverR);
             }
 
-            if (irBufL != newImpulseResponse)
+            if (irBufL != ir)
                 delete[] irBufL;
             if (irBufR != irBufL)
                 delete[] irBufR;
 
-            drwav_free(newImpulseResponse, nullptr);
+            drwav_free(ir, nullptr);
             return;
         }
 

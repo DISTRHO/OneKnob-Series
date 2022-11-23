@@ -14,7 +14,11 @@
  * CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
+#define DR_FLAC_IMPLEMENTATION
+#include "dr_flac.h"
+
 #define DR_WAV_IMPLEMENTATION
 #include "dr_wav.h"
+
 #include "pffft/pffft.c"
 #include "pffft/pffft_common.c"
