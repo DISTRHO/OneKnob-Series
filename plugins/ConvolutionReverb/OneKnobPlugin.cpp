@@ -209,6 +209,17 @@ protected:
                 parameter.enumValues.values = enumValues;
             }
             break;
+        case kParameterTrails:
+            parameter.hints = kParameterIsAutomatable | kParameterIsInteger | kParameterIsBoolean;
+            parameter.name = "Trails";
+            parameter.symbol = "trails";
+            parameter.ranges.def = kParameterDefaults[kParameterTrails];
+            parameter.ranges.min = 0.f;
+            parameter.ranges.max = 1.f;
+            break;
+        case kParameterBypass:
+            parameter.initDesignation(kParameterDesignationBypass);
+            break;
         }
     }
 
@@ -245,14 +256,36 @@ protected:
         switch (index)
         {
         case kParameterWetLevel:
-            smoothWetLevel.setTarget(std::pow(10.f, 0.05f * value));
+            if (!bypassed)
+                smoothWetLevel.setTarget(std::pow(10.f, 0.05f * value));
             break;
         case kParameterDryLevel:
-            smoothDryLevel.setTarget(std::pow(10.f, 0.05f * value));
+            if (!bypassed)
+                smoothDryLevel.setTarget(std::pow(10.f, 0.05f * value));
             break;
         case kParameterHighPassFilter:
             korgFilterL.setFrequency(value);
             korgFilterR.setFrequency(value);
+            break;
+        case kParameterTrails:
+            trails = value > 0.5f;
+            if (bypassed)
+                smoothWetLevel.setTarget(trails ? std::pow(10.f, 0.05f * parameters[kParameterWetLevel]) : 0.f);
+            break;
+        case kParameterBypass:
+            bypassed = value > 0.5f;
+            if (bypassed)
+            {
+                smoothWetLevel.setTarget(trails ? std::pow(10.f, 0.05f * parameters[kParameterWetLevel]) : 0.f);
+                smoothDryLevel.setTarget(1.f);
+            }
+            else
+            {
+                korgFilterL.reset();
+                korgFilterR.reset();
+                smoothWetLevel.setTarget(std::pow(10.f, 0.05f * parameters[kParameterWetLevel]));
+                smoothDryLevel.setTarget(std::pow(10.f, 0.05f * parameters[kParameterDryLevel]));
+            }
             break;
         }
 
@@ -415,7 +448,12 @@ protected:
 
         const int hpf = static_cast<int>(parameters[kParameterHighPassFilter] + 0.5f);
 
-        if (hpf == 0)
+        if (bypassed)
+        {
+            std::memset(highpassBufL, 0, sizeof(float) * frames);
+            std::memset(highpassBufR, 0, sizeof(float) * frames);
+        }
+        else if (hpf == 0)
         {
             std::memcpy(highpassBufL, inL, sizeof(float) * frames);
             std::memcpy(highpassBufR, inR, sizeof(float) * frames);
@@ -555,6 +593,8 @@ private:
     Mutex mutex;
     String loadedFilename;
 
+    bool bypassed = false;
+    bool trails = true;
     uint32_t bufferSize = 0;
 
     // smoothed parameters

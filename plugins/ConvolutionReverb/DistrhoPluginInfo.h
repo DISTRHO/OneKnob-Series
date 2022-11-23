@@ -33,6 +33,8 @@ enum Parameters {
     kParameterWetLevel,
     kParameterDryLevel,
     kParameterHighPassFilter,
+    kParameterTrails,
+    kParameterBypass,
     kParameterCount
 };
 
@@ -49,5 +51,7 @@ enum States {
 static const float kParameterDefaults[kParameterCount] = {
     -30.f,
     -60.f,
+    0.f,
+    1.f,
     0.f
 };
