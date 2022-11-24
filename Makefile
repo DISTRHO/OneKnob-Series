@@ -47,6 +47,7 @@ clean:
 	$(MAKE) clean -C plugins/DevilDistortion
 # 	$(MAKE) clean -C plugins/Sampler
 	rm -rf bin build dpf-widgets/opengl/*.d dpf-widgets/opengl/*.o
+	rm -f 3rd-party/FFTConvolver/*.d 3rd-party/FFTConvolver/*.o
 
 # --------------------------------------------------------------
 
