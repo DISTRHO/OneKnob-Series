@@ -8,6 +8,9 @@
 
 #pragma once
 
+#include <algorithm>
+#include <cstdint>
+
 //========================================================================================
 // The following filters are virtual analog models of the Korg 35 low-pass
 // filter and high-pass filter found in the MS-10 and MS-20 synthesizers.

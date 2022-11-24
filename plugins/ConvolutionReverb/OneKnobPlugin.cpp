@@ -45,8 +45,6 @@ static constexpr const size_t tailBlockSize = 1024;
 
 // -----------------------------------------------------------------------
 
-#define THREADED_CONVOLVER
-
 class TwoStageThreadedConvolver : public fftconvolver::TwoStageFFTConvolver,
                                   private Thread
 {
@@ -204,7 +202,7 @@ protected:
             parameter.unit = "Hz";
             parameter.ranges.def = kParameterDefaults[kParameterHighPassFilter];
             parameter.ranges.min = 0.f;
-            parameter.ranges.max = 300.f;
+            parameter.ranges.max = 500.f;
             {
                 ParameterEnumerationValue* const enumValues = new ParameterEnumerationValue[1];
                 enumValues[0].value = 0.f;
