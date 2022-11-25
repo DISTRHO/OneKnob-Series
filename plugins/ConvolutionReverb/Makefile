@@ -7,7 +7,11 @@
 # --------------------------------------------------------------
 # Project name, used for binaries
 
+ifeq ($(MOD_BUILD),true)
+NAME = MOD-ConvolutionLoader
+else
 NAME = OK-ConvolutionReverb
+endif
 
 # --------------------------------------------------------------
 # Files to build
