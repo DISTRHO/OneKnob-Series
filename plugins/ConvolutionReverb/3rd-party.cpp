@@ -1,6 +1,6 @@
 /*
  * DISTRHO OneKnob Convolution Reverb
- * Copyright (C) 2022 Filipe Coelho <falktx@falktx.com>
+ * Copyright (C) 2022-2023 Filipe Coelho <falktx@falktx.com>
  *
  * Permission to use, copy, modify, and/or distribute this software for any purpose with
  * or without fee is hereby granted, provided that the above copyright notice and this
@@ -20,5 +20,5 @@
 #define DR_WAV_IMPLEMENTATION
 #include "dr_wav.h"
 
-#include "pffft/pffft.c"
-#include "pffft/pffft_common.c"
+#include "r8brain/pffft.cpp"
+#include "r8brain/r8bbase.cpp"

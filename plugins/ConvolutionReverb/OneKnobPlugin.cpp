@@ -26,9 +26,11 @@
 #include "extra/ScopedPointer.hpp"
 #include "extra/Thread.hpp"
 
-#include "FFTConvolver/TwoStageFFTConvolver.h"
 #include "dr_flac.h"
 #include "dr_wav.h"
+// -Wunused-variable
+#include "r8brain/CDSPResampler.h"
+#include "FFTConvolver/TwoStageFFTConvolver.h"
 
 START_NAMESPACE_DISTRHO
 
@@ -317,9 +319,20 @@ protected:
             unsigned int channels;
             unsigned int sampleRate;
             drwav_uint64 numFrames;
+            const size_t valuelen = std::strlen(value);
+
+            ScopedPointer<TwoStageThreadedConvolver> newConvolverL, newConvolverR;
+
+            if (valuelen <= 5)
+            {
+                const MutexLocker cml(mutex);
+                convolverL.swapWith(newConvolverL);
+                convolverR.swapWith(newConvolverR);
+                return;
+            }
 
             float* ir;
-            if (::strncasecmp(value + (std::max(size_t(0), std::strlen(value) - 5u)), ".flac", 5) == 0)
+            if (::strncasecmp(value + (std::max(size_t(0), valuelen - 5u)), ".flac", 5) == 0)
                 ir = drflac_open_file_and_read_pcm_frames_f32(value, &channels, &sampleRate, &numFrames, nullptr);
             else
                 ir = drwav_open_file_and_read_pcm_frames_f32(value, &channels, &sampleRate, &numFrames, nullptr);
@@ -363,7 +376,29 @@ protected:
                 break;
             }
 
-            ScopedPointer<TwoStageThreadedConvolver> newConvolverL, newConvolverR;
+            if (sampleRate != getSampleRate())
+            {
+                r8b::CDSPResampler16IR resampler(sampleRate, getSampleRate(), numFrames);
+                const int numResampledFrames = resampler.getMaxOutLen(0);
+                DISTRHO_SAFE_ASSERT_RETURN(numResampledFrames > 0,);
+
+                // left channel, always present
+                float* const irBufResampledL = new float[numResampledFrames];
+                resampler.oneshot(irBufL, numFrames, irBufResampledL, numResampledFrames);
+                delete[] irBufL;
+                irBufL = irBufResampledL;
+
+                // right channel, optional
+                if (irBufL != irBufR)
+                {
+                    float* const irBufResampledR = new float[numResampledFrames];
+                    resampler.oneshot(irBufR, numFrames, irBufResampledR, numResampledFrames);
+                    delete[] irBufR;
+                    irBufR = irBufResampledR;
+                }
+
+                numFrames = numResampledFrames;
+            }
 
             newConvolverL = new TwoStageThreadedConvolver();
             newConvolverL->init(headBlockSize, tailBlockSize, irBufL, numFrames);

@@ -10,3 +10,6 @@
 [submodule "3rd-party/pffft"]
 	path = 3rd-party/pffft
 	url = https://github.com/marton78/pffft.git
+[submodule "3rd-party/r8brain"]
+	path = 3rd-party/r8brain
+	url = https://github.com/avaneev/r8brain-free-src.git
