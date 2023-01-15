@@ -31,9 +31,6 @@ static const OneKnobMainControl main = {
     kParameterThreshold,
     "Threshold",
     "dB",
-    -50.0f,
-    0.0f,
-    0.0f
 };
 
 static const OneKnobAuxiliaryCheckBox checkBox = {
@@ -93,8 +90,8 @@ protected:
         switch (index)
         {
         case kProgramInit:
-            setMainControlValue(kParameterDefaults[kParameterThreshold]);
-            setAuxiliaryCheckBoxValue(kParameterDefaults[kParameterAutoGain]);
+            setMainControlValue(kParameterRanges[kParameterThreshold].def);
+            setAuxiliaryCheckBoxValue(kParameterRanges[kParameterAutoGain].def);
             break;
         case kProgramGentle:
             break;

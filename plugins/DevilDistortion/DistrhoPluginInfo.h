@@ -32,6 +32,7 @@
 enum Parameters {
     kParameterKneePoint = 0,
     kParameterDecayTime,
+    kParameterBypass,
     kParameterCount
 };
 
@@ -44,7 +45,10 @@ enum States {
     kStateCount
 };
 
-static const float kParameterDefaults[kParameterCount] = {
-    0.0f,
-    23.0f
+static constexpr const struct OneKnobParameterRanges {
+    float min, def, max;
+} kParameterRanges[kParameterCount] = {
+    { -90.f, 0.f, 0.f },
+    { 2.f, 23.f, 30.f },
+    {}
 };

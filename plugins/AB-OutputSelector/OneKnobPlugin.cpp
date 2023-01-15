@@ -69,19 +69,19 @@ protected:
             parameter.name       = "A/B Select";
             parameter.symbol     = "select";
             parameter.unit       = "%";
-            parameter.ranges.def = kParameterDefaults[kParameterSelect];
-            parameter.ranges.min = -100.0f;
-            parameter.ranges.max = 100.0f;
+            parameter.ranges.def = kParameterRanges[kParameterSelect].def;
+            parameter.ranges.min = kParameterRanges[kParameterSelect].min;
+            parameter.ranges.max = kParameterRanges[kParameterSelect].max;
             {
                 ParameterEnumerationValue *values = new ParameterEnumerationValue[3];
                 parameter.enumValues.values = values;
                 parameter.enumValues.count = 3;
                 parameter.enumValues.restrictedMode = false;
-                values[0].value = -100.0f;
+                values[0].value = kParameterRanges[kParameterSelect].min;
                 values[0].label = "A";
-                values[1].value = 0.0f;
+                values[1].value = kParameterRanges[kParameterSelect].def;
                 values[1].label = "A/B";
-                values[2].value = 100.0f;
+                values[2].value = kParameterRanges[kParameterSelect].max;
                 values[2].label = "B";
             }
             break;
@@ -90,9 +90,12 @@ protected:
             parameter.name       = "Mode";
             parameter.symbol     = "mode";
             parameter.unit       = "";
-            parameter.ranges.def = kParameterDefaults[kParameterMode];
-            parameter.ranges.min = 0.0f;
-            parameter.ranges.max = 1.0f;
+            parameter.ranges.def = kParameterRanges[kParameterMode].def;
+            parameter.ranges.min = kParameterRanges[kParameterMode].min;
+            parameter.ranges.max = kParameterRanges[kParameterMode].max;
+            break;
+        case kParameterBypass:
+            parameter.initDesignation(kParameterDesignationBypass);
             break;
         }
     }

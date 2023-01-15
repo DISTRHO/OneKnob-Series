@@ -33,9 +33,6 @@ static const OneKnobMainControl main = {
     0, // parameter id
     "Release",
     "s",
-    0.0f,
-    10.0f,
-    0.0f
 };
 
 static const OneKnobAuxiliaryComboBoxValue comboBoxValues[] = {
@@ -43,7 +40,7 @@ static const OneKnobAuxiliaryComboBoxValue comboBoxValues[] = {
         0, "Mode 1", "Explain mode 1"
     },
     {
-        0, "Mode 2", "Explain mode 2"
+        1, "Mode 2", "Explain mode 2"
     },
 };
 

@@ -30,32 +30,18 @@ static const OneKnobMainControl main = {
     kParameterWetLevel,
     "Wet Level",
     "dB",
-    -60.0f,
-    0.0f,
-    kParameterDefaults[kParameterWetLevel]
 };
 
-static const OneKnobAuxiliaryButtonGroupValue highPassFilterValues[] = {
-    { 0, "Off" },
-    { 75, "75" },
-    { 150, "150" },
-    { 300, "300" }
-};
-
-static const OneKnobAuxiliaryButtonGroup buttonGroupOpts = {
+static constexpr const OneKnobAuxiliaryCheckBox kHighPassCheckBox = {
     kParameterHighPassFilter,
     "High Pass Filter",
-    ARRAY_SIZE(highPassFilterValues),
-    highPassFilterValues
+    "Activate to prevent low-band/bassy sounds from being sent to the reverb"
 };
 
 static const OneKnobAuxiliarySlider numFieldOpts = {
     kParameterDryLevel,
     "Dry Level",
     "dB",
-    -60,
-    0,
-    kParameterDefaults[kParameterDryLevel]
 };
 
 static const OneKnobAuxiliaryFileButton fileButtonOpts = {
@@ -84,7 +70,7 @@ public:
                                       kDefaultHeight/4,
                                       kDefaultWidth/2 - kSidePanelWidth,
                                       kDefaultHeight*3/4);
-        createAuxiliaryFileButton(auxArea, buttonGroupOpts, numFieldOpts, fileButtonOpts);
+        createAuxiliaryFileButton(auxArea, kHighPassCheckBox, numFieldOpts, fileButtonOpts);
 
         repositionWidgets();
 
@@ -107,7 +93,7 @@ protected:
             setAuxiliaryNumFieldValue(value);
             break;
         case kParameterHighPassFilter:
-            setAuxiliaryButtonGroupValue(value);
+            setAuxiliaryCheckBoxValue(value);
             break;
         }
 
@@ -119,9 +105,9 @@ protected:
         switch (index)
         {
         case kProgramDefault:
-            setMainControlValue(kParameterDefaults[kParameterWetLevel]);
-            setAuxiliaryNumFieldValue(kParameterDefaults[kParameterDryLevel]);
-            setAuxiliaryButtonGroupValue(kParameterDefaults[kParameterHighPassFilter]);
+            setMainControlValue(kParameterRanges[kParameterWetLevel].def);
+            setAuxiliaryNumFieldValue(kParameterRanges[kParameterDryLevel].def);
+            setAuxiliaryCheckBoxValue(kParameterRanges[kParameterHighPassFilter].def > 0.5f);
             break;
         }
 

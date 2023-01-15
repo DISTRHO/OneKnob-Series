@@ -68,18 +68,18 @@ protected:
             parameter.name       = "Release";
             parameter.symbol     = "release";
             parameter.unit       = "ms";
-            parameter.ranges.def = kParameterDefaults[kParameterRelease];
-            parameter.ranges.min = 50.0f;
-            parameter.ranges.max = 500.0f;
+            parameter.ranges.def = kParameterRanges[kParameterRelease].def;
+            parameter.ranges.min = kParameterRanges[kParameterRelease].min;
+            parameter.ranges.max = kParameterRanges[kParameterRelease].max;
             break;
         case kParameterMode:
             parameter.hints      = kParameterIsAutomatable | kParameterIsInteger;
             parameter.name       = "Mode";
             parameter.symbol     = "mode";
             parameter.unit       = "";
-            parameter.ranges.def = kParameterDefaults[kParameterMode];
-            parameter.ranges.min = 0.0f;
-            parameter.ranges.max = 3.0f;
+            parameter.ranges.def = kParameterRanges[kParameterMode].def;
+            parameter.ranges.min = kParameterRanges[kParameterMode].min;
+            parameter.ranges.max = kParameterRanges[kParameterMode].max;
             if (ParameterEnumerationValue* const values = new ParameterEnumerationValue[4])
             {
               parameter.enumValues.count = 4;
@@ -95,6 +95,9 @@ protected:
               values[3].label = "Heavy";
               values[3].value = 3.0f;
             }
+            break;
+        case kParameterBypass:
+            parameter.initDesignation(kParameterDesignationBypass);
             break;
         }
     }
@@ -150,8 +153,8 @@ protected:
             }
 
             compressorOn = mode >= 1 && mode <= 3;
-        }
             break;
+        }
         }
     }
 

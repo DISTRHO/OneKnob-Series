@@ -30,9 +30,6 @@ static const OneKnobMainControl main = {
     kParameterRelease,
     "Release",
     "ms",
-    50.0f,
-    500.0f,
-    100.0f
 };
 
 static const OneKnobAuxiliaryComboBoxValue comboBoxValues[] = {
@@ -108,8 +105,8 @@ protected:
         switch (index)
         {
         case kProgramDefault:
-            setMainControlValue(kParameterDefaults[kParameterRelease]);
-            setAuxiliaryComboBoxValue(kParameterDefaults[kParameterMode]);
+            setMainControlValue(kParameterRanges[kParameterRelease].def);
+            setAuxiliaryComboBoxValue(kParameterRanges[kParameterMode].def);
             break;
         case kProgramConservative:
             break;

@@ -31,9 +31,6 @@ static const OneKnobMainControl main = {
     kParameterSelect,
     "A/B Select",
     "%",
-    -100.0f,
-    100.0f,
-    0.0f
 };
 
 static const OneKnobAuxiliaryComboBoxValue comboBoxValues[] = {
@@ -41,7 +38,7 @@ static const OneKnobAuxiliaryComboBoxValue comboBoxValues[] = {
         0, "Mode 1", "Explain mode 1"
     },
     {
-        0, "Mode 2", "Explain mode 2"
+        1, "Mode 2", "Explain mode 2"
     },
 };
 
@@ -105,8 +102,8 @@ protected:
         switch (index)
         {
         case kProgramInit:
-            setMainControlValue(kParameterDefaults[kParameterSelect]);
-            setAuxiliaryComboBoxValue(kParameterDefaults[kParameterMode]);
+            setMainControlValue(kParameterRanges[kParameterSelect].def);
+            setAuxiliaryComboBoxValue(kParameterRanges[kParameterMode].def);
             break;
         }
 

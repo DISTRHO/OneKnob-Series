@@ -89,7 +89,9 @@ protected:
             parameter.name       = "Threshold";
             parameter.symbol     = "threshold";
             parameter.unit       = "dB";
-            parameter.ranges.def = kParameterDefaults[kParameterThreshold];
+            parameter.ranges.def = kParameterRanges[kParameterThreshold].def;
+            parameter.ranges.min = kParameterRanges[kParameterThreshold].min;
+            parameter.ranges.max = kParameterRanges[kParameterThreshold].max;
             parameter.ranges.min = -50.0f;
             parameter.ranges.max = 0.0f;
             break;
@@ -98,9 +100,14 @@ protected:
             parameter.name       = "Auto-Gain";
             parameter.symbol     = "autogain";
             parameter.unit       = "";
-            parameter.ranges.def = kParameterDefaults[kParameterAutoGain];
+            parameter.ranges.def = kParameterRanges[kParameterAutoGain].def;
+            parameter.ranges.min = kParameterRanges[kParameterAutoGain].min;
+            parameter.ranges.max = kParameterRanges[kParameterAutoGain].max;
             parameter.ranges.min = 0.0f;
             parameter.ranges.max = 1.0f;
+            break;
+        case kParameterBypass:
+            parameter.initDesignation(kParameterDesignationBypass);
             break;
         }
     }

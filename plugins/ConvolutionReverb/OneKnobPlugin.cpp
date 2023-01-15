@@ -119,8 +119,8 @@ public:
         korgFilterL.setSampleRate(sampleRate);
         korgFilterR.setSampleRate(sampleRate);
 
-        korgFilterL.setFrequency(kParameterDefaults[kParameterHighPassFilter]);
-        korgFilterR.setFrequency(kParameterDefaults[kParameterHighPassFilter]);
+        korgFilterL.setFrequency(kParameterRanges[kParameterHighPassFilter].def);
+        korgFilterR.setFrequency(kParameterRanges[kParameterHighPassFilter].def);
 
         smoothDryLevel.setSampleRate(sampleRate);
         smoothWetLevel.setSampleRate(sampleRate);
@@ -128,8 +128,8 @@ public:
         smoothDryLevel.setTimeConstant(0.1f);
         smoothWetLevel.setTimeConstant(0.1f);
 
-        smoothDryLevel.setTarget(std::pow(10.f, 0.05f * kParameterDefaults[kParameterDryLevel]));
-        smoothWetLevel.setTarget(std::pow(10.f, 0.05f * kParameterDefaults[kParameterWetLevel]));
+        smoothDryLevel.setTarget(std::pow(10.f, 0.05f * kParameterRanges[kParameterDryLevel].def));
+        smoothWetLevel.setTarget(std::pow(10.f, 0.05f * kParameterRanges[kParameterWetLevel].def));
     }
 
     ~OneKnobConvolutionReverbPlugin() override
@@ -159,7 +159,7 @@ protected:
     // -------------------------------------------------------------------
     // Init
 
-    void initParameter(uint32_t index, Parameter &parameter) override
+    void initParameter(uint32_t index, Parameter& parameter) override
     {
         switch (index)
         {
@@ -168,12 +168,12 @@ protected:
             parameter.name = "Dry Level";
             parameter.symbol = "drylevel";
             parameter.unit = "dB";
-            parameter.ranges.def = kParameterDefaults[kParameterDryLevel];
-            parameter.ranges.min = -60.f;
-            parameter.ranges.max = 0.f;
+            parameter.ranges.def = kParameterRanges[kParameterDryLevel].def;
+            parameter.ranges.min = kParameterRanges[kParameterDryLevel].min;
+            parameter.ranges.max = kParameterRanges[kParameterDryLevel].max;
             {
                 ParameterEnumerationValue* const enumValues =  new ParameterEnumerationValue[1];
-                enumValues[0].value = -60.f;
+                enumValues[0].value = kParameterRanges[kParameterDryLevel].min;
                 enumValues[0].label = "Off";
                 parameter.enumValues.count = 1;
                 parameter.enumValues.values = enumValues;
@@ -184,12 +184,12 @@ protected:
             parameter.name = "Wet Level";
             parameter.symbol = "wetlevel";
             parameter.unit = "dB";
-            parameter.ranges.def = kParameterDefaults[kParameterWetLevel];
-            parameter.ranges.min = -60.f;
-            parameter.ranges.max = 0.f;
+            parameter.ranges.def = kParameterRanges[kParameterWetLevel].def;
+            parameter.ranges.min = kParameterRanges[kParameterWetLevel].min;
+            parameter.ranges.max = kParameterRanges[kParameterWetLevel].max;
             {
                 ParameterEnumerationValue* const enumValues = new ParameterEnumerationValue[1];
-                enumValues[0].value = -60.f;
+                enumValues[0].value = kParameterRanges[kParameterWetLevel].min;
                 enumValues[0].label = "Off";
                 parameter.enumValues.count = 1;
                 parameter.enumValues.values = enumValues;
@@ -200,9 +200,9 @@ protected:
             parameter.name = "High Pass Filter";
             parameter.symbol = "hpf";
             parameter.unit = "Hz";
-            parameter.ranges.def = kParameterDefaults[kParameterHighPassFilter];
-            parameter.ranges.min = 0.f;
-            parameter.ranges.max = 500.f;
+            parameter.ranges.def = kParameterRanges[kParameterHighPassFilter].def;
+            parameter.ranges.min = kParameterRanges[kParameterHighPassFilter].min;
+            parameter.ranges.max = kParameterRanges[kParameterHighPassFilter].max;
             {
                 ParameterEnumerationValue* const enumValues = new ParameterEnumerationValue[1];
                 enumValues[0].value = 0.f;
@@ -215,9 +215,9 @@ protected:
             parameter.hints = kParameterIsAutomatable | kParameterIsInteger | kParameterIsBoolean;
             parameter.name = "Trails";
             parameter.symbol = "trails";
-            parameter.ranges.def = kParameterDefaults[kParameterTrails];
-            parameter.ranges.min = 0.f;
-            parameter.ranges.max = 1.f;
+            parameter.ranges.def = kParameterRanges[kParameterTrails].def;
+            parameter.ranges.min = kParameterRanges[kParameterTrails].min;
+            parameter.ranges.max = kParameterRanges[kParameterTrails].max;
             break;
         case kParameterBypass:
             parameter.initDesignation(kParameterDesignationBypass);

@@ -33,9 +33,6 @@ static const OneKnobMainControl main = {
     kParameterKneePoint,
     "Knee Point",
     "dB",
-    -90.0f,
-    0.0f,
-    0.0f
 };
 
 static const OneKnobAuxiliaryButtonGroupValue buttonGroupValues[] = {
@@ -105,8 +102,8 @@ protected:
         switch (index)
         {
         case kProgramDefault:
-            setMainControlValue(kParameterDefaults[kParameterKneePoint]);
-            setAuxiliaryButtonGroupValue(kParameterDefaults[kParameterDecayTime]);
+            setMainControlValue(kParameterRanges[kParameterKneePoint].def);
+            setAuxiliaryButtonGroupValue(kParameterRanges[kParameterDecayTime].def);
             break;
         }
 

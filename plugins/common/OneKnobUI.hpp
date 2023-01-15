@@ -380,8 +380,8 @@ protected:
         knob->setCallback(this);
         knob->setId(control.id);
         knob->setLabel(control.label);
-        knob->setRange(control.min, control.max);
-        knob->setDefault(control.def);
+        knob->setRange(kParameterRanges[control.id].min, kParameterRanges[control.id].max);
+        knob->setDefault(kParameterRanges[control.id].def);
         knob->setUnitLabel(control.unit);
         knob->setUnitColor(Color::fromHTML("#cacacb")); // FIXME label color autmatically
 
@@ -520,33 +520,31 @@ protected:
     }
 
     void createAuxiliaryFileButton(const Rectangle<uint>& area,
-                                   const OneKnobAuxiliaryButtonGroup& buttonGroupOpts,
+                                   const OneKnobAuxiliaryCheckBox& checkBoxOpts,
                                    const OneKnobAuxiliarySlider& numFieldOpts,
                                    const OneKnobAuxiliaryFileButton& fileButtonOpts)
     {
-        DISTRHO_SAFE_ASSERT_RETURN(blendishAuxOptionButtonGroup == nullptr,);
+        DISTRHO_SAFE_ASSERT_RETURN(blendishAuxOptionCheckBox == nullptr,);
         DISTRHO_SAFE_ASSERT_RETURN(blendishAuxOptionNumberField == nullptr,);
         DISTRHO_SAFE_ASSERT_RETURN(blendishAuxOptionFileButton == nullptr,);
         DISTRHO_SAFE_ASSERT_RETURN(blendishAuxOptionLabel == nullptr,);
         DISTRHO_SAFE_ASSERT_RETURN(blendishAuxFileButtonKey == nullptr,);
         DISTRHO_SAFE_ASSERT_RETURN(fileButtonOpts.key != nullptr,);
 
-        BlendishButtonGroup* const buttonGroup = new BlendishButtonGroup(&blendish);
+        BlendishCheckBox* const checkBox = new BlendishCheckBox(&blendish);
         BlendishNumberField* const numField = new BlendishNumberField(&blendish);
         BlendishToolButton* const fileButton = new BlendishToolButton(&blendish);
         BlendishLabel* const label = new BlendishLabel(&blendish);
 
-        for (uint i=0; i<buttonGroupOpts.count; ++i)
-            buttonGroup->addButton(buttonGroupOpts.values[i].value, buttonGroupOpts.values[i].label);
-
-        buttonGroup->setCallback(this);
-        buttonGroup->setId(buttonGroupOpts.id);
+        checkBox->setCallback(this);
+        checkBox->setId(checkBoxOpts.id);
+        checkBox->setLabel(checkBoxOpts.title);
 
         numField->setCallback(this);
         numField->setId(numFieldOpts.id);
         numField->setLabel(numFieldOpts.label);
-        numField->setRange(numFieldOpts.min, numFieldOpts.max);
-        numField->setValue(numFieldOpts.def);
+        numField->setRange(kParameterRanges[numFieldOpts.id].min, kParameterRanges[numFieldOpts.id].max);
+        numField->setValue(kParameterRanges[numFieldOpts.id].def);
 
         fileButton->setCallback(this);
         fileButton->setLabel(fileButtonOpts.label);
@@ -555,7 +553,7 @@ protected:
         label->setFontSize(9);
 
         auxOptionArea = getScaledArea(area);
-        blendishAuxOptionButtonGroup = buttonGroup;
+        blendishAuxOptionCheckBox = checkBox;
         blendishAuxOptionNumberField = numField;
         blendishAuxOptionFileButton = fileButton;
         blendishAuxOptionLabel = label;
@@ -767,7 +765,9 @@ private:
     {
         if (blendishAuxOptionCheckBox == widget)
             if (BlendishCheckBox* const checkBox = blendishAuxOptionCheckBox.get())
-                setParameterValue(checkBox->getId(), checkBox->isChecked() ? 1.0f : 0.0f);
+                setParameterValue(checkBox->getId(),
+                                  checkBox->isChecked() ? kParameterRanges[checkBox->getId()].max
+                                                        : kParameterRanges[checkBox->getId()].min);
     }
 
     void knobDragStarted(SubWidget* const widget) override

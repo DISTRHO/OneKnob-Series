@@ -123,7 +123,7 @@ protected:
     void loadDefaultParameterValues()
     {
         for (uint i=0; i<kParameterCount; ++i)
-            parameters[i] = kParameterDefaults[i];
+            parameters[i] = kParameterRanges[i].def;
     }
 
     inline void setMeters(const float v1, const float v2)

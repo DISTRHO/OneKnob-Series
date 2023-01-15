@@ -53,10 +53,12 @@ enum States {
     kStateCount
 };
 
-static const float kParameterDefaults[kParameterCount] = {
-    0.f,
-    -30.f,
-    0.f,
-    1.f,
-    0.f
+static constexpr const struct OneKnobParameterRanges {
+    float min, def, max;
+} kParameterRanges[kParameterCount] = {
+    { -60.f, 0.f, 0.f },
+    { -60.f, -30.f, 0.f },
+    { 0.f, 0.f, 500.f },
+    { 0.f, 1.f, 1.f },
+    { 0.f, 0.f, 1.f }
 };

@@ -90,9 +90,9 @@ protected:
             parameter.description = ""
             "Controls the knee roll-off point, ie. the point above which the compression kicks in.\n"
             "0 will have no effect, -90 will remove virtually all dynamic range.";
-            parameter.ranges.def  = kParameterDefaults[kParameterKneePoint];
-            parameter.ranges.min  = -90.0f;
-            parameter.ranges.max  = 0.0f;
+            parameter.ranges.def = kParameterRanges[kParameterKneePoint].def;
+            parameter.ranges.min = kParameterRanges[kParameterKneePoint].min;
+            parameter.ranges.max = kParameterRanges[kParameterKneePoint].max;
             break;
         case kParameterDecayTime:
             parameter.hints       = kParameterIsAutomatable | kParameterIsInteger;
@@ -100,9 +100,9 @@ protected:
             parameter.symbol      = "decay_time";
             parameter.unit        = "samples";
             parameter.description = "Controls the envelope decay time in samples";
-            parameter.ranges.def  = kParameterDefaults[kParameterDecayTime];
-            parameter.ranges.min  = 2.0f;
-            parameter.ranges.max  = 30.0f;
+            parameter.ranges.def = kParameterRanges[kParameterDecayTime].def;
+            parameter.ranges.min = kParameterRanges[kParameterDecayTime].min;
+            parameter.ranges.max = kParameterRanges[kParameterDecayTime].max;
             if (ParameterEnumerationValue* const values = new ParameterEnumerationValue[6])
             {
                 parameter.enumValues.count = 5;
@@ -119,6 +119,9 @@ protected:
                 values[4].label = "30 samples";
                 values[4].value = 30.0f;
             }
+            break;
+        case kParameterBypass:
+            parameter.initDesignation(kParameterDesignationBypass);
             break;
         }
     }

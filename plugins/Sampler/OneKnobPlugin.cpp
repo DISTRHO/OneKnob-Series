@@ -70,9 +70,9 @@ protected:
             parameter.symbol     = "retune";
             parameter.unit       = "";
             parameter.midiCC     = 12;
-            parameter.ranges.def = kParameterDefaults[index];
-            parameter.ranges.min = 0.0f;
-            parameter.ranges.max = 1.0f;
+            parameter.ranges.def = kParameterRanges[kParameterKneePoint].def;
+            parameter.ranges.min = kParameterRanges[kParameterKneePoint].min;
+            parameter.ranges.max = kParameterRanges[kParameterKneePoint].max;
             break;
         case kParameterBasePitch:
             parameter.hints      = kParameterIsAutomatable;
@@ -80,9 +80,9 @@ protected:
             parameter.symbol     = "basepitch";
             parameter.unit       = "midiNote";
             parameter.midiCC     = 13;
-            parameter.ranges.def = kParameterDefaults[index];
-            parameter.ranges.min = 0.0f;
-            parameter.ranges.max = 127.0f;
+            parameter.ranges.def = kParameterRanges[kParameterKneePoint].def;
+            parameter.ranges.min = kParameterRanges[kParameterKneePoint].min;
+            parameter.ranges.max = kParameterRanges[kParameterKneePoint].max;
             break;
         case kParameterSustain:
             parameter.hints      = kParameterIsAutomatable | kParameterIsInteger | kParameterIsBoolean;
@@ -90,9 +90,9 @@ protected:
             parameter.symbol     = "sustain";
             parameter.unit       = "";
             parameter.midiCC     = 64;
-            parameter.ranges.def = kParameterDefaults[index];
-            parameter.ranges.min = 0.0f;
-            parameter.ranges.max = 1.0f;
+            parameter.ranges.def = kParameterRanges[kParameterKneePoint].def;
+            parameter.ranges.min = kParameterRanges[kParameterKneePoint].min;
+            parameter.ranges.max = kParameterRanges[kParameterKneePoint].max;
             break;
         case kParameterReleaseTime:
             parameter.hints      = kParameterIsAutomatable | kParameterIsLogarithmic;
@@ -100,9 +100,9 @@ protected:
             parameter.symbol     = "release";
             parameter.unit       = "s";
             parameter.midiCC     = 72;
-            parameter.ranges.def = kParameterDefaults[index];
-            parameter.ranges.min = 0.001f;
-            parameter.ranges.max = 2.0f;
+            parameter.ranges.def = kParameterRanges[kParameterKneePoint].def;
+            parameter.ranges.min = kParameterRanges[kParameterKneePoint].min;
+            parameter.ranges.max = kParameterRanges[kParameterKneePoint].max;
             break;
         case kParameterBalance:
             parameter.hints      = kParameterIsAutomatable;
@@ -110,9 +110,12 @@ protected:
             parameter.symbol     = "balance";
             parameter.unit       = "%";
             parameter.midiCC     = 10;
-            parameter.ranges.def = kParameterDefaults[index];
-            parameter.ranges.min = -100.0f;
-            parameter.ranges.max = 100.0f;
+            parameter.ranges.def = kParameterRanges[kParameterKneePoint].def;
+            parameter.ranges.min = kParameterRanges[kParameterKneePoint].min;
+            parameter.ranges.max = kParameterRanges[kParameterKneePoint].max;
+            break;
+        case kParameterBypass:
+            parameter.initDesignation(kParameterDesignationBypass);
             break;
         }
     }
