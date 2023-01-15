@@ -1,6 +1,6 @@
 /*
  * DISTRHO OneKnob Convolution Reverb
- * Copyright (C) 2022 Filipe Coelho <falktx@falktx.com>
+ * Copyright (C) 2022-2023 Filipe Coelho <falktx@falktx.com>
  *
  * Permission to use, copy, modify, and/or distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -303,8 +303,11 @@ protected:
             break;
         }
 
-        // activate filter parameters
-        activate();
+        korgFilterL.reset();
+        korgFilterR.reset();
+
+        smoothDryLevel.clearToTarget();
+        smoothWetLevel.clearToTarget();
     }
 
     void setState(const char* const key, const char* const value) override
