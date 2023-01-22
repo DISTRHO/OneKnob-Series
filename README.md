@@ -1,18 +1,26 @@
 # DISTRHO OneKnob Series
 
-A collection of stupidly simple but well-polished and visually pleasing audio plugins,
-with as little controls as possible,
-often just one knob and a few options.
+A collection of stupidly simple but well-polished, pleasent and functional audio plugins with as little controls as possible.
+There is always only 1 knob, hence the name.
+Other small helper controls might be available where it makes sense to have them.
 
 This is very much WORK IN PROGRESS!
 
-This collection currently includes:<br/>
+This base release of this collection will include:<br/>
  - A/B Input Selector
  - A/B Output Selector
  - Brickwall Limiter
  - Compressor
  - Convolution Reverb
  - Devil's Distortion
+ - One Sampler
+ - Reverb
+
+## Mockups
+
+![scr1](https://files.mastodon.social/cache/media_attachments/files/109/390/092/465/678/883/original/c77edf1bc807b486.png)
+
+![scr2](https://files.mastodon.social/cache/media_attachments/files/109/384/423/365/085/685/original/ad4e08d258aa3bbc.png)
 
 ## Screenshots
 
