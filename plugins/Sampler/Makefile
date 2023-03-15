@@ -31,12 +31,17 @@ LINK_FLAGS      += $(SHARED_MEMORY_LIBS)
 # --------------------------------------------------------------
 # Enable all possible plugin types
 
+TARGETS += lv2_sep
+
+ifeq ($(MOD_BUILD),true)
+TARGETS += modgui
+else
 TARGETS += jack
 TARGETS += dssi
-TARGETS += lv2_sep
 TARGETS += vst2
 TARGETS += vst3
 TARGETS += clap
+endif
 
 all: $(TARGETS)
 
