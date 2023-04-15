@@ -19,6 +19,7 @@
 
 #include "DistrhoPlugin.hpp"
 #include "SharedMemory.hpp"
+#include "extra/ValueSmoother.hpp"
 
 START_NAMESPACE_DISTRHO
 

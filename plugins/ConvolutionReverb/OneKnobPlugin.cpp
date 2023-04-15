@@ -19,7 +19,6 @@
 #include "DistrhoPluginInfo.h"
 
 #include "OneKnobPlugin.hpp"
-#include "LinearSmoother.hpp"
 #include "Korg35Filters.hpp"
 
 #include "Semaphore.hpp"
@@ -30,83 +29,11 @@
 #include "dr_wav.h"
 // -Wunused-variable
 #include "r8brain/CDSPResampler.h"
-#include "FFTConvolver/TwoStageFFTConvolver.h"
+
+// must be last
+#include "TwoStageThreadedConvolver.hpp"
 
 START_NAMESPACE_DISTRHO
-
-#if defined(_MOD_DEVICE_DUO)
-static constexpr const size_t headBlockSize = 256;
-static constexpr const size_t tailBlockSize = 4096;
-#elif defined(_MOD_DEVICE_DWARF)
-static constexpr const size_t headBlockSize = 128;
-static constexpr const size_t tailBlockSize = 2048;
-#else
-static constexpr const size_t headBlockSize = 128;
-static constexpr const size_t tailBlockSize = 1024;
-#endif
-
-// -----------------------------------------------------------------------
-
-class TwoStageThreadedConvolver : public fftconvolver::TwoStageFFTConvolver,
-                                  private Thread
-{
-    Semaphore semBgProcStart;
-    Semaphore semBgProcFinished;
-
-public:
-    TwoStageThreadedConvolver()
-        : fftconvolver::TwoStageFFTConvolver(),
-          Thread("TwoStageThreadedConvolver"),
-          semBgProcStart(1),
-          semBgProcFinished(0)
-    {
-    }
-
-    ~TwoStageThreadedConvolver() override
-    {
-        stop();
-    }
-
-    void start()
-    {
-        startThread(true);
-    }
-
-    void stop()
-    {
-        signalThreadShouldExit();
-        semBgProcStart.post();
-        stopThread(5000);
-    }
-
-protected:
-    void startBackgroundProcessing() override
-    {
-        semBgProcStart.post();
-    }
-
-    void waitForBackgroundProcessing() override
-    {
-        if (isThreadRunning() && !shouldThreadExit())
-            semBgProcFinished.wait();
-    }
-
-    void run() override
-    {
-        while (!shouldThreadExit())
-        {
-            semBgProcStart.wait();
-
-            if (shouldThreadExit())
-                break;
-
-            doBackgroundProcessing();
-            semBgProcFinished.post();
-        }
-    }
-
-    DISTRHO_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(TwoStageThreadedConvolver)
-};
 
 // -----------------------------------------------------------------------
 
@@ -130,8 +57,8 @@ public:
         smoothDryLevel.setTimeConstant(0.1f);
         smoothWetLevel.setTimeConstant(0.1f);
 
-        smoothDryLevel.setTarget(std::pow(10.f, 0.05f * kParameterRanges[kParameterDryLevel].def));
-        smoothWetLevel.setTarget(std::pow(10.f, 0.05f * kParameterRanges[kParameterWetLevel].def));
+        smoothDryLevel.setTargetValue(std::pow(10.f, 0.05f * kParameterRanges[kParameterDryLevel].def));
+        smoothWetLevel.setTargetValue(std::pow(10.f, 0.05f * kParameterRanges[kParameterWetLevel].def));
     }
 
     ~OneKnobConvolutionReverbPlugin() override
@@ -261,11 +188,11 @@ protected:
         {
         case kParameterDryLevel:
             if (!bypassed)
-                smoothDryLevel.setTarget(std::pow(10.f, 0.05f * value));
+                smoothDryLevel.setTargetValue(std::pow(10.f, 0.05f * value));
             break;
         case kParameterWetLevel:
             if (!bypassed)
-                smoothWetLevel.setTarget(std::pow(10.f, 0.05f * value));
+                smoothWetLevel.setTargetValue(std::pow(10.f, 0.05f * value));
             break;
         case kParameterHighPassFilter:
             korgFilterL.setFrequency(value);
@@ -274,21 +201,21 @@ protected:
         case kParameterTrails:
             trails = value > 0.5f;
             if (bypassed)
-                smoothWetLevel.setTarget(trails ? std::pow(10.f, 0.05f * parameters[kParameterWetLevel]) : 0.f);
+                smoothWetLevel.setTargetValue(trails ? std::pow(10.f, 0.05f * parameters[kParameterWetLevel]) : 0.f);
             break;
         case kParameterBypass:
             bypassed = value > 0.5f;
             if (bypassed)
             {
-                smoothDryLevel.setTarget(1.f);
-                smoothWetLevel.setTarget(trails ? std::pow(10.f, 0.05f * parameters[kParameterWetLevel]) : 0.f);
+                smoothDryLevel.setTargetValue(1.f);
+                smoothWetLevel.setTargetValue(trails ? std::pow(10.f, 0.05f * parameters[kParameterWetLevel]) : 0.f);
             }
             else
             {
                 korgFilterL.reset();
                 korgFilterR.reset();
-                smoothDryLevel.setTarget(std::pow(10.f, 0.05f * parameters[kParameterDryLevel]));
-                smoothWetLevel.setTarget(std::pow(10.f, 0.05f * parameters[kParameterWetLevel]));
+                smoothDryLevel.setTargetValue(std::pow(10.f, 0.05f * parameters[kParameterDryLevel]));
+                smoothWetLevel.setTargetValue(std::pow(10.f, 0.05f * parameters[kParameterWetLevel]));
             }
             break;
         }
@@ -308,8 +235,8 @@ protected:
         korgFilterL.reset();
         korgFilterR.reset();
 
-        smoothDryLevel.clearToTarget();
-        smoothWetLevel.clearToTarget();
+        smoothDryLevel.clearToTargetValue();
+        smoothWetLevel.clearToTargetValue();
     }
 
     void setState(const char* const key, const char* const value) override
@@ -401,12 +328,10 @@ protected:
             }
 
             newConvolverL = new TwoStageThreadedConvolver();
-            newConvolverL->init(headBlockSize, tailBlockSize, irBufL, numFrames);
-            newConvolverL->start();
+            newConvolverL->init(irBufL, numFrames);
 
             newConvolverR = new TwoStageThreadedConvolver();
-            newConvolverR->init(headBlockSize, tailBlockSize, irBufR, numFrames);
-            newConvolverR->start();
+            newConvolverR->init(irBufR, numFrames);
 
             {
                 const MutexLocker cml(mutex);
@@ -441,8 +366,8 @@ protected:
         korgFilterL.reset();
         korgFilterR.reset();
 
-        smoothDryLevel.clearToTarget();
-        smoothWetLevel.clearToTarget();
+        smoothDryLevel.clearToTargetValue();
+        smoothWetLevel.clearToTargetValue();
 
         OneKnobPlugin::activate();
     }
@@ -639,8 +564,8 @@ private:
     uint32_t bufferSize = 0;
 
     // smoothed parameters
-    LinearSmoother smoothDryLevel;
-    LinearSmoother smoothWetLevel;
+    LinearValueSmoother smoothDryLevel;
+    LinearValueSmoother smoothWetLevel;
 
     // buffers for placing highpass signal before convolution
     float* highpassBufL = nullptr;

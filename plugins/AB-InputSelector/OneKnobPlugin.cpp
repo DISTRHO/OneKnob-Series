@@ -19,7 +19,6 @@
 #include "DistrhoPluginInfo.h"
 
 #include "OneKnobPlugin.hpp"
-#include "LinearSmoother.hpp"
 
 START_NAMESPACE_DISTRHO
 
@@ -31,9 +30,11 @@ public:
     OneKnobInputSelectorPlugin()
         : OneKnobPlugin()
     {
+        abSmooth.setTimeConstant(1e-3f);
+        abSmooth.setTargetValue((kParameterRanges[kParameterSelect].def + 100.0f) / 200.0f);
+
         init();
         sampleRateChanged(getSampleRate());
-        abSmooth.setTimeConstant(1e-3f);
     }
 
 protected:
@@ -117,7 +118,8 @@ protected:
     {
         OneKnobPlugin::setParameterValue(index, value);
 
-        // TODO do something extra here? if not, remove this
+        if (index == kParameterSelect)
+            abSmooth.setTargetValue((value + 100.0f) / 200.0f);
     }
 
     void loadProgram(const uint32_t index) override
@@ -144,8 +146,7 @@ protected:
     {
         OneKnobPlugin::activate();
 
-        abSmooth.setTarget((parameters[kParameterSelect] + 100.0f) / 200.0f);
-        abSmooth.clearToTarget();
+        abSmooth.clearToTargetValue();
     }
 
     void run(const float** const inputs, float** const outputs, const uint32_t frames) override
@@ -156,8 +157,6 @@ protected:
         const float* const r2 = inputs[3];
         /* */ float* const lo = outputs[0];
         /* */ float* const ro = outputs[1];
-
-        abSmooth.setTarget((parameters[kParameterSelect] + 100.0f) / 200.0f);
 
         float sel, As, Bs;
         for (uint32_t i = 0; i < frames; ++i)
@@ -181,7 +180,7 @@ protected:
     }
 
     // -------------------------------------------------------------------
-    LinearSmoother abSmooth;
+    LinearValueSmoother abSmooth;
 
     DISTRHO_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(OneKnobInputSelectorPlugin)
 };
