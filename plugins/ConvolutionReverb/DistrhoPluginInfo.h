@@ -20,12 +20,7 @@
 
 #define DISTRHO_PLUGIN_NAME    "OneKnob Convolution Loader"
 #define DISTRHO_PLUGIN_CLAP_ID "studio.kx.distrho.oneknob.ConvolutionReverb"
-
-#ifdef __MOD_DEVICES__
-#define DISTRHO_PLUGIN_URI     "https://mod.audio/plugins/ConvolutionLoader"
-#else
 #define DISTRHO_PLUGIN_URI     "https://distrho.kx.studio/plugins/oneknob#ConvolutionReverb"
-#endif
 
 #define DISTRHO_PLUGIN_CLAP_FEATURES   "audio-effect", "reverb", "stereo"
 #define DISTRHO_PLUGIN_LV2_CATEGORY    "lv2:ReverbPlugin"
