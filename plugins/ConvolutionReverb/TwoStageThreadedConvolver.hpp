@@ -63,7 +63,7 @@ public:
         }
 
         nonThreadedConvolver = new fftconvolver::FFTConvolver();
-        return true;
+        return nonThreadedConvolver->init(kHeadBlockSize, ir, irLen);
     }
 
     void process(const fftconvolver::Sample* const input, fftconvolver::Sample* const output, const size_t len)
