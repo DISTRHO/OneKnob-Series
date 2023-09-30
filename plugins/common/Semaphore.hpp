@@ -33,22 +33,20 @@ public:
     Semaphore(const int initialValue = 0)
     {
        #if defined(DISTRHO_OS_MAC)
-        DISTRHO_SAFE_ASSERT_RETURN(semaphore_create(mach_task_self(),
-                                                    &sem,
-                                                    SYNC_POLICY_FIFO,
-                                                    initialValue) == KERN_SUCCESS,);
+        task = mach_task_self();
+        DISTRHO_SAFE_ASSERT_RETURN(semaphore_create(task, &sem, SYNC_POLICY_FIFO, initialValue) == KERN_SUCCESS,);
        #elif defined(DISTRHO_OS_WINDOWS)
         handle = ::CreateSemaphoreA(nullptr, initialValue, std::max(initialValue, 1), nullptr);
         DISTRHO_SAFE_ASSERT_RETURN(handle != INVALID_HANDLE_VALUE,);
        #else
-        ::sem_init(&sem, 0, initialValue);
+        DISTRHO_SAFE_ASSERT_RETURN(::sem_init(&sem, 0, initialValue) == 0,);
        #endif
     }
 
     ~Semaphore()
     {
        #if defined(DISTRHO_OS_MAC)
-        ::semaphore_destroy(mach_task_self(), sem);
+        ::semaphore_destroy(task, sem);
        #elif defined(DISTRHO_OS_WINDOWS)
         ::CloseHandle(handle);
        #else
@@ -95,6 +93,7 @@ public:
 
 private:
    #if defined(DISTRHO_OS_MAC)
+    ::mach_port_t task;
     ::semaphore_t sem;
    #elif defined(DISTRHO_OS_WINDOWS)
     ::HANDLE handle;
