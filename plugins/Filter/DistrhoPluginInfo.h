@@ -35,6 +35,10 @@
 #define DISTRHO_PLUGIN_NUM_OUTPUTS 1
 #endif
 
+// TODO
+#undef DISTRHO_PLUGIN_HAS_UI
+#define DISTRHO_PLUGIN_HAS_UI 0
+
 enum Parameters {
     kParameterType = 0,
     kParameterFrequency,

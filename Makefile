@@ -10,20 +10,26 @@ all: dgl plugins gen
 
 # --------------------------------------------------------------
 
+ifeq ($(MOD_BUILD),true)
+MAKE_TARGET = lv2_sep
+else
+MAKE_TARGET = all
+endif
+
 dgl:
 ifeq ($(HAVE_OPENGL),true)
 	$(MAKE) -C dpf/dgl opengl
 endif
 
 plugins: dgl
-	$(MAKE) all -C plugins/AB-InputSelector
-	$(MAKE) all -C plugins/AB-OutputSelector
-	$(MAKE) all -C plugins/BrickwallLimiter
-	$(MAKE) all -C plugins/Compressor
-	$(MAKE) all -C plugins/ConvolutionReverb
-	$(MAKE) all -C plugins/DevilDistortion
-	$(MAKE) all -C plugins/Filter
-# 	$(MAKE) all -C plugins/Sampler
+	$(MAKE) $(MAKE_TARGET) -C plugins/AB-InputSelector
+	$(MAKE) $(MAKE_TARGET) -C plugins/AB-OutputSelector
+	$(MAKE) $(MAKE_TARGET) -C plugins/BrickwallLimiter
+	$(MAKE) $(MAKE_TARGET) -C plugins/Compressor
+	$(MAKE) $(MAKE_TARGET) -C plugins/ConvolutionReverb
+	$(MAKE) $(MAKE_TARGET) -C plugins/DevilDistortion
+	$(MAKE) $(MAKE_TARGET) -C plugins/Filter
+# 	$(MAKE) $(MAKE_TARGET) -C plugins/Sampler
 
 ifneq ($(CROSS_COMPILING),true)
 gen: plugins dpf/utils/lv2_ttl_generator
