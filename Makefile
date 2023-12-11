@@ -22,6 +22,7 @@ plugins: dgl
 	$(MAKE) all -C plugins/Compressor
 	$(MAKE) all -C plugins/ConvolutionReverb
 	$(MAKE) all -C plugins/DevilDistortion
+	$(MAKE) all -C plugins/Filter
 # 	$(MAKE) all -C plugins/Sampler
 
 ifneq ($(CROSS_COMPILING),true)
@@ -45,6 +46,7 @@ clean:
 	$(MAKE) clean -C plugins/Compressor
 	$(MAKE) clean -C plugins/ConvolutionReverb
 	$(MAKE) clean -C plugins/DevilDistortion
+	$(MAKE) clean -C plugins/Filter
 # 	$(MAKE) clean -C plugins/Sampler
 	rm -rf bin build dpf-widgets/opengl/*.d dpf-widgets/opengl/*.o
 	rm -f 3rd-party/FFTConvolver/*.d 3rd-party/FFTConvolver/*.o
