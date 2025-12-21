@@ -2,7 +2,7 @@
  * DISTRHO OneKnob Devil's Distortion
  * Based on Steve Harris Barry's Satan Maximizer
  * Copyright (C) 2002-2003 <steve@plugin.org.uk>
- * Copyright (C) 2021-2023 Filipe Coelho <falktx@falktx.com>
+ * Copyright (C) 2021-2025 Filipe Coelho <falktx@falktx.com>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -24,7 +24,7 @@
 
 START_NAMESPACE_DISTRHO
 
-// -----------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 
 #define MAXIMIZER_BUFFER_SIZE 16
 #define MAXIMIZER_BUFFER_MASK 15
@@ -34,7 +34,7 @@ inline MATH_CONSTEXPR float db2linear(const float db)
     return std::pow(10.0f, 0.05f * db);
 }
 
-// -----------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 
 class OneKnobDevilDistortionPlugin : public OneKnobPlugin
 {
@@ -54,7 +54,7 @@ public:
     }
 
 protected:
-    // -------------------------------------------------------------------
+    // ----------------------------------------------------------------------------------------------------------------
     // Information
 
     const char* getDescription() const override
@@ -75,7 +75,7 @@ protected:
         return d_cconst('O', 'K', 'd', 'd');
     }
 
-    // -------------------------------------------------------------------
+    // ----------------------------------------------------------------------------------------------------------------
     // Init
 
     void initParameter(uint32_t index, Parameter& parameter) override
@@ -136,7 +136,7 @@ protected:
         }
     }
 
-    // -------------------------------------------------------------------
+    // ----------------------------------------------------------------------------------------------------------------
     // Internal data
 
     void loadProgram(uint32_t index) override
@@ -152,15 +152,15 @@ protected:
         activate();
     }
 
-    // -------------------------------------------------------------------
+    // ----------------------------------------------------------------------------------------------------------------
     // Process
 
     void activate() override
     {
         OneKnobPlugin::activate();
 
-        std::memset(buffer1, 0, sizeof(float)*MAXIMIZER_BUFFER_SIZE);
-        std::memset(buffer2, 0, sizeof(float)*MAXIMIZER_BUFFER_SIZE);
+        std::memset(buffer1, 0, sizeof(float) * MAXIMIZER_BUFFER_SIZE);
+        std::memset(buffer2, 0, sizeof(float) * MAXIMIZER_BUFFER_SIZE);
         buffer_pos = 0;
         env = 0.0f;
     }
@@ -218,7 +218,7 @@ protected:
         buffer_pos = buffer_pos_run;
     }
 
-    // -------------------------------------------------------------------
+    // ----------------------------------------------------------------------------------------------------------------
 
 private:
     float* const buffer1;
@@ -229,13 +229,13 @@ private:
     DISTRHO_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(OneKnobDevilDistortionPlugin)
 };
 
-// -----------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 
 Plugin* createPlugin()
 {
     return new OneKnobDevilDistortionPlugin();
 }
 
-// -----------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------
 
 END_NAMESPACE_DISTRHO

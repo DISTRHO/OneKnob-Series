@@ -2,7 +2,7 @@
  * DISTRHO OneKnob Devil's Distortion
  * Based on Steve Harris Barry's Satan Maximizer
  * Copyright (C) 2002-2003 <steve@plugin.org.uk>
- * Copyright (C) 2021-2023 Filipe Coelho <falktx@falktx.com>
+ * Copyright (C) 2021-2025 Filipe Coelho <falktx@falktx.com>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -24,6 +24,10 @@
 #define DISTRHO_PLUGIN_NAME    "OneKnob Devil's Distortion"
 #define DISTRHO_PLUGIN_URI     "https://distrho.kx.studio/plugins/oneknob#DevilDistortion"
 #define DISTRHO_PLUGIN_CLAP_ID "studio.kx.distrho.oneknob.DevilDistortion"
+
+#define DISTRHO_PLUGIN_ABBREVIATION "DD"
+#define DISTRHO_PLUGIN_ANAGRAM_BLOCK_IMAGE_OFF "anagram-block-off.png"
+#define DISTRHO_PLUGIN_ANAGRAM_BLOCK_IMAGE_ON "anagram-block-on.png"
 
 #define DISTRHO_PLUGIN_CLAP_FEATURES   "audio-effect", "distortion", "stereo"
 #define DISTRHO_PLUGIN_LV2_CATEGORY    "lv2:DistortionPlugin"
