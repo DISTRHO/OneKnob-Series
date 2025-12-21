@@ -1,0 +1,254 @@
+{
+  "name": "Pop",
+  "group": "Pop",
+  "bpm": 85.0,
+  "quarters_per_bar": 4.0,
+  "intro": {
+    "notes": [
+      { "time": 0.0125, "duration": 0.1250, "number":  42, "velocity": 0.779528 },
+      { "time": 0.9990, "duration": 0.1250, "number":  42, "velocity": 0.850394 },
+      { "time": 1.9958, "duration": 0.1250, "number":  42, "velocity": 0.803150 },
+      { "time": 2.4990, "duration": 0.1250, "number":  38, "velocity": 0.370079 },
+      { "time": 2.7427, "duration": 0.1250, "number":  38, "velocity": 0.732283 },
+      { "time": 2.9906, "duration": 0.1250, "number":  38, "velocity": 0.834646 },
+      { "time": 3.2490, "duration": 0.1250, "number":  38, "velocity": 0.275591 },
+      { "time": 3.4885, "duration": 0.1250, "number":  38, "velocity": 0.803150 },
+      { "time": 3.7500, "duration": 0.1250, "number":  38, "velocity": 0.275591 },
+      { "time": 3.9875, "duration": 0.1250, "number":  36, "velocity": 0.881890 },
+      { "time": 4.0073, "duration": 0.1250, "number":  49, "velocity": 0.811024 }
+    ]
+  },
+  "ending": {
+    "notes": [
+      { "time": 0.0000, "duration": 1.0063, "number":  38, "velocity": 0.866142 },
+      { "time": 0.4938, "duration": 0.9875, "number":  48, "velocity": 0.708661 },
+      { "time": 1.0146, "duration": 0.7271, "number":  38, "velocity": 0.527559 },
+      { "time": 1.5021, "duration": 0.5146, "number":  48, "velocity": 0.818898 },
+      { "time": 1.7417, "duration": 0.5104, "number":  38, "velocity": 0.574803 },
+      { "time": 2.0187, "duration": 1.2333, "number":  48, "velocity": 0.803150 },
+      { "time": 2.2521, "duration": 0.4875, "number":  38, "velocity": 0.551181 },
+      { "time": 2.7437, "duration": 0.2583, "number":  38, "velocity": 0.551181 },
+      { "time": 3.0125, "duration": 1.0000, "number":  38, "velocity": 0.858268 },
+      { "time": 3.2521, "duration": 0.7500, "number":  48, "velocity": 0.464567 },
+      { "time": 3.7521, "duration": 0.2479, "number":  43, "velocity": 0.456693 },
+      { "time": 3.9937, "duration": 0.1250, "number":  49, "velocity": 0.866142 },
+      { "time": 3.9979, "duration": 0.1250, "number":  36, "velocity": 0.716535 }
+    ]
+  },
+  "parts": [
+    {
+      "name": "Hat",
+      "sequence": {
+        "notes": [
+          { "time": 0.0000, "duration": 0.1250, "number":  36, "velocity": 0.881890 },
+          { "time": 0.0021, "duration": 0.1250, "number":  44, "velocity": 0.535433 },
+          { "time": 0.0115, "duration": 0.1250, "number":  42, "velocity": 0.897638 },
+          { "time": 0.2583, "duration": 0.1250, "number":  38, "velocity": 0.188976 },
+          { "time": 0.4948, "duration": 0.1250, "number":  42, "velocity": 0.456693 },
+          { "time": 0.7469, "duration": 0.1292, "number":  42, "velocity": 0.244094 },
+          { "time": 0.9937, "duration": 0.1250, "number":  42, "velocity": 0.779528 },
+          { "time": 1.2427, "duration": 0.1250, "number":  38, "velocity": 0.157480 },
+          { "time": 1.5094, "duration": 0.1250, "number":  42, "velocity": 0.488189 },
+          { "time": 1.7437, "duration": 0.1208, "number":  42, "velocity": 0.259843 },
+          { "time": 1.9979, "duration": 0.1250, "number":  38, "velocity": 0.818898 },
+          { "time": 2.0010, "duration": 0.1292, "number":  42, "velocity": 0.866142 },
+          { "time": 2.4885, "duration": 0.1250, "number":  42, "velocity": 0.559055 },
+          { "time": 2.7583, "duration": 0.1250, "number":  42, "velocity": 0.299213 },
+          { "time": 2.9938, "duration": 0.1250, "number":  42, "velocity": 0.732283 },
+          { "time": 3.4865, "duration": 0.1250, "number":  36, "velocity": 0.488189 },
+          { "time": 3.4885, "duration": 0.1250, "number":  42, "velocity": 0.582677 },
+          { "time": 3.7542, "duration": 0.1250, "number":  46, "velocity": 0.606299 },
+          { "time": 3.9917, "duration": 0.1292, "number":  42, "velocity": 0.811024 },
+          { "time": 4.0031, "duration": 0.1250, "number":  44, "velocity": 0.598425 },
+          { "time": 4.0042, "duration": 0.1250, "number":  36, "velocity": 0.858268 },
+          { "time": 4.2490, "duration": 0.1250, "number":  38, "velocity": 0.149606 },
+          { "time": 4.4958, "duration": 0.1292, "number":  42, "velocity": 0.480315 },
+          { "time": 4.7562, "duration": 0.1250, "number":  42, "velocity": 0.251969 },
+          { "time": 4.9958, "duration": 0.1250, "number":  42, "velocity": 0.732283 },
+          { "time": 5.2490, "duration": 0.1250, "number":  38, "velocity": 0.141732 },
+          { "time": 5.4854, "duration": 0.1250, "number":  42, "velocity": 0.527559 },
+          { "time": 5.7583, "duration": 0.1250, "number":  42, "velocity": 0.299213 },
+          { "time": 5.9865, "duration": 0.1250, "number":  42, "velocity": 0.779528 },
+          { "time": 6.0125, "duration": 0.1250, "number":  38, "velocity": 0.779528 },
+          { "time": 6.4969, "duration": 0.1250, "number":  42, "velocity": 0.551181 },
+          { "time": 6.7490, "duration": 0.1208, "number":  42, "velocity": 0.259843 },
+          { "time": 7.0167, "duration": 0.1250, "number":  42, "velocity": 0.724409 },
+          { "time": 7.4979, "duration": 0.1292, "number":  42, "velocity": 0.700787 },
+          { "time": 7.7594, "duration": 0.1292, "number":  46, "velocity": 0.598425 }
+        ]
+      },
+      "fills": [
+        {
+          "notes": [
+            { "time": 2.4750, "duration": 0.1250, "number":  48, "velocity": 0.740157 },
+            { "time": 2.7292, "duration": 0.1250, "number":  48, "velocity": 0.362205 },
+            { "time": 3.0042, "duration": 0.1250, "number":  45, "velocity": 0.763780 },
+            { "time": 3.2292, "duration": 0.1250, "number":  45, "velocity": 0.685039 },
+            { "time": 3.5000, "duration": 0.1250, "number":  43, "velocity": 0.732283 },
+            { "time": 4.0000, "duration": 0.1250, "number":  36, "velocity": 0.732283 },
+            { "time": 4.0000, "duration": 0.1250, "number":  49, "velocity": 0.763780 }
+          ]
+        },
+        {
+          "notes": [
+            { "time": 2.0010, "duration": 0.1250, "number":  38, "velocity": 0.818898 },
+            { "time": 2.2667, "duration": 0.1250, "number":  38, "velocity": 0.488189 },
+            { "time": 2.5000, "duration": 0.1250, "number":  36, "velocity": 0.748031 },
+            { "time": 2.7510, "duration": 0.1125, "number":  38, "velocity": 0.283465 },
+            { "time": 2.8635, "duration": 0.1240, "number":  38, "velocity": 0.244094 },
+            { "time": 2.9875, "duration": 0.1250, "number":  38, "velocity": 0.834646 },
+            { "time": 3.2552, "duration": 0.1250, "number":  38, "velocity": 0.338583 },
+            { "time": 3.4958, "duration": 0.1250, "number":  38, "velocity": 0.763780 },
+            { "time": 3.7354, "duration": 0.1250, "number":  38, "velocity": 0.818898 },
+            { "time": 3.9937, "duration": 0.1250, "number":  36, "velocity": 0.724409 },
+            { "time": 3.9969, "duration": 0.1250, "number":  49, "velocity": 0.803150 }
+          ]
+        },
+        {
+          "notes": [
+            { "time": 2.0010, "duration": 0.1250, "number":  48, "velocity": 0.724409 },
+            { "time": 2.2458, "duration": 0.1250, "number":  48, "velocity": 0.771654 },
+            { "time": 2.5010, "duration": 0.1250, "number":  45, "velocity": 0.811024 },
+            { "time": 3.0000, "duration": 0.1250, "number":  43, "velocity": 0.496063 },
+            { "time": 3.2479, "duration": 0.1250, "number":  43, "velocity": 0.653543 },
+            { "time": 3.5031, "duration": 0.1250, "number":  36, "velocity": 0.488189 },
+            { "time": 3.9979, "duration": 0.1250, "number":  49, "velocity": 0.795276 },
+            { "time": 4.0073, "duration": 0.1250, "number":  36, "velocity": 0.708661 }
+          ]
+        }
+      ],
+      "transition": {
+        "notes": [
+          { "time": 0.0000, "duration": 0.5000, "number":  43, "velocity": 0.196850 },
+          { "time": 0.0021, "duration": 0.4917, "number":  38, "velocity": 0.322835 },
+          { "time": 0.0042, "duration": 0.4812, "number":  36, "velocity": 0.330709 },
+          { "time": 0.4854, "duration": 0.5188, "number":  36, "velocity": 0.307087 },
+          { "time": 0.4937, "duration": 0.4896, "number":  38, "velocity": 0.354331 },
+          { "time": 0.5000, "duration": 0.4979, "number":  43, "velocity": 0.267717 },
+          { "time": 0.9833, "duration": 0.4958, "number":  38, "velocity": 0.472441 },
+          { "time": 0.9979, "duration": 0.5021, "number":  43, "velocity": 0.307087 },
+          { "time": 1.0042, "duration": 0.5021, "number":  36, "velocity": 0.314961 },
+          { "time": 1.4937, "duration": 0.4958, "number":  38, "velocity": 0.496063 },
+          { "time": 1.5042, "duration": 0.5000, "number":  43, "velocity": 0.362205 },
+          { "time": 1.5104, "duration": 0.4792, "number":  36, "velocity": 0.393701 },
+          { "time": 1.9896, "duration": 0.5083, "number":  36, "velocity": 0.511811 },
+          { "time": 1.9917, "duration": 0.5000, "number":  38, "velocity": 0.622047 },
+          { "time": 2.0125, "duration": 0.5042, "number":  43, "velocity": 0.472441 },
+          { "time": 2.4937, "duration": 0.4958, "number":  38, "velocity": 0.669291 },
+          { "time": 2.5042, "duration": 0.5000, "number":  36, "velocity": 0.551181 },
+          { "time": 2.5167, "duration": 0.4854, "number":  43, "velocity": 0.582677 },
+          { "time": 2.9896, "duration": 0.5229, "number":  38, "velocity": 0.826772 },
+          { "time": 3.0042, "duration": 0.5000, "number":  43, "velocity": 0.637795 },
+          { "time": 3.0063, "duration": 0.5000, "number":  36, "velocity": 0.661417 },
+          { "time": 3.5042, "duration": 0.5000, "number":  43, "velocity": 0.708661 },
+          { "time": 3.5125, "duration": 0.5000, "number":  38, "velocity": 0.771654 },
+          { "time": 3.9896, "duration": 0.1250, "number":  57, "velocity": 0.740157 },
+          { "time": 4.0021, "duration": 0.1250, "number":  55, "velocity": 0.755906 },
+          { "time": 4.0021, "duration": 0.1250, "number":  36, "velocity": 0.834646 }
+        ]
+      }
+    },
+    {
+      "name": "Ride",
+      "sequence": {
+        "notes": [
+          { "time": 0.0000, "duration": 0.1250, "number":  36, "velocity": 0.874016 },
+          { "time": 0.0083, "duration": 0.1250, "number":  51, "velocity": 0.842520 },
+          { "time": 0.2594, "duration": 0.1250, "number":  38, "velocity": 0.188976 },
+          { "time": 0.5042, "duration": 0.1250, "number":  51, "velocity": 0.464567 },
+          { "time": 0.9927, "duration": 0.1250, "number":  51, "velocity": 0.755906 },
+          { "time": 1.2573, "duration": 0.1250, "number":  38, "velocity": 0.149606 },
+          { "time": 1.5083, "duration": 0.1250, "number":  51, "velocity": 0.503937 },
+          { "time": 2.0021, "duration": 0.1250, "number":  38, "velocity": 0.811024 },
+          { "time": 2.0021, "duration": 0.1292, "number":  51, "velocity": 0.826772 },
+          { "time": 2.4917, "duration": 0.1250, "number":  51, "velocity": 0.519685 },
+          { "time": 3.0042, "duration": 0.1250, "number":  51, "velocity": 0.755906 },
+          { "time": 3.4865, "duration": 0.1250, "number":  51, "velocity": 0.574803 },
+          { "time": 3.4948, "duration": 0.1250, "number":  36, "velocity": 0.535433 },
+          { "time": 4.0042, "duration": 0.1292, "number":  51, "velocity": 0.866142 },
+          { "time": 4.0094, "duration": 0.1250, "number":  36, "velocity": 0.834646 },
+          { "time": 4.2500, "duration": 0.1250, "number":  38, "velocity": 0.157480 },
+          { "time": 4.5021, "duration": 0.1292, "number":  51, "velocity": 0.503937 },
+          { "time": 5.0021, "duration": 0.1250, "number":  51, "velocity": 0.692913 },
+          { "time": 5.2542, "duration": 0.1250, "number":  38, "velocity": 0.141732 },
+          { "time": 5.4896, "duration": 0.1250, "number":  51, "velocity": 0.519685 },
+          { "time": 5.9990, "duration": 0.1250, "number":  51, "velocity": 0.881890 },
+          { "time": 6.0073, "duration": 0.1250, "number":  38, "velocity": 0.779528 },
+          { "time": 6.5031, "duration": 0.1250, "number":  51, "velocity": 0.590551 },
+          { "time": 7.0156, "duration": 0.1250, "number":  51, "velocity": 0.708661 },
+          { "time": 7.5063, "duration": 0.1292, "number":  51, "velocity": 0.677165 }
+        ]
+      },
+      "fills": [
+        {
+          "notes": [
+            { "time": 2.4750, "duration": 0.1250, "number":  48, "velocity": 0.740157 },
+            { "time": 2.7292, "duration": 0.1250, "number":  48, "velocity": 0.362205 },
+            { "time": 3.0042, "duration": 0.1250, "number":  45, "velocity": 0.763780 },
+            { "time": 3.2292, "duration": 0.1250, "number":  45, "velocity": 0.685039 },
+            { "time": 3.5000, "duration": 0.1250, "number":  43, "velocity": 0.732283 },
+            { "time": 4.0000, "duration": 0.1250, "number":  36, "velocity": 0.732283 },
+            { "time": 4.0000, "duration": 0.1250, "number":  49, "velocity": 0.763780 }
+          ]
+        },
+        {
+          "notes": [
+            { "time": 2.0010, "duration": 0.1250, "number":  38, "velocity": 0.818898 },
+            { "time": 2.2667, "duration": 0.1250, "number":  38, "velocity": 0.488189 },
+            { "time": 2.5000, "duration": 0.1250, "number":  36, "velocity": 0.748031 },
+            { "time": 2.7510, "duration": 0.1125, "number":  38, "velocity": 0.283465 },
+            { "time": 2.8635, "duration": 0.1240, "number":  38, "velocity": 0.244094 },
+            { "time": 2.9875, "duration": 0.1250, "number":  38, "velocity": 0.834646 },
+            { "time": 3.2552, "duration": 0.1250, "number":  38, "velocity": 0.338583 },
+            { "time": 3.4958, "duration": 0.1250, "number":  38, "velocity": 0.763780 },
+            { "time": 3.7354, "duration": 0.1250, "number":  38, "velocity": 0.818898 },
+            { "time": 3.9937, "duration": 0.1250, "number":  36, "velocity": 0.724409 },
+            { "time": 3.9969, "duration": 0.1250, "number":  49, "velocity": 0.803150 }
+          ]
+        },
+        {
+          "notes": [
+            { "time": 2.0010, "duration": 0.1250, "number":  48, "velocity": 0.724409 },
+            { "time": 2.2458, "duration": 0.1250, "number":  48, "velocity": 0.771654 },
+            { "time": 2.5010, "duration": 0.1250, "number":  45, "velocity": 0.811024 },
+            { "time": 3.0000, "duration": 0.1250, "number":  43, "velocity": 0.496063 },
+            { "time": 3.2479, "duration": 0.1250, "number":  43, "velocity": 0.653543 },
+            { "time": 3.5031, "duration": 0.1250, "number":  36, "velocity": 0.488189 },
+            { "time": 3.9979, "duration": 0.1250, "number":  49, "velocity": 0.795276 },
+            { "time": 4.0073, "duration": 0.1250, "number":  36, "velocity": 0.708661 }
+          ]
+        }
+      ],
+      "transition": {
+        "notes": [
+          { "time": 0.0000, "duration": 0.5000, "number":  43, "velocity": 0.196850 },
+          { "time": 0.0021, "duration": 0.4917, "number":  38, "velocity": 0.322835 },
+          { "time": 0.0042, "duration": 0.4812, "number":  36, "velocity": 0.330709 },
+          { "time": 0.4854, "duration": 0.5188, "number":  36, "velocity": 0.307087 },
+          { "time": 0.4937, "duration": 0.4896, "number":  38, "velocity": 0.354331 },
+          { "time": 0.5000, "duration": 0.4979, "number":  43, "velocity": 0.267717 },
+          { "time": 0.9833, "duration": 0.4958, "number":  38, "velocity": 0.472441 },
+          { "time": 0.9979, "duration": 0.5021, "number":  43, "velocity": 0.307087 },
+          { "time": 1.0042, "duration": 0.5021, "number":  36, "velocity": 0.314961 },
+          { "time": 1.4937, "duration": 0.4958, "number":  38, "velocity": 0.496063 },
+          { "time": 1.5042, "duration": 0.5000, "number":  43, "velocity": 0.362205 },
+          { "time": 1.5104, "duration": 0.4792, "number":  36, "velocity": 0.393701 },
+          { "time": 1.9896, "duration": 0.5083, "number":  36, "velocity": 0.511811 },
+          { "time": 1.9917, "duration": 0.5000, "number":  38, "velocity": 0.622047 },
+          { "time": 2.0125, "duration": 0.5042, "number":  43, "velocity": 0.472441 },
+          { "time": 2.4937, "duration": 0.4958, "number":  38, "velocity": 0.669291 },
+          { "time": 2.5042, "duration": 0.5000, "number":  36, "velocity": 0.551181 },
+          { "time": 2.5167, "duration": 0.4854, "number":  43, "velocity": 0.582677 },
+          { "time": 2.9896, "duration": 0.5229, "number":  38, "velocity": 0.826772 },
+          { "time": 3.0042, "duration": 0.5000, "number":  43, "velocity": 0.637795 },
+          { "time": 3.0063, "duration": 0.5000, "number":  36, "velocity": 0.661417 },
+          { "time": 3.5042, "duration": 0.5000, "number":  43, "velocity": 0.708661 },
+          { "time": 3.5125, "duration": 0.5000, "number":  38, "velocity": 0.771654 },
+          { "time": 3.9896, "duration": 0.1250, "number":  57, "velocity": 0.740157 },
+          { "time": 4.0021, "duration": 0.1250, "number":  55, "velocity": 0.755906 },
+          { "time": 4.0021, "duration": 0.1250, "number":  36, "velocity": 0.834646 }
+        ]
+      }
+    }
+  ]
+}
