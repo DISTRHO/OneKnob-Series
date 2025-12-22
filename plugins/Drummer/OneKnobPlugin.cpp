@@ -162,6 +162,7 @@ protected:
             parameter.hints  = kParameterIsAutomatable | kParameterIsInteger | kParameterIsBoolean;
             parameter.name   = "Style";
             parameter.symbol = "style";
+            parameter.ranges.def = kDefaultStyle;
             parameter.ranges.max = kNumStyles - 1;
             if (ParameterEnumerationValue* const values = new ParameterEnumerationValue[kNumStyles])
             {
@@ -180,6 +181,7 @@ protected:
             parameter.hints  = kParameterIsAutomatable | kParameterIsInteger | kParameterIsBoolean;
             parameter.name   = "Active";
             parameter.symbol = "active";
+            parameter.ranges.def = 1.f;
             break;
         case kParameterFillIn:
             parameter.hints  = kParameterIsAutomatable | kParameterIsInteger | kParameterIsTrigger;
