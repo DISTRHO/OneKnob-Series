@@ -58,6 +58,9 @@ clean:
 # 	$(MAKE) clean -C plugins/Sampler
 	rm -rf bin build dpf-widgets/opengl/*.d dpf-widgets/opengl/*.o
 	rm -f 3rd-party/FFTConvolver/*.d 3rd-party/FFTConvolver/*.o
+	rm -f 3rd-party/batteur/*.d 3rd-party/batteur/*.o
+	rm -f 3rd-party/batteur/fmidi/*.d 3rd-party/batteur/fmidi/*.o
+	rm -f 3rd-party/fluidsynth/src/*.d 3rd-party/fluidsynth/src/*.o
 
 # --------------------------------------------------------------
 

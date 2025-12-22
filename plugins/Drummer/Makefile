@@ -55,7 +55,7 @@ FLUIDSYNTH_BUILD_FLAGS += -DHAVE_COSF=1 -DHAVE_FABSF=1 -DHAVE_LOGF=1 -DHAVE_POWF
 FLUIDSYNTH_BUILD_FLAGS += -I../../3rd-party/fluidsynth
 FLUIDSYNTH_BUILD_FLAGS += -I../../3rd-party/fluidsynth/fluidsynth
 FLUIDSYNTH_BUILD_FLAGS += -I../../3rd-party/fluidsynth/src
-FLUIDSYNTH_BUILD_FLAGS += $(shell pkg-config --cflags gthread-2.0 glib-2.0 sndfile)
+FLUIDSYNTH_BUILD_FLAGS += $(shell pkg-config --cflags gthread-2.0 glib-2.0)
 FLUIDSYNTH_BUILD_FLAGS += -pthread
 
 ifeq ($(WINDOWS),true)
@@ -80,7 +80,7 @@ BUILD_CXX_FLAGS += -I../common
 BUILD_CXX_FLAGS += -I../../3rd-party/batteur
 BUILD_CXX_FLAGS += -fno-finite-math-only
 
-LINK_FLAGS      += $(shell pkg-config --libs gthread-2.0 glib-2.0 sndfile)
+LINK_FLAGS      += $(shell pkg-config --libs gthread-2.0 glib-2.0)
 LINK_FLAGS      += -pthread
 LINK_FLAGS      += $(SHARED_MEMORY_LIBS)
 
